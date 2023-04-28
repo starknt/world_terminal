@@ -1,0 +1,4 @@
+/src/main/java/com/personal/world_terminal/generated
+/src/main/jniLibs/**/*.so
+/tauri.build.gradle.kts
+/proguard-tauri.pro
