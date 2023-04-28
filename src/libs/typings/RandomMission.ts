@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { GameText } from 'libs/defined/gameText'
 import { ItemData } from './ItemData'
 import { Mission } from './Mission'
@@ -15,7 +15,7 @@ export class RandomMission extends Mission {
   maxCount = 0
   objName = ''
 
-  fromRandomMission(t: nato.Message) {
+  fromRandomMission(t: Protocol) {
     this.rmissionStatus = t.getByte()
     if (this.rmissionStatus === RandomMission.STATUS_END_1 || this.rmissionStatus === RandomMission.STATUS_END_2 || this.rmissionStatus === RandomMission.STATUS_WAIT) {
       if (this.rmissionStatus == RandomMission.STATUS_WAIT) {

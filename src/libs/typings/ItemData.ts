@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { GameText } from 'libs/defined/gameText'
 import { GZIP } from 'libs/shared/GZIP'
@@ -903,7 +903,7 @@ export namespace ItemData {
     )
   }
 
-  export function fromMailBytes(byte: nato.Message) {
+  export function fromMailBytes(byte: Protocol) {
     const item = new ItemData()
 
     item.id = 65535 & byte.getShort()
@@ -918,7 +918,7 @@ export namespace ItemData {
     return item
   }
 
-  export function fromBytes(byte: nato.Message) {
+  export function fromBytes(byte: Protocol) {
     let item = new ItemData()
 
     item = fromBytesAtts1(byte, item)
@@ -927,7 +927,7 @@ export namespace ItemData {
     return item
   }
 
-  export function fromBytesAtts1(byte: nato.Message, item: ItemData) {
+  export function fromBytesAtts1(byte: Protocol, item: ItemData) {
     item.quantity = byte.getShort()
     item.durability = byte.getShort()
     item.attachDone = byte.getByte()
@@ -949,7 +949,7 @@ export namespace ItemData {
     return item
   }
 
-  export function fromBytesAtts2(byte: nato.Message, item: ItemData) {
+  export function fromBytesAtts2(byte: Protocol, item: ItemData) {
     item.type = byte.getByte()
     const itemClass = item.getItemClass()
 
@@ -1098,7 +1098,7 @@ export namespace ItemData {
     }
   }
 
-  function fromItemAscensionStarInfo(byte: nato.Message, item: ItemData) {
+  function fromItemAscensionStarInfo(byte: Protocol, item: ItemData) {
     const itemClass = item.getItemClass()
 
     item.def_str = byte.getShort()

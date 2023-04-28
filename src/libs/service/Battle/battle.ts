@@ -1,5 +1,5 @@
 import { Emitter } from '@livemoe/utils'
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { Tool } from 'libs/shared/Tool'
 import { ItemData } from 'libs/typings/ItemData'
@@ -57,7 +57,7 @@ export class Battle {
   battleView = new BattleView(this)
   inputHandler = new BattleInputHandler(this, this.battleView)
 
-  readonly _onBattleFinish = new Emitter<nato.Message>()
+  readonly _onBattleFinish = new Emitter<Protocol>()
   readonly onBattleFinish = this._onBattleFinish.event
 
   startHP = 0
@@ -2038,7 +2038,7 @@ export namespace Battle {
     return new Battle(seed, playerList, LOCAL, monsterGroup, player)
   }
 
-  export function createRemoteBattle(e: nato.Message, player: Player) {
+  export function createRemoteBattle(e: Protocol, player: Player) {
     const n = e.getInt()
     const i = e.getByte()
     const o = e.getByte()
@@ -2070,7 +2070,7 @@ export namespace Battle {
     return battle
   }
 
-  function parseBattleModel(e: nato.Message, player: Player) {
+  function parseBattleModel(e: Protocol, player: Player) {
     const n = e.getInt()
     const i = e.getByte()
     const o = e.getString()

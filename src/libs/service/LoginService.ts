@@ -1,17 +1,16 @@
 import { Emitter } from '@livemoe/utils'
 import { LoginApiClient } from 'libs/api'
-import { MsgHandler } from 'libs/base/MsgHandler'
+import { Long, Protocol } from 'libs/base/protocol'
 import { SocketClient } from 'libs/base/socket'
 import type { Version } from 'libs/shared/version'
 import { ServerInfo } from 'libs/typings/ServerInfo'
 import type { LoginSuccessResult } from 'libs/typings/type'
-import type { nato } from '../base/nato'
 import { $Logger } from '~/logger'
 
 export class LoginService {
   private isConnectLoginServer = false
-  private loginMsg: nato.Message | null = null
-  private uKey!: nato.Long
+  private loginMsg: Protocol | null = null
+  private uKey!: Long
   private sessionId!: number
   private photoIp!: string
   private loginSetting!: number
@@ -30,10 +29,10 @@ export class LoginService {
   async login(username: string, password: string, version: Version) {
     switch (version.name) {
       case '官方':
-        this.loginMsg = MsgHandler.createUserLoginMsg(username, password)
+        this.loginMsg = Protocol.createUserLoginMsg(username, password)
         break
       default:
-        this.loginMsg = MsgHandler.createUserLoginMsg(username, 'chrome')
+        this.loginMsg = Protocol.createUserLoginMsg(username, 'chrome')
         break
     }
 
@@ -47,7 +46,7 @@ export class LoginService {
       this.isConnectLoginServer = true
 
       await this.client.checkServerVersion(this.version)
-      this.socket.sendCmd(this.loginMsg, this.onLogin, this)
+      this.socket.send(this.loginMsg, this.onLogin, this)
     }
   }
 
@@ -65,7 +64,7 @@ export class LoginService {
     })
   }
 
-  private onLogin(bytes: nato.Message) {
+  private onLogin(bytes: Protocol) {
     const e = bytes.getByte()
     if (e === -22)
       return window.$message.error('平台登录出错,请重新登录！', { closable: true, duration: 10e3 })

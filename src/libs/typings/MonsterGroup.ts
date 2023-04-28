@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Battle } from 'libs/service/Battle/battle'
 import type { GameMap } from './GameMap'
 import type { Model } from './Model'
@@ -50,7 +50,7 @@ export class MonsterGroup {
 }
 
 export namespace MonsterGroup {
-  export function fromBytes(byte: nato.Message) {
+  export function fromBytes(byte: Protocol) {
     const monsterGroup = new MonsterGroup()
 
     monsterGroup.groupId = 65535 & byte.getShort()
@@ -73,7 +73,7 @@ export namespace MonsterGroup {
     return monsterGroup
   }
 
-  export function processDataMonsterGroupMsg(byte: nato.Message) {
+  export function processDataMonsterGroupMsg(byte: Protocol) {
     const monsterGroup: MonsterGroup[] = []
 
     for (let e = byte.getByte(), n = 0; n < e; n++)

@@ -1,4 +1,4 @@
-import { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import type { Account } from 'libs/shared/Account'
 import type { Version } from 'libs/shared/version'
 
@@ -50,7 +50,7 @@ export interface AccountRepositoryInst {
   set(account: Account): void
 }
 
-export interface ApiClientResponse<T = nato.Message> {
+export interface ApiClientResponse<T = Protocol> {
   code: number
   data?: T
   error?: string
@@ -77,4 +77,4 @@ export interface IGameIconProps {
 }
 
 
-export type IApiClientResponse<T = nato.Message> = Promise<ApiClientResponse<T>>
+export type IApiClientResponse<T = Protocol> = Promise<ApiClientResponse<T>>

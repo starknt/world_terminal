@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 
 export class OfflineExp {
   nextLv = -1
@@ -33,7 +33,7 @@ export class OfflineExp {
 }
 
 export namespace OfflineExp {
-  export function fromBytes(bytes: nato.Message) {
+  export function fromBytes(bytes: Protocol) {
     const info = new OfflineExp()
     info.lv = bytes.getInt()
     info.offlineTime = bytes.getInt()

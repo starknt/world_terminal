@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from "libs/base/protocol"
 
 export class AchieveTitle {
   id = 0
@@ -10,7 +10,7 @@ export class AchieveTitle {
 }
 
 export namespace AchieveTitle {
-  export function fromBytes(bytes: nato.Message) {
+  export function fromBytes(bytes: Protocol) {
     const list: AchieveTitle[] = []
     for (let n = bytes.getByte(), o = 0; n > o; o++) {
       const achieveTitle = new AchieveTitle()

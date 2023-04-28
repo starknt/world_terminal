@@ -1,4 +1,614 @@
-export const enum ProtocolDefine {
+import { Define } from "libs/defined/defined"
+import { GameMap } from "libs/typings/GameMap"
+import { ItemData } from "libs/typings/ItemData"
+import { Player } from "libs/typings/Player"
+import { ShopItemData } from "libs/typings/ShopItem"
+
+// impl int64 for js
+export class Long {
+  private sign = 1
+
+  constructor(public high: number, public low: number) {
+    if ((2147483648 & this.high) !== 0) {
+      this.high = 4294967295 - this.high
+      this.low = 4294967295 - this.low
+      this.sign = -1
+    }
+  }
+
+  toString(): string {
+    const t = this.sign === 1 ? '' : '-'
+    return `${t + this.high.toString()}-${this.low.toString()}`
+  }
+
+  get value() {
+    return this.sign * (4294967296 * this.high + this.low)
+  }
+
+  static formStr(value: string): Long {
+    const e = value.split('-')
+    const high = parseInt(e[0])
+    const low = parseInt(e[1])
+    return new Long(high, low)
+  }
+}
+
+export class Bytes {
+  private _data: egret.ByteArray
+  private _size = 0
+
+  constructor(size: number, data: egret.ByteArray) {
+    this._size = size
+    this._data = data
+  }
+
+  get size(): number {
+    return this._size
+  }
+
+  get data(): egret.ByteArray {
+    return this._data
+  }
+}
+
+export interface IProtocol {
+  setUnsignedByte(value: number): this;
+  getUnsignedByte(): number;
+
+  setByte(value: number): this;
+  getByte(): number;
+
+  setShort(value: number): this;
+  getShort(): number;
+
+  setUnsignedShort(value: number): this;
+  getunsignedShort(): number;
+
+  setInt(value: number): this;
+  getInt(): number;
+
+  setUnsignedInt(value: number): this;
+  getUnsignedInt(): number;
+
+  setLong(value: Long): this;
+  getLong(): Long;
+  setLongByInt(value: number): this;
+  getLongToInt(): number;
+
+  setString(value: string): this;
+  getString(): string;
+
+  setFloat(value: number): this;
+  getFloat(): number;
+
+  setBytes(value?: egret.ByteArray): this;
+  getBytes(): egret.ByteArray;
+
+  setLengthBytes(value: Bytes): this;
+  getLengthBytes(): Bytes;
+
+  setBoolean(value: boolean): this;
+  getBoolean(): boolean;
+
+  getType(): ProtocolCmd
+  setType(value: ProtocolCmd): this;
+  get type(): ProtocolCmd
+  set type(value: ProtocolCmd)
+
+  get position(): number
+  set position(value: number)
+  reposition(): this;
+
+  getData(): egret.ByteArray
+  setData(value: egret.ByteArray): this
+  get data(): egret.ByteArray
+  set data(value: egret.ByteArray)
+
+  get dataView(): DataView
+
+  clone(): Protocol
+
+  get length(): number
+  // 发送给服务器的协议
+  get protocol(): egret.ByteArray
+}
+
+export class Protocol implements IProtocol {
+  constructor(private _type: ProtocolCmd, private _data: egret.ByteArray = new egret.ByteArray(), position?: number) {
+    _data.position = position ? position : 0
+  }
+
+  setUnsignedByte(value: number) {
+    this.data.writeByte(value & 0xFF)
+    return this
+  }
+
+  getUnsignedByte(): number {
+    return this.data.readUnsignedByte()
+  }
+
+  setByte(value: number) {
+    this.data.writeByte(value)
+    return this
+  }
+
+  getByte(): number {
+    return this.data.readByte()
+  }
+
+  setBoolean(value: boolean) {
+    this.data.writeBoolean(value)
+    return this
+  }
+
+  getBoolean(): boolean {
+    return this.data.readBoolean()
+  }
+
+  setShort(value: number) {
+    this.data.writeShort(value)
+    return this
+  }
+
+  getShort(): number {
+    return this.data.readShort()
+  }
+
+  setUnsignedShort(value: number) {
+    this.data.writeUnsignedShort(value)
+    return this
+  }
+
+  getunsignedShort(): number {
+    return this.data.readUnsignedShort()
+  }
+
+  getInt(): number {
+    return this.data.readInt()
+  }
+
+  setInt(value: number) {
+    this.data.writeInt(value)
+    return this
+  }
+
+  getUnsignedInt(): number {
+    return this.data.readUnsignedInt()
+  }
+
+  setUnsignedInt(value: number) {
+    this.data.writeUnsignedInt(value)
+    return this
+  }
+
+  setLong(value: Long) {
+    this.setInt(value.high)
+    this.setInt(value.low)
+    return this
+  }
+
+  getLong(): Long {
+    return new Long(this.getInt() >>> 0, this.getInt() >>> 0)
+  }
+
+  setLongByInt(value: number) {
+    const high = (value / 4294967296) >>> 0
+    const low = value % 4294967296 >>> 0
+    this.setInt(high)
+    this.setInt(low)
+    return this
+  }
+
+  getLongToInt(): number {
+    const high = this.getInt() >>> 0
+    const low = this.getInt() >>> 0
+    return 4294967296 * high + low
+  }
+
+  setString(value: string = '') {
+    this.data.writeUTF(value)
+    return this
+  }
+
+  getString(): string {
+    return this.data.readUTF()
+  }
+
+  setFloat(value: number) {
+    this.data.writeFloat(value)
+    return this
+  }
+
+  getFloat(): number {
+    return this.data.readFloat()
+  }
+
+  setBytes(value?: egret.ByteArray) {
+    if (!value) {
+      return this.setShort(0)
+    }
+
+    this.setBytesLength(value.length)
+    value.position = 0
+
+    this.data.writeBytes(value)
+    return this
+  }
+
+  getBytes(): egret.ByteArray {
+    const length = this.getBytesLength()
+    const bytes = new egret.ByteArray()
+    for (let i = 0; i < length; i++)
+      bytes.writeByte(this.getByte())
+    bytes.position = 0
+    return bytes
+  }
+
+  setLengthBytes(value: Bytes) {
+    throw new Error("Method not implemented.")
+    return this
+  }
+
+  private getBytesLength(): number {
+    const high = 0xFF & this.getByte()
+    const low = 0xFF & this.getByte()
+    return (high << 8) + low
+  }
+
+  private setBytesLength(bytesLength: number) {
+    const e = (bytesLength >>> 8) & 0xFF
+    const n = bytesLength & 0xFF
+    this.data.writeByte(e)
+    this.data.writeByte(n)
+  }
+
+  getLengthBytes(): Bytes {
+    return new Bytes(this.getBytesLength(), this.data)
+  }
+
+  getType(): ProtocolCmd {
+    return this.type
+  }
+
+  setType(value: ProtocolCmd) {
+    this.type = value
+    return this
+  }
+
+  get type(): ProtocolCmd {
+    return this._type
+  }
+
+  set type(value: ProtocolCmd) {
+    this._type = value
+  }
+
+  get position(): number {
+    return this.data.position
+  }
+
+  set position(value: number) {
+    this._data.position = value
+  }
+
+  reposition() {
+    this.position = 0
+    return this
+  }
+
+  getData(): egret.ByteArray {
+    return this.data
+  }
+
+  setData(value: egret.ByteArray): this {
+    this.data = value
+    return this
+  }
+
+  get data(): egret.ByteArray {
+    return this._data
+  }
+
+  set data(value: egret.ByteArray) {
+    this._data = value
+    this.position = value.position
+  }
+
+  get dataView() {
+    return this.data.dataView
+  }
+
+  // 不是 protocol 最终长度
+  get length(): number {
+    return this._data.length
+  }
+
+  get protocol(): egret.ByteArray {
+    const protocolLength = 4 + this.length
+    const protocol = new egret.ByteArray()
+    protocol.writeShort(protocolLength)
+    protocol.writeShort(this.type)
+    protocol.writeBytes(this.data)
+    return protocol
+  }
+
+  clone(position?: number): Protocol {
+    return new Protocol(this._type, this._data, position ? position : this.position)
+  }
+}
+
+export namespace Protocol {
+  export function createSystemHeartMsg(mapId: number) {
+    const protocol = new Protocol(ProtocolCmd.CG_SYSTEM_HEART)
+    protocol.setShort(mapId)
+    return protocol
+  }
+
+  export function createCheckEditionMsg(channel: number, id: number) {
+    const protocol = new Protocol(ProtocolCmd.LC_CHECKEDITION)
+    protocol.setShort(id)
+      .setInt(320200)
+      .setShort(channel)
+      .setByte(0)
+    if (navigator != null) {
+      const n = navigator.userAgent
+      protocol.setString(n)
+    }
+    else { protocol.setString('h5') }
+    protocol.setByte(1)
+      .setByte(Define.CLIENT_TYPE_JAR)
+    return protocol
+  }
+
+  export function createUserLoginMsg(t: string, e: string) {
+    const protocol = new Protocol(ProtocolCmd.LC_PLAYER_LOGIN)
+    protocol.setString(t)
+    protocol.setString(e)
+    protocol.setString('')
+    protocol.setString('')
+    protocol.setByte(0)
+    protocol.setByte(0)
+    return protocol
+  }
+
+  export function createAreaLineListMsg() {
+    return new Protocol(ProtocolCmd.LC_GAME_GET_AREA_AND_LINE)
+  }
+
+  export function createFirstGameServerMsg(key: Long, sessionId: number) {
+    const protocol = new Protocol(ProtocolCmd.CG_LOGIN_PLAYERCHECK)
+    protocol.setLong(key)
+      .setInt(sessionId)
+      .setByte(Define.LANG_DEFAULT)
+      .setInt(320200)
+      .setByte(Define.CLIENT_TYPE_JAR)
+    return protocol
+  }
+
+  export function createPlayerListMsg() {
+    return new Protocol(ProtocolCmd.CG_LOGIN_ACTORLIST)
+  }
+
+  export function createAddPlayerMsg(t: Player) {
+    const protocol = new Protocol(ProtocolCmd.CG_LOGIN_CREATEACTOR)
+    protocol.setByte(t.getSex())
+      .setByte(t.getRace())
+      .setByte(t.getJob())
+      .setInt(t.icon1)
+      .setInt(t.icon2)
+      .setInt(t.icon3)
+      .setString(t.getName())
+    return protocol
+  }
+
+  export function createDelPlayerMsg(t: number) {
+    return new Protocol(ProtocolCmd.CG_LOGIN_DELETEACTOR).setInt(t)
+  }
+
+  export function createDeleteRoleByProtectCodeMsg(t: number, e: string) {
+    return new Protocol(ProtocolCmd.CG_LOGIN_DELETEACTOR_PASSWD).setInt(t).setString(e)
+  }
+
+  export function createCancelDelPlayerMsg(t: number) {
+    return new Protocol(ProtocolCmd.CG_LOGIN_RECOVERACTOR).setInt(t)
+  }
+
+  export function createPlayerEnterMsg(t: number, _: string = '') {
+    return new Protocol(ProtocolCmd.CG_LOGIN_ACTORENTER).setInt(t)
+      .setInt(Define.LOGIN_DATA_FLAG)
+      .setInt(0)
+      .setString('')
+      .setByte(Define.CLIENT_TYPE_JAR)
+      .setString('')
+      .setString('')
+  }
+
+  export function createUserRegisterMsg(username: string, password: string) {
+    return new Protocol(ProtocolCmd.LC_PLAYER_CREATE)
+      .setString(username)
+      .setString(password)
+      .setString('')
+      .setString('abc')
+      .setString('')
+      .setString('随机吧')
+      .setString('440106198001018491')
+      .setInt(0)
+  }
+
+  export function createWorldDataMessage(t: number, e: boolean, mapId: number) {
+    return new Protocol(ProtocolCmd.CG_SCENE_WORLDDATA)
+      .setShort(mapId)
+      .setBoolean(e)
+      .setInt(t)
+      .setByte(0)
+      .setByte(0)
+  }
+
+  export function createJumpCityMessage(t: number, e: number) {
+    return new Protocol(ProtocolCmd.CG_SCENE_GO_CITY)
+      .setInt(t)
+      .setInt(e)
+  }
+
+  export function createBrowseCityInfoMsg(t) {
+    return new Protocol(ProtocolCmd.CG_CITY_INFO).setInt(t)
+  }
+
+  export function createMoveMessage(t, e) {
+    return new Protocol(ProtocolCmd.CG_SCENE_PLAYER_MOVING).setByte(t).setByte(e)
+  }
+
+  export function createOtherMoveMessage() {
+    return new Protocol(ProtocolCmd.CG_SCENE_GET_OTHER_PLAYER_STATE)
+  }
+
+  export function createEnterLocalBattle() {
+    return new Protocol(ProtocolCmd.CG_FIGHT_ENTER_LOCALBATTEL)
+  }
+
+  export function createEnterRemoteBattle(t: number) {
+    return new Protocol(ProtocolCmd.CG_FIGHT_ENTER_REMOTEBATTLE).setShort(t)
+  }
+
+  export function createFightSeeInterMsg(t: number) {
+    return new Protocol(ProtocolCmd.CG_FIGHT_SEE_IN).setInt(t)
+  }
+
+  export function createFightSeeQuitMsg() {
+    return new Protocol(ProtocolCmd.CG_FIGHT_SEE_OUT)
+  }
+
+  export function createBattlePlan(t: number, e: egret.ByteArray, plans?: egret.ByteArray) {
+    const protocol = new Protocol(ProtocolCmd.CG_FIGHT_BATTLE_DOPLAN)
+      .setByte(t)
+      .setBytes(e)
+
+    if (!plans)
+      protocol.setBoolean(false)
+    else {
+      protocol.setBoolean(true)
+        .setBytes(plans)
+    }
+
+    return protocol
+  }
+
+  export function createBattleUpdate(round: number) {
+    return new Protocol(ProtocolCmd.CG_FIGHT_BATTLE_UPDATE).setByte(round)
+  }
+
+  export function createAutoSkillMsg(player: Player, e: number, n: boolean = false) {
+    const protocol = new Protocol(ProtocolCmd.CG_SKILL_AUTO_ACTIVE)
+    if (!n)
+      protocol.setType(ProtocolCmd.CG_SKILL_AUTO_INVALID)
+
+    return protocol
+      .setByte(player.getType() === 4 ? Define.SKILL_TYPE_PET : Define.SKILL_TYPE_PLAYER)
+      .setInt(e)
+  }
+
+  export function createJumpMapMessage(mapId: number, x: number, y: number, flag: number) {
+    return new Protocol(ProtocolCmd.CG_SCENE_GO_MAP)
+      .setShort(mapId)
+      .setByte(x)
+      .setByte(y)
+      .setInt(flag)
+  }
+
+  export function createPlayerBagMessage(t: ProtocolCmd, e: ProtocolCmd, n: ItemData, i: number, o: boolean = false, a: boolean = false) {
+    const protocol = new Protocol(ProtocolCmd.CG_ACTOR_PLAYERBAG)
+    protocol.setByte(t),
+      protocol.setByte(e),
+      protocol.setShort(n.slotPos),
+      e === ProtocolCmd.PLAYERBAG_EQUIP
+        ? protocol.setByte(i)
+        : e === ProtocolCmd.PLAYERBAG_LOSE
+          ? protocol.setInt(n.id)
+          : e === ProtocolCmd.PLAYERBAG_ENCHASE
+            ? protocol.setShort(i)
+            : n.isPetCanUseItem() && protocol.setShort(i),
+      protocol.setBoolean(o),
+      protocol.setBoolean(a)
+    return protocol
+  }
+
+  export function createGetMissionDataMsg(id: number, map: GameMap) {
+    const protocol = new Protocol(ProtocolCmd.CG_TASK_GETMISSIONDATA)
+    protocol.setShort(id)
+
+    protocol.setByte(map.monsterGroupList.length)
+    for (let i = 0; i < map.monsterGroupList.length; i++) {
+      const id = map.monsterGroupList[i].groupId
+      protocol.setShort(id)
+    }
+
+    protocol.setByte(Object.keys(map.monsterList).length)
+    for (let id in map.monsterList) {
+      protocol.setShort(+id)
+    }
+
+    return protocol
+  }
+
+  export function createGetNPCData(npc?: number[]) {
+    const protocol = new Protocol(ProtocolCmd.CG_SCENE_GETNPC)
+    if (!npc)
+      return protocol.setByte(0)
+    protocol.setByte(npc.length)
+    for (let i = 0; i < npc.length; i++)
+      protocol.setByte(npc[i])
+    return protocol
+  }
+
+  export function createAutoMoveMsgByMission(id: number) {
+    return new Protocol(ProtocolCmd.CG_SCENE_FINDPATH_MISSION).setByte(2).setShort(id)
+  }
+
+  export function createExpandPackage(type: number, slot: number) {
+    return new Protocol(ProtocolCmd.CG_ACTOR_EXPAND_PACKAGE).setByte(type).setInt(slot)
+  }
+
+  export function createTaskAbandonMsg(id: number) {
+    return new Protocol(ProtocolCmd.CG_TASK_ABANDON).setShort(id)
+  }
+
+  export function createTaskDeliverMsg(pid: number, mid: number, iid: number = -1) {
+    return new Protocol(ProtocolCmd.CG_TASK_DELIVER).setShort(pid).setShort(mid).setInt(iid)
+  }
+
+  export function createTaskAcceptMsg(nid: number, mid: number) {
+    return new Protocol(ProtocolCmd.CG_TASK_ACCEPT).setShort(nid).setShort(mid)
+  }
+
+  export function createAchieveUseTitle(id: number) {
+    return new Protocol(ProtocolCmd.CG_TITLE_USE).setShort(id)
+  }
+
+  export function createAchieveTitleList() {
+    return new Protocol(ProtocolCmd.CG_TITLE_GETLIST)
+  }
+
+  export function createItemShopListMsg(id: number) {
+    return new Protocol(ProtocolCmd.CG_ITEMSHOP_LIST).setShort(id)
+  }
+
+  export function createItemShopBuy(sid: number, item: ShopItemData, num: number = 1) {
+    const protocol = new Protocol(ProtocolCmd.CG_ITEMSHOP_BUY)
+    protocol.setShort(sid)
+      .setInt(item.id)
+      .setByte(num)
+      .setBoolean(Define.isCountryShop(sid))
+    if (Define.isCountryShop(sid)) {
+      protocol
+        .setInt(item.money1)
+        .setInt(item.money2)
+        .setInt(item.money3)
+    }
+    return protocol
+  }
+}
+
+export const enum ProtocolCmd {
   LC_CHECKEDITION = 5e3,
   LC_PLAYER_CREATE = 5001,
   LC_PLAYER_LOGIN = 5002,

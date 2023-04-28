@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Monster } from './Monster'
 import { MonsterAI } from './MonsterAI'
 import { Skill } from './Skill'
@@ -34,7 +34,7 @@ export class Mercenary extends Monster {
 }
 
 export namespace Mercenary {
-  export function fromBytesFull(byte: nato.Message) {
+  export function fromBytesFull(byte: Protocol) {
     const mercenary = new Mercenary()
 
     mercenary.groupId = byte.getShort()
@@ -47,7 +47,7 @@ export namespace Mercenary {
     return mercenary
   }
 
-  export function fromBytesSimple(byte: nato.Message) {
+  export function fromBytesSimple(byte: Protocol) {
     const mercenary = new Mercenary()
 
     mercenary.groupId = byte.getShort()
@@ -57,7 +57,7 @@ export namespace Mercenary {
     return mercenary
   }
 
-  function fromBytesSimpleData(byte: nato.Message, mercenary: Mercenary) {
+  function fromBytesSimpleData(byte: Protocol, mercenary: Mercenary) {
     const n = byte.getInt()
 
     if (n <= 0)
@@ -71,7 +71,7 @@ export namespace Mercenary {
     return mercenary
   }
 
-  function fromBytesMercenary(model: Mercenary, byte: nato.Message) {
+  function fromBytesMercenary(model: Mercenary, byte: Protocol) {
     const monster = Monster.fromMonsterBytes(model, byte)
     if (!monster)
       return null

@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 
 export class ServerInfo {
   type = 0
@@ -90,7 +90,7 @@ export namespace ServerInfo {
     return new ServerInfo(ServerInfo.TYPE_SERVER_LINE)
   }
 
-  export function fromAreaBytes(e: nato.Message) {
+  export function fromAreaBytes(e: Protocol) {
     const n = createAreaInfo()
     return (
       (n.id = e.getShort()),
@@ -104,7 +104,7 @@ export namespace ServerInfo {
     )
   }
 
-  export function fromLineBytes(e: nato.Message) {
+  export function fromLineBytes(e: Protocol) {
     const n = createLineInfo()
     return (
       (n.id = e.getShort()),

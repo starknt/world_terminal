@@ -1,7 +1,4 @@
-import { MsgHandler } from 'libs/base/MsgHandler'
-import { nato } from 'libs/base/nato'
 import type { SocketClient } from 'libs/base/socket'
-import { ProtocolDefine } from 'libs/defined/protocol'
 import type { GameService } from 'libs/service/GameService'
 import { AchieveTitle } from 'libs/typings/AchieveTitle'
 import type { ItemData } from 'libs/typings/ItemData'
@@ -13,16 +10,17 @@ import { ShopItemData } from 'libs/typings/ShopItem'
 import type { Skill } from 'libs/typings/Skill'
 import { ApiClient } from './api'
 import type { IApiClientResponse } from '~/types'
+import { Long, Protocol, ProtocolCmd } from 'libs/base/protocol'
 
 export class GameApiClient extends ApiClient {
   constructor(protected readonly socket: SocketClient, protected readonly service: GameService) {
     super(socket)
   }
 
-  async firstGameServer(key: nato.Long, session: number): IApiClientResponse {
-    const message = MsgHandler.createFirstGameServerMsg(key, session)
+  async firstGameServer(key: Long, session: number): IApiClientResponse {
+    const message = Protocol.createFirstGameServerMsg(key, session)
 
-    const bytes = await this.socket.sendCmd(message)
+    const bytes = await this.socket.send(message)
 
     const code = bytes.getByte()
 
@@ -34,9 +32,9 @@ export class GameApiClient extends ApiClient {
 
   // #region role
   async loginRole(role: RoleInfo): IApiClientResponse {
-    const message = MsgHandler.createPlayerEnterMsg(role.id, '')
+    const message = Protocol.createPlayerEnterMsg(role.id, '')
 
-    const bytes = await this.socket.sendCmd(message)
+    const bytes = await this.socket.send(message)
 
     const code = bytes.getByte()
 
@@ -47,8 +45,8 @@ export class GameApiClient extends ApiClient {
   }
 
   async deleteRole(role: RoleInfo): IApiClientResponse {
-    const message = MsgHandler.createDelPlayerMsg(role.getId())
-    const bytes = await this.socket.sendCmd(message)
+    const message = Protocol.createDelPlayerMsg(role.getId())
+    const bytes = await this.socket.send(message)
     const code = bytes.getByte()
     if (code !== 0)
       return this.makeResponse(code, bytes.getString())
@@ -57,8 +55,8 @@ export class GameApiClient extends ApiClient {
   }
 
   async recoverRole(role: RoleInfo): IApiClientResponse {
-    const message = MsgHandler.createCancelDelPlayerMsg(role.getId())
-    const bytes = await this.socket.sendCmd(message)
+    const message = Protocol.createCancelDelPlayerMsg(role.getId())
+    const bytes = await this.socket.send(message)
     const code = bytes.getByte()
     if (code !== 0)
       return this.makeResponse(code, bytes.getString())
@@ -67,8 +65,8 @@ export class GameApiClient extends ApiClient {
   }
 
   async verifyDeleteRoleProtectCode(role: RoleInfo, protectCode: string): IApiClientResponse {
-    const message = MsgHandler.createDeleteRoleByProtectCodeMsg(role.getId(), protectCode)
-    const bytes = await this.socket.sendCmd(message)
+    const message = Protocol.createDeleteRoleByProtectCodeMsg(role.getId(), protectCode)
+    const bytes = await this.socket.send(message)
     const code = bytes.getByte()
     if (code !== 0)
       return this.makeResponse(code, bytes.getString())
@@ -77,8 +75,8 @@ export class GameApiClient extends ApiClient {
   }
 
   async getRoleList(): IApiClientResponse<RoleInfo[]> {
-    const message = MsgHandler.createPlayerListMsg()
-    const bytes = await this.socket.sendCmd(message)
+    const message = Protocol.createPlayerListMsg()
+    const bytes = await this.socket.send(message)
 
     const len = bytes.getByte()
     const roles: RoleInfo[] = []
@@ -96,8 +94,8 @@ export class GameApiClient extends ApiClient {
 
   async setAutoSkill(player: Player, skill: Skill): IApiClientResponse {
     const b = player.isAutoSkill(skill.id) < 0
-    const message = MsgHandler.createAutoSkillMsg(player, skill.id, b)
-    const bytes = await this.socket.sendCmd(message)
+    const message = Protocol.createAutoSkillMsg(player, skill.id, b)
+    const bytes = await this.socket.send(message)
     const code = bytes.getByte()
     if (code !== 0)
       return this.makeResponse(code, bytes.getString())
@@ -109,14 +107,14 @@ export class GameApiClient extends ApiClient {
   // #region AchieveTitle
 
   async getAchieveTitleList(): IApiClientResponse<AchieveTitle[]> {
-    const message = MsgHandler.createAchieveTitleList()
-    const bytes = await this.socket.sendCmd(message)
+    const message = Protocol.createAchieveTitleList()
+    const bytes = await this.socket.send(message)
     return this.makeResponse(0, AchieveTitle.fromBytes(bytes))
   }
 
   async setAchieveTitle(id: number): IApiClientResponse {
-    const message = MsgHandler.createAchieveUseTitle(id)
-    const bytes = await this.socket.sendCmd(message)
+    const message = Protocol.createAchieveUseTitle(id)
+    const bytes = await this.socket.send(message)
     const code = bytes.getByte()
     if (code < 0)
       return this.makeResponse(code, bytes.getString())
@@ -129,9 +127,9 @@ export class GameApiClient extends ApiClient {
   // #region Mission
 
   async getRandomMissionInfo() {
-    const msg = new nato.Message(ProtocolDefine.CG_TASK_RANDOM_INFO)
+    const msg = new Protocol(ProtocolCmd.CG_TASK_RANDOM_INFO)
 
-    const bytes = await this.socket.sendCmd(msg)
+    const bytes = await this.socket.send(msg)
 
     // const mission = new RandomMission(0)
     // mission.setting |= 2097152
@@ -145,8 +143,8 @@ export class GameApiClient extends ApiClient {
   }
 
   async acceptMission(mission: Mission, player: Player): IApiClientResponse {
-    const message = MsgHandler.createTaskAcceptMsg(player.getId(), mission.getId())
-    const bytes = await this.socket.sendCmd(message)
+    const message = Protocol.createTaskAcceptMsg(player.getId(), mission.getId())
+    const bytes = await this.socket.send(message)
     const code = bytes.getByte()
     if (code !== 0)
       return this.makeResponse(code, bytes.getString())
@@ -155,12 +153,12 @@ export class GameApiClient extends ApiClient {
   }
 
   async submitMission(mission: Mission, player: Player, item?: ItemData): IApiClientResponse {
-    const message = MsgHandler.createTaskDeliverMsg(
+    const message = Protocol.createTaskDeliverMsg(
       player.getId(),
       mission.id,
-      item != null ? item.id : -1,
+      item?.id ?? -1,
     )
-    const bytes = await this.socket.sendCmd(message)
+    const bytes = await this.socket.send(message)
     const code = bytes.getByte()
     if (code !== 0)
       return this.makeResponse(code, bytes.getString())
@@ -169,8 +167,8 @@ export class GameApiClient extends ApiClient {
   }
 
   async deleteMission(mission: Mission, player: Player): IApiClientResponse {
-    const message = MsgHandler.createTaskAbandonMsg(mission.getId())
-    const bytes = await this.socket.sendCmd(message)
+    const message = Protocol.createTaskAbandonMsg(mission.getId())
+    const bytes = await this.socket.send(message)
     const code = bytes.getByte()
     if (code !== 0)
       return this.makeResponse(code, bytes.getString())
@@ -182,14 +180,14 @@ export class GameApiClient extends ApiClient {
 
   // #region offline
   async getOfflineExpInfo(): IApiClientResponse<OfflineExp> {
-    const message = new nato.Message(ProtocolDefine.CG_ACTOR_OFFLINE_EXP_OPEN)
-    const bytes = await this.socket.sendCmd(message)
+    const message = new Protocol(ProtocolCmd.CG_ACTOR_OFFLINE_EXP_OPEN)
+    const bytes = await this.socket.send(message)
     return this.makeResponse(0, OfflineExp.fromBytes(bytes))
   }
 
   async getOfflineExp(rate3 = false): IApiClientResponse {
-    const message = new nato.Message(ProtocolDefine.CG_ACTOR_OFFLINE_EXP_GET)
-    message.putInt(rate3 ? 1 : 0)
+    const message = new Protocol(ProtocolCmd.CG_ACTOR_OFFLINE_EXP_GET)
+    message.setInt(rate3 ? 1 : 0)
     const bytes = await this.makeRequest(message)
     const code = bytes.getByte()
     if (code < 0)
@@ -199,7 +197,7 @@ export class GameApiClient extends ApiClient {
   }
 
   async prayOfflineExp(): IApiClientResponse {
-    const message = new nato.Message(ProtocolDefine.CG_ACTOR_OFFLINE_EXP_PRAY)
+    const message = new Protocol(ProtocolCmd.CG_ACTOR_OFFLINE_EXP_PRAY)
     const bytes = await this.makeRequest(message)
     const code = bytes.getByte()
     if (code < 0)
@@ -215,7 +213,7 @@ export class GameApiClient extends ApiClient {
 
   // #region bag
   async expandPackageByTime(player: Player): IApiClientResponse {
-    const message = MsgHandler.createExpandPackage(1, player.bag.bagEnd)
+    const message = Protocol.createExpandPackage(1, player.bag.bagEnd)
     const bytes = await this.makeRequest(message)
     const code = bytes.getByte()
     if (code < 0)
@@ -225,7 +223,7 @@ export class GameApiClient extends ApiClient {
   }
 
   async expandPackageByMoney(player: Player, i = 1): IApiClientResponse {
-    const message = MsgHandler.createExpandPackage(0, player.bag.bagEnd + i)
+    const message = Protocol.createExpandPackage(0, player.bag.bagEnd + i)
     const bytes = await this.makeRequest(message)
     const code = bytes.getByte()
     if (code < 0)
@@ -237,7 +235,7 @@ export class GameApiClient extends ApiClient {
 
   // #region Shop
   async getShopItemList(shopId: number): IApiClientResponse<ShopItemData[]> {
-    const message = MsgHandler.createItemShopListMsg(shopId)
+    const message = Protocol.createItemShopListMsg(shopId)
     const bytes = await this.makeRequest(message)
     const code = bytes.getByte()
     if (code !== 0)

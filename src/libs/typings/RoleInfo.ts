@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Model } from './Model'
 import { Player } from './Player'
 
@@ -29,7 +29,7 @@ export class RoleInfo extends Player {
 }
 
 export namespace RoleInfo {
-  export function fromBytes(t: nato.Message) {
+  export function fromBytes(t: Protocol) {
     const id = t.getInt()
     const Name = t.getString()
     const Sex = t.getByte()

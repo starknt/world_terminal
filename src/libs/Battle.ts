@@ -18,7 +18,7 @@ export enum BATTLE_TYPE {
  *
  * 1. 第一步发送 Enter Battle 消息
  *
- * const msg = MsgHandler.createEnterLocalBattle()
+ * const msg = Protocol.createEnterLocalBattle()
  * nato.Network.sendCmd(msg)
  *
  * 1.1 初始化位置(cursor)
@@ -71,7 +71,7 @@ export enum BATTLE_TYPE {
  *
  * 3. 组建战斗过程消息
  *
- * const msg = new nato.Message(ProtocolDefine.CG_FIGHT_RUN_LOCALBATTLE);
+ * const msg = new Protocol(ProtocolCmd.CG_FIGHT_RUN_LOCALBATTLE);
  * msg.putInt(5260) // 人物开始时的 HP
  * msg.putInt(24161)  // 人物开始时的 MP
  * msg.putInt(xself.hp) // 人物结束时的 HP

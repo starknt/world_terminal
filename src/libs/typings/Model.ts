@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { GameText } from 'libs/defined/gameText'
 import { Tool } from 'libs/shared/Tool'
@@ -578,7 +578,7 @@ export class Model {
 }
 
 export namespace Model {
-  export function fromBytes(byte: nato.Message, model: Model) {
+  export function fromBytes(byte: Protocol, model: Model) {
     const e = model
 
     e.setId(byte.getInt())

@@ -1,10 +1,9 @@
 import type { IDisposable } from '@livemoe/utils'
 import { Emitter, Event as VSEvent } from '@livemoe/utils'
 import EventEmitter from 'eventemitter3'
-import type { ProtocolDefine } from 'libs/defined/protocol'
 import type { CommandCallback, WebSocketCloseEventCallback, WebSocketConnectEventCallback, WebSocketDataEventCallback, WebSocketErrorEventCallback } from 'libs/typings/type'
-import { nato } from './nato'
 import { $Logger } from '~/logger'
+import { Protocol, ProtocolCmd } from './protocol'
 
 const $Log = $Logger.create('Socket').log
 
@@ -90,7 +89,7 @@ class WebSocketClient {
   private _onSocketConnect = new Emitter<Event>()
   private _onSocketClosed = new Emitter<CloseEvent>()
   private _onSocketError = new Emitter<Event>()
-  private _onSocketData = new Emitter<nato.Message>()
+  private _onSocketData = new Emitter<Protocol>()
 
   readonly onSocketConnectedEvent = this._onSocketConnect.event
   readonly onSocketClosedEvent = this._onSocketClosed.event
@@ -227,7 +226,7 @@ class WebSocketClient {
 
     buffer.position = 4
     this._onSocketData.fire(
-      new nato.Message(protocol, buffer),
+      new Protocol(protocol, buffer),
     )
   }
 
@@ -244,7 +243,7 @@ class WebSocketClient {
 
 export class SocketClient implements IDisposable {
   private client: WebSocketClient
-  private eventEmitter: EventEmitter<`${ProtocolDefine}`, nato.Message>
+  private eventEmitter: EventEmitter<`${ProtocolCmd}`, Protocol>
   private eventStoreDispose: IDisposable
   private startOnlineTime = 0
   private endOnlineTime = 0
@@ -295,16 +294,20 @@ export class SocketClient implements IDisposable {
     return await VSEvent.toPromise(this.client.onSocketClosedEvent)
   }
 
-  sendCmd(message: nato.Message, callback: CommandCallback, thisArg?: any): void
-  sendCmd(message: nato.Message): Promise<nato.Message>
-  async sendCmd(message: nato.Message, callback?: CommandCallback, thisArg?: any) {
+  send(protocol: Protocol, callback: CommandCallback, thisArg?: any): void
+  send(protocol: Protocol): Promise<Protocol>
+  async send(protocol: Protocol, callback?: CommandCallback, thisArg?: any) {
     await this.client.whenSocketConnected()
-    const type = message.getType()
+    const type = protocol.getType()
 
-    this.send(message)
+    const bytes = protocol.protocol
+    if (bytes) {
+      bytes.position = 0
+      this.client.writeBytes(bytes)
+    }
 
     if (callback) {
-      this.pickSocketDataEvent(type)
+      this.pickSocketDataEvent(protocol.type)
         .then(e => callback.call(thisArg, e))
 
       return
@@ -313,16 +316,16 @@ export class SocketClient implements IDisposable {
     return await this.pickSocketDataEvent(type)
   }
 
-  addMsgHandler(protocol: ProtocolDefine, callback: CommandCallback, thisArg?: any): void
-  addMsgHandler(protocol: ProtocolDefine): Promise<nato.Message>
-  addMsgHandler(protocol: ProtocolDefine, callback?: CommandCallback, thisArg?: any) {
+  addProtocol(protocol: ProtocolCmd, callback: CommandCallback, thisArg?: any): void
+  addProtocol(protocol: ProtocolCmd): Promise<Protocol>
+  addProtocol(protocol: ProtocolCmd, callback?: CommandCallback, thisArg?: any) {
     if (callback) {
       this.eventEmitter.on(`${protocol}`, callback, thisArg)
 
       return
     }
 
-    return new Promise<nato.Message>((resolve) => {
+    return new Promise<Protocol>((resolve) => {
       const result = this.client.onSocketDataEvent((message) => {
         const _msg = message.clone()
         _msg.position = 4
@@ -334,20 +337,12 @@ export class SocketClient implements IDisposable {
     })
   }
 
-  removeMsgHandler(protocol: ProtocolDefine, callback?: CommandCallback, thisArg?: any) {
+  removeProtocol(protocol: ProtocolCmd, callback?: CommandCallback, thisArg?: any) {
     this.eventEmitter.removeListener(`${protocol}`, callback, thisArg)
   }
 
-  private send(message: nato.Message) {
-    const bytes = message.getDataBytes()
-    if (bytes) {
-      bytes.position = 0
-      this.client.writeBytes(bytes)
-    }
-  }
-
-  private pickSocketDataEvent(type: ProtocolDefine) {
-    return new Promise<nato.Message>((resolve) => {
+  private pickSocketDataEvent(type: ProtocolCmd) {
+    return new Promise<Protocol>((resolve) => {
       const disposable = this.client.onSocketDataEvent((e) => {
         if (e.getType() === type) {
           disposable.dispose()

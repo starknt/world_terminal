@@ -5,10 +5,10 @@ import { Monster } from 'libs/typings/Monster'
 import { MonsterGroup } from 'libs/typings/MonsterGroup'
 import { PlayerBag } from 'libs/typings/PlayerBag'
 import { Skill } from 'libs/typings/Skill'
-import type { nato } from './nato'
+import { Protocol } from './protocol'
 
 export namespace Processor {
-  export function parseBattleNormalReward(e: nato.Message, service: GameService) {
+  export function parseBattleNormalReward(e: Protocol, service: GameService) {
     const { player } = service
 
     const money3 = e.getInt()
@@ -46,7 +46,7 @@ export namespace Processor {
     processAddItemMsg(e, service)
   }
 
-  export function parsePetReward(t: nato.Message, service: GameService) {
+  export function parsePetReward(t: Protocol, service: GameService) {
     const pet = service.player.getPet()
 
     const exp = t.getInt()
@@ -102,7 +102,7 @@ export namespace Processor {
     }
   }
 
-  export function processUpLevelMsg(t: nato.Message, service: GameService) {
+  export function processUpLevelMsg(t: Protocol, service: GameService) {
     const { player } = service
 
     const exp = t.getInt()
@@ -141,7 +141,7 @@ export namespace Processor {
       player.resumeHPMP()
   }
 
-  export function processAddItemMsg(t: nato.Message, service: GameService) {
+  export function processAddItemMsg(t: Protocol, service: GameService) {
     const { player } = service
     const n = player
     const i = player.bag
@@ -170,7 +170,7 @@ export namespace Processor {
     }
   }
 
-  export function processMissionNPCStatus(t: nato.Message, service: GameService) {
+  export function processMissionNPCStatus(t: Protocol, service: GameService) {
     for (let e = t.getByte(), n = 0; e > n; n++) {
       const i = t.getByte()
       const o = t.getByte()
@@ -179,7 +179,7 @@ export namespace Processor {
     }
   }
 
-  export function processMyMercenaryCheck(t: nato.Message, service: GameService) {
+  export function processMyMercenaryCheck(t: Protocol, service: GameService) {
     const e = service.player
 
     for (let n = t.getByte(), i = 0; n > i; i++) {
@@ -194,7 +194,7 @@ export namespace Processor {
     }
   }
 
-  export function processDataMonsterMsg(t: nato.Message, service: GameService) {
+  export function processDataMonsterMsg(t: Protocol, service: GameService) {
     const e = t.getByte()
     const monsters: Monster[] = []
 
@@ -211,7 +211,7 @@ export namespace Processor {
     return monsters
   }
 
-  export function processDataMonsterGroupMsg(t: nato.Message, service: GameService) {
+  export function processDataMonsterGroupMsg(t: Protocol, service: GameService) {
     const monsterGroup: MonsterGroup[] = []
 
     for (let e = t.getByte(), n = 0; n < e; n++)

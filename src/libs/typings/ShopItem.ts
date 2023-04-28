@@ -1,5 +1,4 @@
-import { MsgHandler } from 'libs/base/MsgHandler'
-import { nato } from 'libs/base/nato'
+import { Long, Protocol } from 'libs/base/protocol'
 import { ItemData } from './ItemData'
 import { ModelConst } from '~/shared/enum'
 
@@ -18,7 +17,7 @@ export class ShopItemData extends ItemData {
   isSystemShopItem = false
   power = 0
   combinCount = 0
-  goodId: nato.Long = new nato.Long(0, 0)
+  goodId: Long = new Long(0, 0)
   goodPurchaseCount = 0
 
   setMoney(t: number, e: number) {
@@ -36,7 +35,7 @@ export class ShopItemData extends ItemData {
 }
 
 export namespace ShopItemData {
-  export function fromBytesShopItem(byte: nato.Message) {
+  export function fromBytesShopItem(byte: Protocol) {
     const item = new ShopItemData()
     item.isSystemShopItem = true
     ItemData.fromBytesAtts2(byte, item)
@@ -52,7 +51,7 @@ export namespace ShopItemData {
     return item
   }
 
-  export function fromBytesPlayerShopItem(byte: nato.Message) {
+  export function fromBytesPlayerShopItem(byte: Protocol) {
     const item = new ShopItemData()
     ItemData.fromBytesAtts1(byte, item)
     ItemData.fromBytesAtts2(byte, item)
@@ -64,7 +63,7 @@ export namespace ShopItemData {
     return item
   }
 
-  export function fromBytesGoodsPurchaseItem(byte: nato.Message, flag?: boolean) {
+  export function fromBytesGoodsPurchaseItem(byte: Protocol, flag?: boolean) {
     const item = new ShopItemData()
     ItemData.fromBytesAtts2(byte, item)
     item.goodId = byte.getLong()

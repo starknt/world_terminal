@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { Battle } from 'libs/service/Battle/battle'
 import { GZIP } from 'libs/shared/GZIP'
@@ -2104,7 +2104,7 @@ export class Player extends Model {
 }
 
 export namespace Player {
-  export function fromPlayerBytes(byte: nato.Message, player?: Player) {
+  export function fromPlayerBytes(byte: Protocol, player?: Player) {
     const e = player ?? new Player()
 
     e.setId(byte.getInt())

@@ -1,10 +1,8 @@
 import { Emitter, Event } from '@livemoe/utils'
-import { MsgHandler } from 'libs/base/MsgHandler'
-import type { nato } from 'libs/base/nato'
+import { Protocol, ProtocolCmd } from 'libs/base/protocol'
 import { Processor } from 'libs/base/processor'
 import type { SocketClient } from 'libs/base/socket'
 import { Define } from 'libs/defined/defined'
-import { ProtocolDefine } from 'libs/defined/protocol'
 import { Tool } from 'libs/shared/Tool'
 import type { GameMap } from 'libs/typings/GameMap'
 import { MonsterGroup } from 'libs/typings/MonsterGroup'
@@ -72,23 +70,23 @@ export class BattleService {
   }
 
   private toLocalBattle(player: Player, map: GameMap, group: MonsterGroup) {
-    const msg = MsgHandler.createEnterLocalBattle()
+    const msg = Protocol.createEnterLocalBattle()
 
-    this.socket.sendCmd(msg)
+    this.socket.send(msg)
 
     const battle = this.getBattleByGroupID(player, map, group)
 
     const onResult = (message) => {
-      this.socket.removeMsgHandler(ProtocolDefine.CG_FIGHT_RUN_LOCALBATTLE, onResult, this.service)
+      this.socket.removeProtocol(ProtocolCmd.CG_FIGHT_RUN_LOCALBATTLE, onResult, this.service)
       this.onBattleResult(battle, message)
     }
 
-    this.socket.addMsgHandler(ProtocolDefine.CG_FIGHT_RUN_LOCALBATTLE, onResult, this.service)
+    this.socket.addProtocol(ProtocolCmd.CG_FIGHT_RUN_LOCALBATTLE, onResult, this.service)
 
     battle.onBattleFinish(async (e) => {
       $Logger.log('Battle Finish', e)
 
-      await this.socket.sendCmd(e)
+      await this.socket.send(e)
     })
 
     battle.battleView.logic()
@@ -97,9 +95,9 @@ export class BattleService {
   }
 
   private async toRemoteBattle(player: Player, map: GameMap, group: MonsterGroup) {
-    const message = MsgHandler.createEnterRemoteBattle(group.groupId)
+    const message = Protocol.createEnterRemoteBattle(group.groupId)
 
-    const bytes = await this.socket.sendCmd(message)
+    const bytes = await this.socket.send(message)
     const code = bytes.getByte()
 
     if (code < 0) {
@@ -109,12 +107,12 @@ export class BattleService {
 
     const battle = Battle.createRemoteBattle(bytes, player)
 
-    const onResult = (e: nato.Message) => {
-      this.socket.removeMsgHandler(ProtocolDefine.CG_FIGHT_BATTLE_UPDATE, onResult, this.service)
+    const onResult = (e: Protocol) => {
+      this.socket.removeProtocol(ProtocolCmd.CG_FIGHT_BATTLE_UPDATE, onResult, this.service)
       this.onBattleResult(battle, e)
     }
 
-    this.socket.addMsgHandler(ProtocolDefine.CG_FIGHT_BATTLE_UPDATE, onResult, this.service)
+    this.socket.addProtocol(ProtocolCmd.CG_FIGHT_BATTLE_UPDATE, onResult, this.service)
 
     return battle
   }
@@ -133,7 +131,7 @@ export class BattleService {
     return true
   }
 
-  private onBattleResult(battle: Battle, e: nato.Message) {
+  private onBattleResult(battle: Battle, e: Protocol) {
     const code = e.getByte()
 
     if (code < 0) {
@@ -152,7 +150,7 @@ export class BattleService {
     }
   }
 
-  private onLocalBattleResult(e: nato.Message, code: number) {
+  private onLocalBattleResult(e: Protocol, code: number) {
     if (code === 2) {
       // parse normal reward
       Processor.parseBattleNormalReward(e, this.service)
@@ -183,5 +181,5 @@ export class BattleService {
     this.service.player.checkHPMP()
   }
 
-  private onRemoteBattleResult(e: nato.Message, code: number) { }
+  private onRemoteBattleResult(e: Protocol, code: number) { }
 }

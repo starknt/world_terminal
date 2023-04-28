@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { Condition } from './Condition'
 import type { GameMap } from './GameMap'
@@ -334,7 +334,7 @@ export namespace Mission {
   }
 
   // export function acceptMission(network: ApiSocketClient, player: Player, npc: NPC, mission: Mission) {
-  //   const msg = MsgHandler.createTaskAcceptMsg(player.id, mission.id)
+  //   const msg = Protocol.createTaskAcceptMsg(player.id, mission.id)
   //   return network.sendCmd(msg, (byte) => {
   //     const a = byte.getByte()
   //     if (a !== 0) {
@@ -359,9 +359,9 @@ export namespace Mission {
 
   // export function submitMission(network: ApiSocketClient, player: Player, npc: NPC, mission: Mission) {
   //   // if(mission.exp > 0 && playe)
-  //   const message = MsgHandler.createTaskDeliverMsg(npc.getId(), mission.id, -1)
+  //   const message = Protocol.createTaskDeliverMsg(npc.getId(), mission.id, -1)
 
-  //   const callback = (byte: nato.Message) => {
+  //   const callback = (byte: Protocol) => {
   //     const a = byte.getByte()
 
   //     if (a !== 0) {
@@ -512,7 +512,7 @@ export namespace Mission {
   // }
 
   // export function deleteMission(network: ApiSocketClient, player: Player, npc: NPC, mission: Mission) {
-  //   const msg = MsgHandler.createTaskAbandonMsg(mission.id)
+  //   const msg = Protocol.createTaskAbandonMsg(mission.id)
   //   return network.sendCmd(msg, (byte) => {
   //     const i = byte.getByte()
   //     if (i !== 0) {
@@ -545,7 +545,7 @@ export namespace Mission {
       (Mission.newRadarGy = e.radarGy))
   }
 
-  function processNpcStatus(npc: NPC, byte: nato.Message) {
+  function processNpcStatus(npc: NPC, byte: Protocol) {
     for (let e = byte.getByte(), n = 0; n < e; n++) {
       const i = byte.getByte()
       const o = byte.getByte()

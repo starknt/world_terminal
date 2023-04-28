@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { Battle } from 'libs/service/Battle/battle'
 import { Tool } from 'libs/shared/Tool'
@@ -268,7 +268,7 @@ export namespace MonsterAI {
     return s
   }
 
-  export function fromBytes(byte: nato.Message, skills: Skill[]) {
+  export function fromBytes(byte: Protocol, skills: Skill[]) {
     const monsterAI = new MonsterAI()
 
     monsterAI.id = byte.getShort()
@@ -292,7 +292,7 @@ export namespace MonsterAI {
     return monsterAI
   }
 
-  export function processDataMonsterAIMsg(byte: nato.Message) {
+  export function processDataMonsterAIMsg(byte: Protocol) {
     const skills: Skill[] = []
     const monsterAIs: MonsterAI[] = []
 

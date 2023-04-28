@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { Tool } from 'libs/shared/Tool'
 import { Model } from './Model'
@@ -323,7 +323,7 @@ export class Pet extends Player {
 }
 
 export namespace Pet {
-  export function fromPetBytes(byte: nato.Message, owner?: Player) {
+  export function fromPetBytes(byte: Protocol, owner?: Player) {
     let pet = new Pet(owner)
 
     const result = fromBytesDetail(byte, pet)
@@ -339,7 +339,7 @@ export namespace Pet {
     return pet
   }
 
-  export function fromBytesOtherPlayer(byte: nato.Message, model?: Model) {
+  export function fromBytesOtherPlayer(byte: Protocol, model?: Model) {
     const id = byte.getByte()
 
     if (id < 0)
@@ -358,7 +358,7 @@ export namespace Pet {
     return o < 0 ? null : i
   }
 
-  export function fromBytesDetail(byte: nato.Message, pet: Pet) {
+  export function fromBytesDetail(byte: Protocol, pet: Pet) {
     const n = byte.getByte()
 
     if (n < 0)

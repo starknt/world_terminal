@@ -1,5 +1,4 @@
-import { nato } from 'libs/base/nato'
-import { ProtocolDefine } from 'libs/defined/protocol'
+import { Protocol, ProtocolCmd } from 'libs/base/protocol'
 import { Battle } from './battle'
 
 export class BattleView {
@@ -66,27 +65,27 @@ export class BattleView {
   }
 
   sendLocalBattleReward() {
-    const t = new nato.Message(ProtocolDefine.CG_FIGHT_RUN_LOCALBATTLE)
+    const t = new Protocol(ProtocolCmd.CG_FIGHT_RUN_LOCALBATTLE)
 
-    t.putInt(this.battle.startHP),
-    t.putInt(this.battle.startMP),
-    t.putInt(this.battle.orderPlayer.hp),
-    t.putInt(this.battle.orderPlayer.mp),
-    t.putShort(this.battle.seed)
+    t.setInt(this.battle.startHP),
+    t.setInt(this.battle.startMP),
+    t.setInt(this.battle.orderPlayer.hp),
+    t.setInt(this.battle.orderPlayer.mp),
+    t.setShort(this.battle.seed)
     const e = this.battle.monsterGroup
     let n = -1
-    e && (n = e.groupId), t.putShort(n)
+    e && (n = e.groupId), t.setShort(n)
     const i = this.isTag(Battle.TAG_HAVE_MY_PET)
-    t.putBoolean(i)
+    t.setBoolean(i)
     const o = this.battle.inputHandler.planVector
     let a = o.length
-    i && (a /= 2), t.putByte(a)
+    i && (a /= 2), t.setByte(a)
     for (let r = 0; r < o.length;) {
       const s = o[r++]
       s.position = 0
-      if ((t.putBytes(s), i)) {
+      if ((t.setBytes(s), i)) {
         let l: any = null
-        r < o.length && (l = o[r++], l.position = 0), t.putBytes(l)
+        r < o.length && (l = o[r++], l.position = 0), t.setBytes(l)
       }
     }
 

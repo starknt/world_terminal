@@ -1,4 +1,4 @@
-const msg = MsgHandler.createEnterLocalBattle()
+const msg = Protocol.createEnterLocalBattle()
 
 nato.Network.sendCmd(msg)
 
@@ -6,7 +6,7 @@ setTimeout(() => {
   const id = xself.missionList[0].submitCondition[0].getKillMonsterCondition().id
   xworld.battleSeed = Tool.nextSeed(xworld.battleSeed)
 
-  const t = new nato.Message(ProtocolDefine.CG_FIGHT_RUN_LOCALBATTLE)
+  const t = new Protocol(ProtocolCmd.CG_FIGHT_RUN_LOCALBATTLE)
   t.putInt(5260),
   t.putInt(24161),
   t.putInt(xself.hp),

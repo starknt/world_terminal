@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { ItemData } from './ItemData'
 import type { Player } from './Player'
@@ -300,7 +300,7 @@ export class PlayerBag {
 }
 
 export namespace PlayerBag {
-  export function fromBytes(owner: Player, byte: nato.Message) {
+  export function fromBytes(owner: Player, byte: Protocol) {
     const bag = new PlayerBag(owner)
 
     bag.bagEnd = byte.getInt()
@@ -315,7 +315,7 @@ export namespace PlayerBag {
     return bag
   }
 
-  function fromBytesInternal(byte: nato.Message) {
+  function fromBytesInternal(byte: Protocol) {
     const items: ItemData[] = []
 
     for (let e = byte.getShort(), i = 0; e > i; i++) {

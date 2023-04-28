@@ -1,9 +1,9 @@
-import type { nato } from 'libs/base/nato'
+import { Long, Protocol } from 'libs/base/protocol'
 import type { RoleInfo } from './RoleInfo'
 import type { ServerInfo } from './ServerInfo'
 
 export interface LoginSuccessResult {
-  uKey: nato.Long
+  uKey: Long
   sessionId: number
   photoIp: string
   loginSetting: number
@@ -32,5 +32,5 @@ export interface WebSocketDataEventCallback {
 }
 
 export interface CommandCallback {
-  (message: nato.Message): void
+  (message: Protocol): void
 }

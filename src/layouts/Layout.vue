@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { nato } from 'libs/base/nato'
 import { GameService } from 'libs/service/GameService'
 import { Account } from 'libs/shared/Account'
 import { Tool } from 'libs/shared/Tool'

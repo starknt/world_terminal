@@ -1,5 +1,4 @@
-import { MsgHandler } from 'libs/base/MsgHandler'
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import type { SocketClient } from 'libs/base/socket'
 import { Define } from 'libs/defined/defined'
 import { GameMap } from './GameMap'
@@ -163,13 +162,13 @@ export class NPC extends Model {
   }
 
   private doGetNPCData(network: SocketClient) {
-    const msg = MsgHandler.createGetNPCData([this.id])
-    network.sendCmd(msg, (byte) => {
+    const msg = Protocol.createGetNPCData([this.id])
+    network.send(msg, (byte) => {
       this.onNPCData(network, byte)
     }, this)
   }
 
-  private onNPCData(network: SocketClient, byte: nato.Message) {
+  private onNPCData(network: SocketClient, byte: Protocol) {
     const npcs = NPC.parseNPCData(byte.getBytes())
     if (npcs.length > 0) {
       const npc = npcs[0]
@@ -227,13 +226,13 @@ export class NPC extends Model {
   }
 
   private doGetMissionData(network: SocketClient) {
-    const msg = MsgHandler.createGetMissionDataMsg(this.id, this.owner)
+    const msg = Protocol.createGetMissionDataMsg(this.id, this.owner)
 
-    network.sendCmd(msg, this.onMissionData, this)
+    network.send(msg, this.onMissionData, this)
     this.setTabStatus(true, Model.NPC_MISSION_LOAD)
   }
 
-  private onMissionData(byte: nato.Message) {
+  private onMissionData(byte: Protocol) {
     const e = byte.getByte()
 
     if (e < 0) {

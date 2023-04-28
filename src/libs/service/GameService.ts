@@ -1,10 +1,9 @@
 import { Emitter, Event, Queue, runWhenIdle } from '@livemoe/utils'
 import { GameApiClient } from 'libs/api'
-import { MsgHandler } from 'libs/base/MsgHandler'
+import { Long, Protocol, ProtocolCmd } from 'libs/base/protocol'
 import { Processor } from 'libs/base/processor'
 import { SocketClient } from 'libs/base/socket'
 import { Define } from 'libs/defined/defined'
-import { ProtocolDefine } from 'libs/defined/protocol'
 import { GZIP } from 'libs/shared/GZIP'
 import { GameMap } from 'libs/typings/GameMap'
 import { Mercenary } from 'libs/typings/Mercenary'
@@ -20,10 +19,8 @@ import type { ServerInfo } from 'libs/typings/ServerInfo'
 import { Skill } from 'libs/typings/Skill'
 import type { RoleLoadedResult } from 'libs/typings/type'
 import pretty from 'pretty-ms'
-import { nato } from '../base/nato'
 import { BattleService } from './BattleService'
 import { $Logger } from '~/logger'
-import type { ApiClientResponse } from '~/types'
 
 const $Log = $Logger.create('Game Service').log
 
@@ -40,7 +37,7 @@ export class GameService {
   private isJumpingMap = false
   private readonly _onJumpMapEnd = new Emitter<void>()
   readonly onJumpMapEnd = this._onJumpMapEnd.event
-  private uKey: nato.Long = new nato.Long(0, 0)
+  private uKey: Long = new Long(0, 0)
   private sessionId = 0
   private readonly socket = new SocketClient()
   readonly client = new GameApiClient(this.socket, this)
@@ -71,7 +68,7 @@ export class GameService {
     })
   }
 
-  async connectGameServer(uKey: nato.Long, sessionId: number, lineServer: ServerInfo) {
+  async connectGameServer(uKey: Long, sessionId: number, lineServer: ServerInfo) {
     this.uKey = uKey
     this.sessionId = sessionId
     const url = lineServer.lineList.length > 0 ? lineServer.lineList[0].webSocketUrl : lineServer.webSocketUrl
@@ -97,13 +94,13 @@ export class GameService {
   }
 
   roleLogin(role: RoleInfo) {
-    const roleMsg = MsgHandler.createPlayerEnterMsg(role.id, '')
+    const roleMsg = Protocol.createPlayerEnterMsg(role.id, '')
 
-    this.socket.addMsgHandler(ProtocolDefine.CG_SCENE_WORLDDATA, this.onSceneWorldData, this)
-    this.socket.addMsgHandler(ProtocolDefine.CG_SCENE_GO_MAP, this.onJumpMap, this)
-    this.socket.addMsgHandler(ProtocolDefine.CG_SCENE_GO_CITY, this.onJumpCityMsg, this)
+    this.socket.addProtocol(ProtocolCmd.CG_SCENE_WORLDDATA, this.onSceneWorldData, this)
+    this.socket.addProtocol(ProtocolCmd.CG_SCENE_GO_MAP, this.onJumpMap, this)
+    this.socket.addProtocol(ProtocolCmd.CG_SCENE_GO_CITY, this.onJumpCityMsg, this)
 
-    this.socket.sendCmd(roleMsg, this.onRoleLogin, this)
+    this.socket.send(roleMsg, this.onRoleLogin, this)
   }
 
   handleMyPlayerDurability(t: boolean, e: number) {
@@ -153,11 +150,11 @@ export class GameService {
   }
 
   async doEnterCity(id: number) {
-    const message = MsgHandler.createJumpCityMessage(id, Define.JUMP_MAP_DATA_FLAG)
-    await this.socket.sendCmd(message)
+    const message = Protocol.createJumpCityMessage(id, Define.JUMP_MAP_DATA_FLAG)
+    await this.socket.send(message)
   }
 
-  private onJumpCityMsg(byte: nato.Message) {
+  private onJumpCityMsg(byte: Protocol) {
     const e = byte.getByte()
     if (e !== 0)
       return
@@ -165,7 +162,7 @@ export class GameService {
     this.processData(byte)
   }
 
-  private onJumpMap(byte: nato.Message) {
+  private onJumpMap(byte: Protocol) {
     const e = byte.getByte()
     if (e < 0) {
       console.error('onJumpMap error', byte.getString())
@@ -175,14 +172,14 @@ export class GameService {
     this.processData(byte)
   }
 
-  private onSceneWorldData(byte: nato.Message) {
+  private onSceneWorldData(byte: Protocol) {
     const e = byte.getByte()
 
     if (e === 0)
       this.processData(byte)
   }
 
-  private async onRoleLogin(byte: nato.Message) {
+  private async onRoleLogin(byte: Protocol) {
     const n = byte.getByte()
 
     if (n === 0) {
@@ -219,8 +216,8 @@ export class GameService {
 
   moveToMissionSceneById(id: number) {
     return new Promise<void>((resolve, reject) => {
-      const msg = MsgHandler.createAutoMoveMsgByMission(id)
-      this.socket.sendCmd(msg, (byte) => {
+      const msg = Protocol.createAutoMoveMsgByMission(id)
+      this.socket.send(msg, (byte) => {
         const queue = new Queue<void>()
 
         const i = byte.getByte()
@@ -262,14 +259,14 @@ export class GameService {
   }
 
   jumpMap(mapId: number, x: number, y: number) {
-    const msg = MsgHandler.createJumpMapMessage(mapId, x, y, Define.JUMP_MAP_DATA_FLAG)
+    const msg = Protocol.createJumpMapMessage(mapId, x, y, Define.JUMP_MAP_DATA_FLAG)
     this.isJumpingMap = true
-    this.socket.sendCmd(msg)
+    this.socket.send(msg)
 
     return this.whenJumpMapEnd()
   }
 
-  private async processData(byte: nato.Message) {
+  private async processData(byte: Protocol) {
     const n = byte.getInt()
     let i = n
 
@@ -320,7 +317,7 @@ export class GameService {
           case Define.DATA_PLAYER_MISSION_BYTE:
             {
               // 任务数据
-              const bytes = byte.getXytes()
+              const bytes = byte.getLengthBytes()
               const size = bytes.size
               const data = bytes.data
               const missionStatus: number[] = []
@@ -403,7 +400,7 @@ export class GameService {
               let e: egret.ByteArray
               const n = byte.getShort()
               let i = byte.position
-              const o = byte.dataView()
+              const o = byte.dataView
               const npc: number[] = []
               if (n > 0) {
                 for (let r = 0; r < n; r++)
@@ -487,10 +484,10 @@ export class GameService {
     }
   }
 
-  private mapDataHandler(byte: nato.Message, n: number, i: number, o: boolean) {
+  private mapDataHandler(byte: Protocol, n: number, i: number, o: boolean) {
     const a = byte.getShort()
     let r = byte.position
-    const s = byte.dataView()
+    const s = byte.dataView
     const l = new Array(a)
     for (let t = 0; t < a; t++)
       l[t] = s.getInt8(r++)
@@ -504,16 +501,16 @@ export class GameService {
     this.isJumpingMap = false
     runWhenIdle(() => this._onJumpMapEnd.fire())
     console.log(`mapId: ${this.gameMap.mapId}, orgMapId: ${this.gameMap.orgMapId}`)
-    const msg = MsgHandler.createWorldDataMessage(Define.NEW_SCENE_DATA_FLAG, o, n)
-    this.socket.sendCmd(msg)
+    const msg = Protocol.createWorldDataMessage(Define.NEW_SCENE_DATA_FLAG, o, n)
+    this.socket.send(msg)
     for (const npc of this.gameMap.npcList)
       npc.owner = this.gameMap
   }
 
   private syncOtherMove() {
-    const msg = MsgHandler.createOtherMoveMessage()
+    const msg = Protocol.createOtherMoveMessage()
 
-    this.socket.sendCmd(msg)
+    this.socket.send(msg)
   }
 
   private sendHeartbeat() {
@@ -523,8 +520,8 @@ export class GameService {
   private doHeartbeat() {
     if (!(Date.now() < this.nextHeartBeat)) {
       this.lastHeartBeat = Date.now()
-      const msg = MsgHandler.createSystemHeartMsg(this.gameMap.mapId)
-      this.socket.sendCmd(msg)
+      const msg = Protocol.createSystemHeartMsg(this.gameMap.mapId)
+      this.socket.send(msg)
       this.nextHeartBeat = Date.now() + GameService.HEART_BEAT_TIME
     }
   }

@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { Tool } from 'libs/shared/Tool'
 import { Model } from './Model'
@@ -207,7 +207,7 @@ export class Monster extends Player {
 }
 
 export namespace Monster {
-  export function fromMonsterBytes(model: Monster, byte: nato.Message) {
+  export function fromMonsterBytes(model: Monster, byte: Protocol) {
     const id = byte.getInt()
 
     if (id < 0)

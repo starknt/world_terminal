@@ -1,4 +1,4 @@
-import type { nato } from 'libs/base/nato'
+import { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { GameText } from 'libs/defined/gameText'
 import { Model } from './Model'
@@ -172,7 +172,7 @@ export class Skill {
 }
 
 export namespace Skill {
-  export function fromBytes(byte: nato.Message): Skill {
+  export function fromBytes(byte: Protocol): Skill {
     let skill = new Skill()
 
     skill = fromBaseBytes(skill, byte)
@@ -180,7 +180,7 @@ export namespace Skill {
     return skill
   }
 
-  export function fromShopBytes(byte: nato.Message): Skill {
+  export function fromShopBytes(byte: Protocol): Skill {
     let skill = new Skill()
 
     skill = fromBaseBytes(skill, byte)
@@ -195,7 +195,7 @@ export namespace Skill {
     return skill
   }
 
-  function fromBaseBytes(skill: Skill, byte: nato.Message) {
+  function fromBaseBytes(skill: Skill, byte: Protocol) {
     skill.id = 65535 & byte.getShort()
     skill.level = byte.getByte()
     skill.name = byte.getString()
@@ -230,7 +230,7 @@ export namespace Skill {
     return skill
   }
 
-  export function processDataPlayerSkillMsg(byte: nato.Message, e = false) {
+  export function processDataPlayerSkillMsg(byte: Protocol, e = false) {
     const skills: Skill[] = []
 
     for (let n = byte.getShort(), o = 0; o < n; o++) {
@@ -255,7 +255,7 @@ export namespace Skill {
     return null
   }
 
-  export function doGetFormation(byte: nato.Message) {
+  export function doGetFormation(byte: Protocol) {
     const i = byte.getByte()
     const skills: Skill[] = []
 
@@ -270,7 +270,7 @@ export namespace Skill {
     return skills
   }
 
-  export function fromByteFormationSkill(byte: nato.Message) {
+  export function fromByteFormationSkill(byte: Protocol) {
     const skill = new Skill()
 
     skill.formationType = byte.getByte()
