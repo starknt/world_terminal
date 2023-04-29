@@ -7,14 +7,14 @@ const panels = $ref<PanelProps[]>([
 ])
 let activeTab = $ref(panels[0].id)
 
-const handleAddPanel = () => {
+function handleAddPanel() {
   const panel = createPanel()
 
   panels.push(panel)
   activeTab = panel.id
 }
 
-const handleClosePanel = (id: string) => {
+function handleClosePanel(id: string) {
   if (panels.length === 1)
     return
 

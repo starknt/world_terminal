@@ -1,4 +1,5 @@
-import { Long, Protocol } from 'libs/base/protocol'
+import type { Protocol } from 'libs/base/protocol'
+import { Long } from 'libs/base/protocol'
 import { ItemData } from './ItemData'
 import { ModelConst } from '~/shared/enum'
 

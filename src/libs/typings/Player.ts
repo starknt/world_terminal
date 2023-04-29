@@ -1,4 +1,4 @@
-import { Protocol } from 'libs/base/protocol'
+import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { Battle } from 'libs/service/Battle/battle'
 import { GZIP } from 'libs/shared/GZIP'
@@ -124,69 +124,69 @@ export class Player extends Model {
               : false)
   }
 
-  addValue(e, n) {
+  addValue(type: number, value: number) {
     let i = 0
     let o = 0
-    switch (((this.readAddValue = n), e)) {
+    switch (((this.readAddValue = value), type)) {
       case Model.PARTNER_ID:
-        this.partnerId = n
+        this.partnerId = value
         break
       case Model.MASTER_FLAG:
-        this.masterFlag = n
+        this.masterFlag = value
         break
       case Model.EXP:
-        this.exp = Tool.sumValue(this.exp, n, 0, this.expMax)
+        this.exp = Tool.sumValue(this.exp, value, 0, this.expMax)
         break
       case Model.EXP2:
-        this.exp2 = Tool.sumValue(this.exp2, n, 0, this.expMax2)
+        this.exp2 = Tool.sumValue(this.exp2, value, 0, this.expMax2)
         break
       case Model.SET_EXP:
-        this.exp = n
+        this.exp = value
         break
       case Model.SET_EXP2:
-        this.exp2 = n
+        this.exp2 = value
         break
       case Model.EXPMAX:
-        this.expMax = Tool.sumValue(this.expMax, n, 0, Tool.MAX_VALUE_int)
+        this.expMax = Tool.sumValue(this.expMax, value, 0, Tool.MAX_VALUE_int)
         break
       case Model.SET_EXPMAX:
-        this.expMax = n
+        this.expMax = value
         break
       case Model.SET_EXPMAX2:
-        this.expMax2 = n
+        this.expMax2 = value
         break
       case Model.HP:
-        this.hp = Tool.sumValue(this.hp, n, 0, this.get(Model.HPMAX))
+        this.hp = Tool.sumValue(this.hp, value, 0, this.get(Model.HPMAX))
         break
       case Model.HP_DISPLAY:
         this.hpDisplay = Tool.sumValue(
           this.hpDisplay,
-          n,
+          value,
           0,
           this.get(Model.HPMAX),
         )
         break
       case Model.MP:
-        this.mp = Tool.sumValue(this.mp, n, 0, this.get(Model.MPMAX))
+        this.mp = Tool.sumValue(this.mp, value, 0, this.get(Model.MPMAX))
         break
       case Model.MP_DISPLAY:
         this.hpDisplay = Tool.sumValue(
           this.hpDisplay,
-          n,
+          value,
           0,
           this.get(Model.MPMAX),
         )
         break
       case Model.SP:
-        this.sp = Tool.sumValue(this.sp, n, 0, Tool.MAX_VALUE_int)
+        this.sp = Tool.sumValue(this.sp, value, 0, Tool.MAX_VALUE_int)
         break
       case Model.CP:
-        this.cp = Tool.sumValue(this.cp, n, 0, Tool.MAX_VALUE_short)
+        this.cp = Tool.sumValue(this.cp, value, 0, Tool.MAX_VALUE_short)
         break
       case Model.STR:
         (this.str = Tool.sumValue(
           this.str,
-          n,
+          value,
           0,
           Model.MAX_BASE_ATTRIBUTE,
         )),
@@ -196,7 +196,7 @@ export class Player extends Model {
       case Model.CON:
         (this.con = Tool.sumValue(
           this.con,
-          n,
+          value,
           0,
           Model.MAX_BASE_ATTRIBUTE,
         )),
@@ -206,7 +206,7 @@ export class Player extends Model {
       case Model.AGI:
         this.agi = Tool.sumValue(
           this.agi,
-          n,
+          value,
           0,
           Model.MAX_BASE_ATTRIBUTE,
         )
@@ -214,7 +214,7 @@ export class Player extends Model {
       case Model.ILT:
         (this.ilt = Tool.sumValue(
           this.ilt,
-          n,
+          value,
           0,
           Model.MAX_BASE_ATTRIBUTE,
         )),
@@ -224,7 +224,7 @@ export class Player extends Model {
       case Model.WIS:
         (this.wis = Tool.sumValue(
           this.wis,
-          n,
+          value,
           0,
           Model.MAX_BASE_ATTRIBUTE,
         )),
@@ -232,20 +232,20 @@ export class Player extends Model {
         this.mp > i && (this.mp = i)
         break
       case Model.MONEY1:
-        this.money1 = Tool.sumValue(this.money1, n, 0, Tool.MAX_VALUE_int)
+        this.money1 = Tool.sumValue(this.money1, value, 0, Tool.MAX_VALUE_int)
         break
       case Model.MONEY2:
-        this.money2 = Tool.sumValue(this.money2, n, 0, Tool.MAX_VALUE_int)
+        this.money2 = Tool.sumValue(this.money2, value, 0, Tool.MAX_VALUE_int)
         break
       case Model.MONEY3:
-        this.money3 > 0 && n > 0 && this.money3 + n < 0
+        this.money3 > 0 && value > 0 && this.money3 + value < 0
           ? (this.money3 = Tool.MAX_VALUE_int)
-          : ((this.money3 += n), this.money3 < 0 && (this.money3 = 0))
+          : ((this.money3 += value), this.money3 < 0 && (this.money3 = 0))
         break
       case Model.NUM_STROE:
         this.numStroe = Tool.sumValue(
           this.numStroe,
-          n,
+          value,
           0,
           Model.MAX_STORE_NUM,
         )
@@ -253,7 +253,7 @@ export class Player extends Model {
       case Model.COUNTRY_HONOR:
         this.countryHonor = Tool.sumValue(
           this.countryHonor,
-          n,
+          value,
           0,
           Tool.MAX_VALUE_int,
         )
@@ -261,7 +261,7 @@ export class Player extends Model {
       case Model.KILL_COUNT:
         this.killCount = Tool.sumValue(
           this.killCount,
-          n,
+          value,
           0,
           Tool.MAX_VALUE_int,
         )
@@ -269,7 +269,7 @@ export class Player extends Model {
       case Model.PK_WIN_COUNT:
         this.Pkwincount = Tool.sumValue(
           this.Pkwincount,
-          n,
+          value,
           0,
           Tool.MAX_VALUE_int,
         )
@@ -277,7 +277,7 @@ export class Player extends Model {
       case Model.PK_LOSE_COUNT:
         this.Pklosecount = Tool.sumValue(
           this.Pklosecount,
-          n,
+          value,
           0,
           Tool.MAX_VALUE_int,
         )
@@ -286,7 +286,7 @@ export class Player extends Model {
         (o = this.speed),
         (this.speed = Tool.sumValue(
           this.speed,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -296,7 +296,7 @@ export class Player extends Model {
         (o = this.atk_str),
         (this.atk_str = Tool.sumValue(
           this.atk_str,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -306,7 +306,7 @@ export class Player extends Model {
         (o = this.atk_time),
         (this.atk_time = Tool.sumValue(
           this.atk_time,
-          n,
+          value,
           0,
           Model.MAX_HIT_TIME,
         )),
@@ -316,7 +316,7 @@ export class Player extends Model {
         (o = this.atk_agi),
         (this.atk_agi = Tool.sumValue(
           this.atk_agi,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -326,7 +326,7 @@ export class Player extends Model {
         (o = this.atk_magic),
         (this.atk_magic = Tool.sumValue(
           this.atk_magic,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -336,7 +336,7 @@ export class Player extends Model {
         (o = this.def_str),
         (this.def_str = Tool.sumValue(
           this.def_str,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -346,7 +346,7 @@ export class Player extends Model {
         (o = this.def_agi),
         (this.def_agi = Tool.sumValue(
           this.def_agi,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -356,20 +356,20 @@ export class Player extends Model {
         (o = this.def_magic),
         (this.def_magic = Tool.sumValue(
           this.def_magic,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
         (this.readAddValue = this.def_magic - o)
         break
       case Model.ARGO:
-        this.argo = Tool.sumValue(this.argo, n, -1e5, 1e5)
+        this.argo = Tool.sumValue(this.argo, value, -1e5, 1e5)
         break
       case Model.CRITICAL:
         (o = this.critical),
         (this.critical = Tool.sumValue(
           this.critical,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -379,7 +379,7 @@ export class Player extends Model {
         (o = this.hitMagic),
         (this.hitMagic = Tool.sumValue(
           this.hitMagic,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -389,7 +389,7 @@ export class Player extends Model {
         (o = this.hitrate),
         (this.hitrate = Tool.sumValue(
           this.hitrate,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -399,7 +399,7 @@ export class Player extends Model {
         (o = this.forceHit),
         (this.forceHit = Tool.sumValue(
           this.forceHit,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -409,7 +409,7 @@ export class Player extends Model {
         (o = this.dodge),
         (this.dodge = Tool.sumValue(
           this.dodge,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -419,7 +419,7 @@ export class Player extends Model {
         (o = this.wil),
         (this.wil = Tool.sumValue(
           this.wil,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -429,7 +429,7 @@ export class Player extends Model {
         (o = this.tough),
         (this.tough = Tool.sumValue(
           this.tough,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -439,7 +439,7 @@ export class Player extends Model {
         (o = this.brkArmor),
         (this.brkArmor = Tool.sumValue(
           this.brkArmor,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -449,7 +449,7 @@ export class Player extends Model {
         (o = this.magic_penetration),
         (this.magic_penetration = Tool.sumValue(
           this.magic_penetration,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -459,7 +459,7 @@ export class Player extends Model {
         (o = this.block),
         (this.block = Tool.sumValue(
           this.block,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -469,7 +469,7 @@ export class Player extends Model {
         (o = this.def_field),
         (this.def_field = Tool.sumValue(
           this.def_field,
-          n,
+          value,
           Model.MIN_DEF_FIELD,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -479,7 +479,7 @@ export class Player extends Model {
         (o = this.insight),
         (this.insight = Tool.sumValue(
           this.insight,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -489,7 +489,7 @@ export class Player extends Model {
         (o = this.back),
         (this.back = Tool.sumValue(
           this.back,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -499,7 +499,7 @@ export class Player extends Model {
         (o = this.magic_back),
         (this.magic_back = Tool.sumValue(
           this.magic_back,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -509,7 +509,7 @@ export class Player extends Model {
         (o = this.life_absorption),
         (this.life_absorption = Tool.sumValue(
           this.life_absorption,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -519,7 +519,7 @@ export class Player extends Model {
         (o = this.mana_absorption),
         (this.mana_absorption = Tool.sumValue(
           this.mana_absorption,
-          n,
+          value,
           0,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -529,7 +529,7 @@ export class Player extends Model {
         (o = this.heal_recovery),
         (this.heal_recovery = Tool.sumValue(
           this.heal_recovery,
-          n,
+          value,
           Model.MIN_HEAL_RECOVERY,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -539,7 +539,7 @@ export class Player extends Model {
         (o = this.mana_recovery),
         (this.mana_recovery = Tool.sumValue(
           this.mana_recovery,
-          n,
+          value,
           Model.MIN_MANA_RECOVERY,
           Model.MAX_OTHER_ATTRIBUTE,
         )),
@@ -549,7 +549,7 @@ export class Player extends Model {
         (o = this.keepout_atk_time),
         (this.keepout_atk_time = Tool.sumValue(
           this.keepout_atk_time,
-          n,
+          value,
           0,
           Model.MAX_KEEPOUT_ATK_TIME,
         )),
@@ -559,14 +559,14 @@ export class Player extends Model {
         (o = this.weapon_damage_percent),
         (this.weapon_damage_percent = Tool.sumValue(
           this.weapon_damage_percent,
-          n,
+          value,
           -1e4,
           1e4,
         )),
         (this.readAddValue = this.weapon_damage_percent - o)
         break
       default:
-        super.addValue.call(this, e, n)
+        super.addValue.call(this, type, value)
     }
   }
 
@@ -663,8 +663,8 @@ export class Player extends Model {
           }
           else if (
             Define.getBufferType(o.getStatus())
-                        == Define.getBufferType(t.getStatus())
-                        && (e++, e >= PlayerBuffer.MAX_SIZE)
+            == Define.getBufferType(t.getStatus())
+            && (e++, e >= PlayerBuffer.MAX_SIZE)
           ) {
             (n = o.getStatus()), o.destroy(this)
             var a = this.battleBufferList.indexOf(o)
@@ -685,18 +685,16 @@ export class Player extends Model {
   }
 
   clearBufferList(t) {
-    if (this.battleBufferList != null) {
-      for (let e = this.battleBufferList.length - 1; e >= 0; e--) {
-        const n = this.battleBufferList[e]
-        if (n != null && (t != 0 || !n.isCannotReliveStatus())) {
-          n.destroy(this)
-          const i = this.battleBufferList.indexOf(n)
-          this.battleBufferList.splice(i, 1),
-          this.clearBattleStatus(Define.getBufferBitValue(n.getStatus()))
-        }
+    for (let e = this.battleBufferList.length - 1; e >= 0; e--) {
+      const n = this.battleBufferList[e]
+      if (n != null && (t != 0 || !n.isCannotReliveStatus())) {
+        n.destroy(this)
+        const i = this.battleBufferList.indexOf(n)
+        this.battleBufferList.splice(i, 1),
+        this.clearBattleStatus(Define.getBufferBitValue(n.getStatus()))
       }
-      this.battleBufferList.length <= 0 && (this.battleBufferList = [])
     }
+    this.battleBufferList.length <= 0 && (this.battleBufferList = [])
   }
 
   isHaveCanNotReliveBuffer() {
@@ -740,8 +738,8 @@ export class Player extends Model {
             for (let a = i + 1; a < this.battleBufferList.length; a++) {
               const r = this.battleBufferList[a]
               r != null
-                                && r.isSameStatusType(o.getAddValue())
-                                && (r.finish(), n.push(r))
+                && r.isSameStatusType(o.getAddValue())
+                && (r.finish(), n.push(r))
             }
           }
         }
@@ -761,7 +759,7 @@ export class Player extends Model {
     for (var i = 0; i < this.battleBufferList.length; i++) {
       var o = this.battleBufferList[i]
       o != null
-                && this.setBattleStatus(Define.getBufferBitValue(o.getStatus()))
+        && this.setBattleStatus(Define.getBufferBitValue(o.getStatus()))
     }
     return e
   }
@@ -845,9 +843,9 @@ export class Player extends Model {
         (a = this.itemSetData[_++]),
         (r = this.itemSetData[_++]),
         a == t
-                    && ((s = Player.getItemSetID(o)),
-                    (l = Player.getItemSetNum(o)),
-                    this.bag.getEquipItemSetNum(s) < l || (i += r))
+          && ((s = Player.getItemSetID(o)),
+          (l = Player.getItemSetNum(o)),
+          this.bag.getEquipItemSetNum(s) < l || (i += r))
       }
     }
     return n && (i += this.getPowerValueByBuffer(t)), i
@@ -867,10 +865,10 @@ export class Player extends Model {
 
   getCountryBuffer(t) {
     return t == Define.POWER_STR_PERCENT
-            || t == Define.POWER_CON_PERCENT
-            || t == Define.POWER_AGI_PERCENT
-            || t == Define.POWER_ILT_PERCENT
-            || t == Define.POWER_WIS_PERCENT
+      || t == Define.POWER_CON_PERCENT
+      || t == Define.POWER_AGI_PERCENT
+      || t == Define.POWER_ILT_PERCENT
+      || t == Define.POWER_WIS_PERCENT
       ? this.countrypowerValue
       : 0
   }
@@ -884,11 +882,11 @@ export class Player extends Model {
       (r += this.getPowerValueByBuffer(e)),
       (s += this.getPowerValueByBuffer(n)),
       this.formationSkill
-            && ((r += this.formationSkill.getPowerValue(e)),
-            (s += this.formationSkill.getPowerValue(n))),
+      && ((r += this.formationSkill.getPowerValue(e)),
+      (s += this.formationSkill.getPowerValue(n))),
       this.playerTurnMonster != null
-            && ((r += this.playerTurnMonster.getPowerValue(e)),
-            (s += this.playerTurnMonster.getPowerValue(n))),
+      && ((r += this.playerTurnMonster.getPowerValue(e)),
+      (s += this.playerTurnMonster.getPowerValue(n))),
       (r += Math.floor((r * s) / 100)),
       (r += this.getBagEquipPowerValue(e)),
       (r = Tool.sumValue(r, 0, o, a))
@@ -906,8 +904,8 @@ export class Player extends Model {
       const n = this.bag.getItem(t[e])
       if (
         n != null
-                && !(n.durability <= 0)
-                && n.type != Define.ITEM_TYPE_WEAPON_ONEHAND_HAND
+        && !(n.durability <= 0)
+        && n.type != Define.ITEM_TYPE_WEAPON_ONEHAND_HAND
       )
         return n.type
     }
@@ -917,12 +915,12 @@ export class Player extends Model {
   getAttakAnimePos() {
     const t = this.getEquipWeaponType()
     return t == Define.ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
-            || t == Define.ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW
-            || t == Define.ITEM_TYPE_WEAPON_TWOHAND_BOW
-            || t == Define.ITEM_TYPE_WEAPON_TWOHAND_STAFF
-            || t == Define.ITEM_TYPE_WEAPON_BALL
-            || t == Define.ITEM_TYPE_WEAPON_ONEHAND_GUN
-            || t == Define.ITEM_TYPE_WEAPON_TWOHAND_GUN
+      || t == Define.ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW
+      || t == Define.ITEM_TYPE_WEAPON_TWOHAND_BOW
+      || t == Define.ITEM_TYPE_WEAPON_TWOHAND_STAFF
+      || t == Define.ITEM_TYPE_WEAPON_BALL
+      || t == Define.ITEM_TYPE_WEAPON_ONEHAND_GUN
+      || t == Define.ITEM_TYPE_WEAPON_TWOHAND_GUN
       ? Define.SKILL_POS_STAND
       : Battle.SKILL_POS_FRONT
   }
@@ -930,7 +928,7 @@ export class Player extends Model {
   getAttackRangeAnime() {
     const t = this.getEquipWeaponType()
     return t == Define.ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
-            || t == Define.ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW
+      || t == Define.ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW
       ? 0
       : 0
   }
@@ -944,22 +942,22 @@ export class Player extends Model {
       (l += this.getPowerValueByBuffer(n)),
       (_ += this.getPowerValueByBuffer(i)),
       this.bag
-            && ((l += this.getBagEquipPowerValue(n)),
-            (_ += this.getBagEquipPowerValue(i))),
+      && ((l += this.getBagEquipPowerValue(n)),
+      (_ += this.getBagEquipPowerValue(i))),
       this.formationSkill
-            && ((l += this.formationSkill.getPowerValue(n)),
-            (_ += this.formationSkill.getPowerValue(i))),
+      && ((l += this.formationSkill.getPowerValue(n)),
+      (_ += this.formationSkill.getPowerValue(i))),
       this.playerTurnMonster != null
-            && ((l += this.playerTurnMonster.getPowerValue(n)),
-            (_ += this.playerTurnMonster.getPowerValue(i))),
+      && ((l += this.playerTurnMonster.getPowerValue(n)),
+      (_ += this.playerTurnMonster.getPowerValue(i))),
       s
-            && this.getEquipWeaponType() == Define.BACK_ERROR_NULL_HAND
-            && (this.bag
-                && (_ += this.getBagEquipPowerValue(Define.POWER_HAND_PERCENT)),
-            (_ += this.getSkillPowerValue(
-              Define.SKILL_TYPE_PASSIVE,
-              Define.POWER_HAND_PERCENT,
-            ))),
+      && this.getEquipWeaponType() == Define.BACK_ERROR_NULL_HAND
+      && (this.bag
+        && (_ += this.getBagEquipPowerValue(Define.POWER_HAND_PERCENT)),
+      (_ += this.getSkillPowerValue(
+        Define.SKILL_TYPE_PASSIVE,
+        Define.POWER_HAND_PERCENT,
+      ))),
       (l += ((l * _) / 100) >> 0),
       (l = Tool.sumValue(l, e, a, r))
     )
@@ -1077,10 +1075,10 @@ export class Player extends Model {
         var i = this.get(Model.LEVEL) + this.get(Model.LEVEL2)
         return (
           (n
-                        = Math.floor((65 * this.get(Model.CON)) / 10)
-                        + 3 * this.get(Model.STR)
-                        + 100
-                        + 40 * (i - 1)),
+            = Math.floor((65 * this.get(Model.CON)) / 10)
+            + 3 * this.get(Model.STR)
+            + 100
+            + 40 * (i - 1)),
           (n = this.getPowerValue(
             n,
             this.hpMax,
@@ -1096,10 +1094,10 @@ export class Player extends Model {
         var o = this.get(Model.LEVEL) + this.get(Model.LEVEL2)
         return (
           (n
-                        = Math.floor((75 * this.get(Model.ILT)) / 10)
-                        + Math.floor((35 * this.get(Model.WIS)) / 10)
-                        + 50
-                        + 10 * (o - 1)),
+            = Math.floor((75 * this.get(Model.ILT)) / 10)
+            + Math.floor((35 * this.get(Model.WIS)) / 10)
+            + 50
+            + 10 * (o - 1)),
           (n = this.getPowerValue(
             n,
             this.mpMax,
@@ -1114,8 +1112,8 @@ export class Player extends Model {
       case Model.SPEED:
         return (
           (n
-                        = 3 * this.get(Model.AGI)
-                        + Math.floor((15 * this.get(Model.WIS)) / 10)),
+            = 3 * this.get(Model.AGI)
+            + Math.floor((15 * this.get(Model.WIS)) / 10)),
           (n = this.getPowerValue(
             n,
             this.speed,
@@ -1142,23 +1140,23 @@ export class Player extends Model {
       case Model.LEFT_ATK_MIN:
         return (
           this.bag
-                    && ((n = this.bag.getAttributeByPos(5, PlayerBag.WEAPON_LEFT_POS)),
-                    n < 0 && (n = 0),
-                    (n = this.addWeaponSkillDamageOrDur(
-                      n,
-                      PlayerBag.WEAPON_LEFT_POS,
-                    ))),
+          && ((n = this.bag.getAttributeByPos(5, PlayerBag.WEAPON_LEFT_POS)),
+          n < 0 && (n = 0),
+          (n = this.addWeaponSkillDamageOrDur(
+            n,
+            PlayerBag.WEAPON_LEFT_POS,
+          ))),
           Tool.sumValue(n, 0, 0, Model.MAX_ATK)
         )
       case Model.RIGHT_ATK_MIN:
         return (
           this.bag
-                    && ((n = this.bag.getAttributeByPos(5, PlayerBag.WEAPON_RIGHT_POS)),
-                    n < 0 && (n = 0),
-                    (n = this.addWeaponSkillDamageOrDur(
-                      n,
-                      PlayerBag.WEAPON_RIGHT_POS,
-                    ))),
+          && ((n = this.bag.getAttributeByPos(5, PlayerBag.WEAPON_RIGHT_POS)),
+          n < 0 && (n = 0),
+          (n = this.addWeaponSkillDamageOrDur(
+            n,
+            PlayerBag.WEAPON_RIGHT_POS,
+          ))),
           Tool.sumValue(n, 0, 0, Model.MAX_ATK)
         )
       case Model.ATK_MIN:
@@ -1168,23 +1166,23 @@ export class Player extends Model {
       case Model.LEFT_ATK_MAX:
         return (
           this.bag
-                    && ((n = this.bag.getAttributeByPos(6, PlayerBag.WEAPON_LEFT_POS)),
-                    n < 0 && (n = 0),
-                    (n = this.addWeaponSkillDamageOrDur(
-                      n,
-                      PlayerBag.WEAPON_LEFT_POS,
-                    ))),
+          && ((n = this.bag.getAttributeByPos(6, PlayerBag.WEAPON_LEFT_POS)),
+          n < 0 && (n = 0),
+          (n = this.addWeaponSkillDamageOrDur(
+            n,
+            PlayerBag.WEAPON_LEFT_POS,
+          ))),
           Tool.sumValue(n, 0, 0, Model.MAX_ATK)
         )
       case Model.RIGHT_ATK_MAX:
         return (
           this.bag
-                    && ((n = this.bag.getAttributeByPos(6, PlayerBag.WEAPON_RIGHT_POS)),
-                    n < 0 && (n = 0),
-                    (n = this.addWeaponSkillDamageOrDur(
-                      n,
-                      PlayerBag.WEAPON_RIGHT_POS,
-                    ))),
+          && ((n = this.bag.getAttributeByPos(6, PlayerBag.WEAPON_RIGHT_POS)),
+          n < 0 && (n = 0),
+          (n = this.addWeaponSkillDamageOrDur(
+            n,
+            PlayerBag.WEAPON_RIGHT_POS,
+          ))),
           Tool.sumValue(n, 0, 0, Model.MAX_ATK)
         )
       case Model.ATK_MAX:
@@ -1193,8 +1191,8 @@ export class Player extends Model {
         return (n = s), l > n && (n = l), Math.floor(n)
       case Model.LEFT_ATK_TIME:
         return this.bag
-                    && ((n = this.bag.getAttributeByPos(7, PlayerBag.WEAPON_LEFT_POS)),
-                    n < 0)
+          && ((n = this.bag.getAttributeByPos(7, PlayerBag.WEAPON_LEFT_POS)),
+          n < 0)
           ? 0
           : Tool.sumValue(
             n + 1,
@@ -1204,8 +1202,8 @@ export class Player extends Model {
           )
       case Model.RIGHT_ATK_TIME:
         return this.bag
-                    && ((n = this.bag.getAttributeByPos(7, PlayerBag.WEAPON_RIGHT_POS)),
-                    n < 0)
+          && ((n = this.bag.getAttributeByPos(7, PlayerBag.WEAPON_RIGHT_POS)),
+          n < 0)
           ? 0
           : Tool.sumValue(
             n + 1,
@@ -1227,8 +1225,8 @@ export class Player extends Model {
                 true,
               )))
             : (n
-                            = this.get(Model.LEFT_ATK_TIME)
-                            + this.get(Model.RIGHT_ATK_TIME)),
+              = this.get(Model.LEFT_ATK_TIME)
+              + this.get(Model.RIGHT_ATK_TIME)),
           (n = this.addWeaponSkillAtkTime(n, _)),
           Tool.sumValue(
             n,
@@ -1269,8 +1267,8 @@ export class Player extends Model {
         )
       case Model.ATK_MAGIC:
         var h
-                    = (3 * this.get(Model.ILT) + 2 * this.get(Model.WIS))
-                    * (this.get(Model.HIT_MAGIC) + 900)
+          = (3 * this.get(Model.ILT) + 2 * this.get(Model.WIS))
+          * (this.get(Model.HIT_MAGIC) + 900)
         return (
           (h = GZIP.toInteger(h)),
           (n = (h / 1e3) >> 0),
@@ -1333,8 +1331,8 @@ export class Player extends Model {
       case Model.DODGE:
         return (
           (n
-                        = (10 * (this.get(Model.AGI) + this.get(Model.WIS)))
-                        / 25),
+            = (10 * (this.get(Model.AGI) + this.get(Model.WIS)))
+            / 25),
           (n = this.getPowerValue(
             n,
             this.dodge,
@@ -1413,7 +1411,7 @@ export class Player extends Model {
       case Model.WIL:
         return (
           (n
-                        = (3 * this.get(Model.WIS) + this.get(Model.ILT)) / 10),
+            = (3 * this.get(Model.WIS) + this.get(Model.ILT)) / 10),
           (n = this.getPowerValue(
             n,
             this.wil,
@@ -1428,7 +1426,7 @@ export class Player extends Model {
       case Model.TOUGH:
         return (
           (n
-                        = (2 * this.get(Model.CON) + this.get(Model.STR)) / 10),
+            = (2 * this.get(Model.CON) + this.get(Model.STR)) / 10),
           (n = this.getPowerValue(
             n,
             this.tough,
@@ -1485,7 +1483,7 @@ export class Player extends Model {
       case Model.INSIGHT:
         return (
           (n
-                        = (2 * this.get(Model.WIS) + this.get(Model.ILT)) / 10),
+            = (2 * this.get(Model.WIS) + this.get(Model.ILT)) / 10),
           (n = this.getPowerValue(
             n,
             this.insight,
@@ -1912,9 +1910,9 @@ export class Player extends Model {
       const o = this.autoSkillID[i]
       o == t && ((n = true), (e = i), (this.autoSkillID[i] = 0)),
       n == true
-                && (i < this.autoSkillID.length - 1
-                  ? (this.autoSkillID[i] = this.autoSkillID[i + 1])
-                  : (this.autoSkillID[i] = 0))
+        && (i < this.autoSkillID.length - 1
+          ? (this.autoSkillID[i] = this.autoSkillID[i + 1])
+          : (this.autoSkillID[i] = 0))
     }
     return e
   }

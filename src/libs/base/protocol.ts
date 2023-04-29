@@ -1,8 +1,8 @@
-import { Define } from "libs/defined/defined"
-import { GameMap } from "libs/typings/GameMap"
-import { ItemData } from "libs/typings/ItemData"
-import { Player } from "libs/typings/Player"
-import { ShopItemData } from "libs/typings/ShopItem"
+import { Define } from 'libs/defined/defined'
+import type { GameMap } from 'libs/typings/GameMap'
+import type { ItemData } from 'libs/typings/ItemData'
+import type { Player } from 'libs/typings/Player'
+import type { ShopItemData } from 'libs/typings/ShopItem'
 
 // impl int64 for js
 export class Long {
@@ -52,52 +52,52 @@ export class Bytes {
 }
 
 export interface IProtocol {
-  setUnsignedByte(value: number): this;
-  getUnsignedByte(): number;
+  setUnsignedByte(value: number): this
+  getUnsignedByte(): number
 
-  setByte(value: number): this;
-  getByte(): number;
+  setByte(value: number): this
+  getByte(): number
 
-  setShort(value: number): this;
-  getShort(): number;
+  setShort(value: number): this
+  getShort(): number
 
-  setUnsignedShort(value: number): this;
-  getunsignedShort(): number;
+  setUnsignedShort(value: number): this
+  getunsignedShort(): number
 
-  setInt(value: number): this;
-  getInt(): number;
+  setInt(value: number): this
+  getInt(): number
 
-  setUnsignedInt(value: number): this;
-  getUnsignedInt(): number;
+  setUnsignedInt(value: number): this
+  getUnsignedInt(): number
 
-  setLong(value: Long): this;
-  getLong(): Long;
-  setLongByInt(value: number): this;
-  getLongToInt(): number;
+  setLong(value: Long): this
+  getLong(): Long
+  setLongByInt(value: number): this
+  getLongToInt(): number
 
-  setString(value: string): this;
-  getString(): string;
+  setString(value: string): this
+  getString(): string
 
-  setFloat(value: number): this;
-  getFloat(): number;
+  setFloat(value: number): this
+  getFloat(): number
 
-  setBytes(value?: egret.ByteArray): this;
-  getBytes(): egret.ByteArray;
+  setBytes(value?: egret.ByteArray): this
+  getBytes(): egret.ByteArray
 
-  setLengthBytes(value: Bytes): this;
-  getLengthBytes(): Bytes;
+  setLengthBytes(value: Bytes): this
+  getLengthBytes(): Bytes
 
-  setBoolean(value: boolean): this;
-  getBoolean(): boolean;
+  setBoolean(value: boolean): this
+  getBoolean(): boolean
 
   getType(): ProtocolCmd
-  setType(value: ProtocolCmd): this;
+  setType(value: ProtocolCmd): this
   get type(): ProtocolCmd
   set type(value: ProtocolCmd)
 
   get position(): number
   set position(value: number)
-  reposition(): this;
+  reposition(): this
 
   getData(): egret.ByteArray
   setData(value: egret.ByteArray): this
@@ -115,7 +115,7 @@ export interface IProtocol {
 
 export class Protocol implements IProtocol {
   constructor(private _type: ProtocolCmd, private _data: egret.ByteArray = new egret.ByteArray(), position?: number) {
-    _data.position = position ? position : 0
+    _data.position = position || 0
   }
 
   setUnsignedByte(value: number) {
@@ -205,7 +205,7 @@ export class Protocol implements IProtocol {
     return 4294967296 * high + low
   }
 
-  setString(value: string = '') {
+  setString(value = '') {
     this.data.writeUTF(value)
     return this
   }
@@ -224,9 +224,8 @@ export class Protocol implements IProtocol {
   }
 
   setBytes(value?: egret.ByteArray) {
-    if (!value) {
+    if (!value)
       return this.setShort(0)
-    }
 
     this.setBytesLength(value.length)
     value.position = 0
@@ -245,7 +244,7 @@ export class Protocol implements IProtocol {
   }
 
   setLengthBytes(value: Bytes) {
-    throw new Error("Method not implemented.")
+    throw new Error('Method not implemented.')
     return this
   }
 
@@ -333,7 +332,7 @@ export class Protocol implements IProtocol {
   }
 
   clone(position?: number): Protocol {
-    return new Protocol(this._type, this._data, position ? position : this.position)
+    return new Protocol(this._type, this._data, position || this.position)
   }
 }
 
@@ -413,7 +412,7 @@ export namespace Protocol {
     return new Protocol(ProtocolCmd.CG_LOGIN_RECOVERACTOR).setInt(t)
   }
 
-  export function createPlayerEnterMsg(t: number, _: string = '') {
+  export function createPlayerEnterMsg(t: number, _ = '') {
     return new Protocol(ProtocolCmd.CG_LOGIN_ACTORENTER).setInt(t)
       .setInt(Define.LOGIN_DATA_FLAG)
       .setInt(0)
@@ -483,8 +482,7 @@ export namespace Protocol {
       .setByte(t)
       .setBytes(e)
 
-    if (!plans)
-      protocol.setBoolean(false)
+    if (!plans) { protocol.setBoolean(false) }
     else {
       protocol.setBoolean(true)
         .setBytes(plans)
@@ -497,7 +495,7 @@ export namespace Protocol {
     return new Protocol(ProtocolCmd.CG_FIGHT_BATTLE_UPDATE).setByte(round)
   }
 
-  export function createAutoSkillMsg(player: Player, e: number, n: boolean = false) {
+  export function createAutoSkillMsg(player: Player, e: number, n = false) {
     const protocol = new Protocol(ProtocolCmd.CG_SKILL_AUTO_ACTIVE)
     if (!n)
       protocol.setType(ProtocolCmd.CG_SKILL_AUTO_INVALID)
@@ -515,20 +513,20 @@ export namespace Protocol {
       .setInt(flag)
   }
 
-  export function createPlayerBagMessage(t: ProtocolCmd, e: ProtocolCmd, n: ItemData, i: number, o: boolean = false, a: boolean = false) {
+  export function createPlayerBagMessage(t: ProtocolCmd, e: ProtocolCmd, n: ItemData, i: number, o = false, a = false) {
     const protocol = new Protocol(ProtocolCmd.CG_ACTOR_PLAYERBAG)
     protocol.setByte(t),
-      protocol.setByte(e),
-      protocol.setShort(n.slotPos),
-      e === ProtocolCmd.PLAYERBAG_EQUIP
-        ? protocol.setByte(i)
-        : e === ProtocolCmd.PLAYERBAG_LOSE
-          ? protocol.setInt(n.id)
-          : e === ProtocolCmd.PLAYERBAG_ENCHASE
-            ? protocol.setShort(i)
-            : n.isPetCanUseItem() && protocol.setShort(i),
-      protocol.setBoolean(o),
-      protocol.setBoolean(a)
+    protocol.setByte(e),
+    protocol.setShort(n.slotPos),
+    e === ProtocolCmd.PLAYERBAG_EQUIP
+      ? protocol.setByte(i)
+      : e === ProtocolCmd.PLAYERBAG_LOSE
+        ? protocol.setInt(n.id)
+        : e === ProtocolCmd.PLAYERBAG_ENCHASE
+          ? protocol.setShort(i)
+          : n.isPetCanUseItem() && protocol.setShort(i),
+    protocol.setBoolean(o),
+    protocol.setBoolean(a)
     return protocol
   }
 
@@ -543,9 +541,8 @@ export namespace Protocol {
     }
 
     protocol.setByte(Object.keys(map.monsterList).length)
-    for (let id in map.monsterList) {
+    for (const id in map.monsterList)
       protocol.setShort(+id)
-    }
 
     return protocol
   }
@@ -572,7 +569,7 @@ export namespace Protocol {
     return new Protocol(ProtocolCmd.CG_TASK_ABANDON).setShort(id)
   }
 
-  export function createTaskDeliverMsg(pid: number, mid: number, iid: number = -1) {
+  export function createTaskDeliverMsg(pid: number, mid: number, iid = -1) {
     return new Protocol(ProtocolCmd.CG_TASK_DELIVER).setShort(pid).setShort(mid).setInt(iid)
   }
 
@@ -592,7 +589,7 @@ export namespace Protocol {
     return new Protocol(ProtocolCmd.CG_ITEMSHOP_LIST).setShort(id)
   }
 
-  export function createItemShopBuy(sid: number, item: ShopItemData, num: number = 1) {
+  export function createItemShopBuy(sid: number, item: ShopItemData, num = 1) {
     const protocol = new Protocol(ProtocolCmd.CG_ITEMSHOP_BUY)
     protocol.setShort(sid)
       .setInt(item.id)

@@ -2,8 +2,9 @@ import type { IDisposable } from '@livemoe/utils'
 import { Emitter, Event as VSEvent } from '@livemoe/utils'
 import EventEmitter from 'eventemitter3'
 import type { CommandCallback, WebSocketCloseEventCallback, WebSocketConnectEventCallback, WebSocketDataEventCallback, WebSocketErrorEventCallback } from 'libs/typings/type'
+import type { ProtocolCmd } from './protocol'
+import { Protocol } from './protocol'
 import { $Logger } from '~/logger'
-import { Protocol, ProtocolCmd } from './protocol'
 
 const $Log = $Logger.create('Socket').log
 

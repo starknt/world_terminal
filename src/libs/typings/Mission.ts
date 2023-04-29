@@ -1,4 +1,4 @@
-import { Protocol } from 'libs/base/protocol'
+import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { Condition } from './Condition'
 import type { GameMap } from './GameMap'
@@ -574,9 +574,9 @@ export namespace Mission {
     3075: { name: '失魂沙漠高级任务', mapid: 820, npcid: 5 },
   }
 
-  export let newRadarMapID = 0
-  export let newRadarGx = 0
-  export let newRadarGy = 0
+  export const newRadarMapID = 0
+  export const newRadarGx = 0
+  export const newRadarGy = 0
   export const CAN_SUBMIT = 0
   export const NOT_CAN_SUBMIT = 1
   export const CAN_ACCEPT = 2

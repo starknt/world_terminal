@@ -1,8 +1,8 @@
 import { Protocol } from 'libs/base/protocol'
 import type { Version } from 'libs/shared/version'
 import { ServerInfo } from 'libs/typings/ServerInfo'
-import { IApiClientResponse } from '~/types'
 import { ApiClient } from './api'
+import type { IApiClientResponse } from '~/types'
 
 export class LoginApiClient extends ApiClient {
   async registerAccount(username: string, password: string): IApiClientResponse {

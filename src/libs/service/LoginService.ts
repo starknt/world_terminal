@@ -1,9 +1,10 @@
 import { Emitter } from '@livemoe/utils'
 import { LoginApiClient } from 'libs/api'
-import { Long, Protocol } from 'libs/base/protocol'
+import type { Long } from 'libs/base/protocol'
+import { Protocol } from 'libs/base/protocol'
 import { SocketClient } from 'libs/base/socket'
 import type { Version } from 'libs/shared/version'
-import { ServerInfo } from 'libs/typings/ServerInfo'
+import type { ServerInfo } from 'libs/typings/ServerInfo'
 import type { LoginSuccessResult } from 'libs/typings/type'
 import { $Logger } from '~/logger'
 
@@ -60,7 +61,7 @@ export class LoginService {
       sessionId: this.sessionId,
       photoIp: this.photoIp,
       loginSetting: this.loginSetting,
-      gameAreaServerList: this.gameAreaList
+      gameAreaServerList: this.gameAreaList,
     })
   }
 

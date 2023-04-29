@@ -1,4 +1,4 @@
-import { Protocol } from 'libs/base/protocol'
+import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { GameText } from 'libs/defined/gameText'
 import { GZIP } from 'libs/shared/GZIP'

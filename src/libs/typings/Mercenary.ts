@@ -1,4 +1,4 @@
-import { Protocol } from 'libs/base/protocol'
+import type { Protocol } from 'libs/base/protocol'
 import { Monster } from './Monster'
 import { MonsterAI } from './MonsterAI'
 import { Skill } from './Skill'

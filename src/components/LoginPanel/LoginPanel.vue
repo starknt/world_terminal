@@ -6,7 +6,7 @@ const emit = defineEmits<{
   (e: 'login', form: Form, version: Version): void
 }>()
 
-const login = (form: Form, version: Version) => {
+function login(form: Form, version: Version) {
   emit('login', form, version)
 }
 </script>

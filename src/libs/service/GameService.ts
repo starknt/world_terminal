@@ -14,7 +14,7 @@ import { NPC } from 'libs/typings/Npc'
 import { Pet } from 'libs/typings/PetInfo'
 import { Player } from 'libs/typings/Player'
 import { PlayerBag } from 'libs/typings/PlayerBag'
-import { RoleInfo } from 'libs/typings/RoleInfo'
+import type { RoleInfo } from 'libs/typings/RoleInfo'
 import type { ServerInfo } from 'libs/typings/ServerInfo'
 import { Skill } from 'libs/typings/Skill'
 import type { RoleLoadedResult } from 'libs/typings/type'
@@ -110,8 +110,8 @@ export class GameService {
       const i = n.bag
       i != null
         && (i.checkEquipTimeItem(),
-          i.handlePlayerDurability(t),
-          n.checkHPMP()
+        i.handlePlayerDurability(t),
+        n.checkHPMP()
         )
     }
   }
@@ -130,7 +130,7 @@ export class GameService {
         const n = e.getBagEquipPowerValue(Define.POWER_HPMP_RECOVER)
         n > 0
           && (Define.addValuePlayer(e, Model.HP, n, true, Model.HPMAX),
-            Define.addValuePlayer(e, Model.MP, n, true, Model.MPMAX))
+          Define.addValuePlayer(e, Model.MP, n, true, Model.MPMAX))
       }
       e.isDead() && this.hpRecover(e)
       const i = e.getPet()
@@ -474,11 +474,11 @@ export class GameService {
           case Define.DATA_MASTER_INFO:
             break
           case Define.DATA_TURN_MONSTER:
-            {
-              const v = byte.getBoolean()
-              if (v)
-                throw new Error('DATA_TURN_MONSTER')
-            }
+          {
+            const v = byte.getBoolean()
+            if (v)
+              throw new Error('DATA_TURN_MONSTER')
+          }
         }
       }
     }

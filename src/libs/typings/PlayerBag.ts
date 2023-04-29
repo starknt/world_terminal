@@ -1,4 +1,4 @@
-import { Protocol } from 'libs/base/protocol'
+import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { ItemData } from './ItemData'
 import type { Player } from './Player'

@@ -1,4 +1,4 @@
-import { Protocol } from 'libs/base/protocol'
+import type { Protocol } from 'libs/base/protocol'
 import type { SocketClient } from 'libs/base/socket'
 import type { ApiClientResponse } from '~/types'
 

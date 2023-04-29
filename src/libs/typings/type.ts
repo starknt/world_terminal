@@ -1,4 +1,4 @@
-import { Long, Protocol } from 'libs/base/protocol'
+import type { Long, Protocol } from 'libs/base/protocol'
 import type { RoleInfo } from './RoleInfo'
 import type { ServerInfo } from './ServerInfo'
 

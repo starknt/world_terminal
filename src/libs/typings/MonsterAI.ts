@@ -1,4 +1,4 @@
-import { Protocol } from 'libs/base/protocol'
+import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { Battle } from 'libs/service/Battle/battle'
 import { Tool } from 'libs/shared/Tool'

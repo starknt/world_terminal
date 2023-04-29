@@ -10,7 +10,7 @@ const store = bag.store.slice(30).filter(Boolean)
 const pages = store.length % PAGE_MAX_ITEM ? Math.floor(store.length / PAGE_MAX_ITEM) + 1 : Math.floor(store.length / PAGE_MAX_ITEM)
 const willRendererStore = computed(() => store.slice((page - 1) * PAGE_MAX_ITEM, page * PAGE_MAX_ITEM))
 
-const updatePage = (nextPage: number) => {
+function updatePage(nextPage: number) {
   page = nextPage
 }
 </script>

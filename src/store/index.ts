@@ -1,4 +1,4 @@
-import { GameService } from "libs/service/GameService"
+import type { GameService } from 'libs/service/GameService'
 
 interface ITabTask {
   state: 'running' | 'done' | 'waiting'
@@ -15,6 +15,6 @@ interface GlobalState {
 
 export const useGlobalStore = defineStore<string, GlobalState>('global', {
   state: () => ({
-      tabs: []
-  })
+    tabs: [],
+  }),
 })

@@ -11,7 +11,7 @@ import type { StepsProps } from 'naive-ui'
 import pretty from 'pretty-ms'
 import { globalWorld } from '~/GlobalWorld'
 import { $Logger } from '~/logger'
-import type { ApiClientResponse, Form } from '~/types'
+import type { Form } from '~/types'
 
 const props = defineProps<{
   index: number
@@ -35,13 +35,13 @@ watch(() => gameService, () => {
   globalWorld.setGameWorld(props.index, gameService as any as GameService)
 })
 
-const next = () => {
+function next() {
   currentStatus = 'process'
 
   current++
 }
 
-const handleLogin = async (form: Form, version: Version) => {
+async function handleLogin(form: Form, version: Version) {
   $Logger.log('登录账号信息', form, version)
 
   loadingBar.start()
@@ -70,7 +70,7 @@ const handleLogin = async (form: Form, version: Version) => {
   }
 }
 
-const handleGameLogin = async (info: ServerInfo) => {
+async function handleGameLogin(info: ServerInfo) {
   loadingBar.start()
   currentStatus = 'wait'
 
@@ -94,12 +94,12 @@ const handleGameLogin = async (info: ServerInfo) => {
   roleInfo = gameLoginResult.roles
   creatable = gameLoginResult.creatable
 
-  if(account)
+  if (account)
     updateAccount(account)
   setTimeout(() => next(), 1000)
 }
 
-const handleRoleLogin = async (role: RoleInfo) => {
+async function handleRoleLogin(role: RoleInfo) {
   loadingBar.start()
   currentStatus = 'wait'
 
@@ -110,7 +110,7 @@ const handleRoleLogin = async (role: RoleInfo) => {
   setTimeout(() => next(), 1000)
 }
 
-const handleDeleteRole = async (role: RoleInfo) => {
+async function handleDeleteRole(role: RoleInfo) {
   $Logger.log('删除角色', role)
   const res = await gameService!.client.deleteRole(role)
 
@@ -126,7 +126,7 @@ const handleDeleteRole = async (role: RoleInfo) => {
   $Logger.log('删除角色', res)
 }
 
-const handleRecoverRole = async (role: RoleInfo) => {
+async function handleRecoverRole(role: RoleInfo) {
   $Logger.log('恢复角色', role)
 
   const res = await gameService!.client.recoverRole(role)
@@ -165,7 +165,7 @@ provide('api', {
           <LoginPanel v-if="current === 1" @login="handleLogin" />
 
           <CheckServer
-            v-if="current === 2" 
+            v-if="current === 2"
             :server-info="loginResult!.gameAreaServerList"
             @login="handleGameLogin"
           />

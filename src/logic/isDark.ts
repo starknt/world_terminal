@@ -7,7 +7,7 @@ export const isDark = useDark({
 
 const _toggleTheme = useToggle(isDark)
 
-export const toggleTheme = () => {
+export function toggleTheme() {
   _toggleTheme()
 
   if (isDark.value)

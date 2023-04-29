@@ -30,19 +30,19 @@ watch(() => roleInfo, () => {
     roleInfo.push(noopRole)
 }, { immediate: true })
 
-const loginRole = (info: RoleInfo) => {
+function loginRole(info: RoleInfo) {
   emit('login', info)
 }
 
-const deleteRole = (info: RoleInfo) => {
+function deleteRole(info: RoleInfo) {
   emit('delete', info)
 }
 
-const recoverRole = (info: RoleInfo) => {
+function recoverRole(info: RoleInfo) {
   emit('recover', info)
 }
 
-const finish = (info: RoleInfo) => {
+function finish(info: RoleInfo) {
 
 }
 
@@ -52,7 +52,7 @@ const isCreatable = $computed(() => {
   return roleInfo.filter(info => info.id > 0).length < props.creatable
 })
 
-const disabled = (info: RoleInfo) => {
+function disabled(info: RoleInfo) {
   if (info.id <= 0)
     return true
   if (info.isStatusBit(Model.STATUS_TEMP_DEL))

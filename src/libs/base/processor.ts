@@ -5,7 +5,7 @@ import { Monster } from 'libs/typings/Monster'
 import { MonsterGroup } from 'libs/typings/MonsterGroup'
 import { PlayerBag } from 'libs/typings/PlayerBag'
 import { Skill } from 'libs/typings/Skill'
-import { Protocol } from './protocol'
+import type { Protocol } from './protocol'
 
 export namespace Processor {
   export function parseBattleNormalReward(e: Protocol, service: GameService) {
@@ -102,37 +102,37 @@ export namespace Processor {
     }
   }
 
-  export function processUpLevelMsg(t: Protocol, service: GameService) {
+  export function processUpLevelMsg(protocol: Protocol, service: GameService) {
     const { player } = service
 
-    const exp = t.getInt()
+    const exp = protocol.getInt()
     player.addValue(Model.EXP, exp)
-    const upLevel = t.getByte()
+    const upLevel = protocol.getByte()
     if (upLevel > 0) {
       player.addValue(Model.LEVEL, upLevel)
-      const exp = t.getInt()
-      const maxExp = t.getInt()
+      const exp = protocol.getInt()
+      const maxExp = protocol.getInt()
       player.addValue(Model.SET_EXP, exp)
       player.addValue(Model.SET_EXPMAX, maxExp)
-      const sp = t.getShort()
+      const sp = protocol.getShort()
       if (sp > 0)
         player.addValue(Model.SP, sp)
 
-      const cp = t.getByte()
+      const cp = protocol.getByte()
       if (cp) {
         player.addValue(Model.CP, cp)
         player.setTabStatus(true, Model.ATTR_NEW_NOTICE)
       }
     }
 
-    const exp2 = t.getInt()
+    const exp2 = protocol.getInt()
     if (exp2 > 0)
       player.addValue(Model.EXP2, exp2)
-    const upLevel2 = t.getByte()
+    const upLevel2 = protocol.getByte()
     if (upLevel2 > 0) {
       player.addValue(Model.LEVEL2, upLevel2)
-      const exp2 = t.getInt()
-      const maxExp2 = t.getInt()
+      const exp2 = protocol.getInt()
+      const maxExp2 = protocol.getInt()
       player.addValue(Model.SET_EXP2, exp2)
       player.addValue(Model.SET_EXPMAX2, maxExp2)
     }
@@ -141,25 +141,25 @@ export namespace Processor {
       player.resumeHPMP()
   }
 
-  export function processAddItemMsg(t: Protocol, service: GameService) {
+  export function processAddItemMsg(protocol: Protocol, service: GameService) {
     const { player } = service
     const n = player
     const i = player.bag
     for (
-      let o = t.getByte(), a: ItemData | null = null, r = 0, l = 0;
+      let o = protocol.getByte(), a: ItemData | null = null, r = 0, l = 0;
       o > l;
       l++
     ) {
-      const _ = t.getByte()
-      if (((r = t.getByte()), _ == 1)) {
-        var h = 255 & t.getByte();
-        (a = ItemData.fromBytes(t)),
+      const _ = protocol.getByte()
+      if (((r = protocol.getByte()), _ == 1)) {
+        var h = 255 & protocol.getByte();
+        (a = ItemData.fromBytes(protocol)),
         n.bag.addItem(PlayerBag.TYPE_BAG_POS, a, r),
         h != a.slotPos
       }
       else if (_ == 2) {
-        const u = t.getInt()
-        var h = 255 & t.getByte();
+        const u = protocol.getInt()
+        var h = 255 & protocol.getByte();
         (a = i.getItem(h)),
         a != null && (a.quantity += r),
         a == null || (a.quantity > a.stackNum, a.id != u)

@@ -1,4 +1,4 @@
-import { Long } from 'libs/base/protocol'
+import type { Long } from 'libs/base/protocol'
 import { GameService } from 'libs/service/GameService'
 import type { ServerInfo } from 'libs/typings/ServerInfo'
 import type { RoleLoadedResult } from 'libs/typings/type'

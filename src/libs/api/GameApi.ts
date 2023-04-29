@@ -8,9 +8,10 @@ import type { Player } from 'libs/typings/Player'
 import { RoleInfo } from 'libs/typings/RoleInfo'
 import { ShopItemData } from 'libs/typings/ShopItem'
 import type { Skill } from 'libs/typings/Skill'
+import type { Long } from 'libs/base/protocol'
+import { Protocol, ProtocolCmd } from 'libs/base/protocol'
 import { ApiClient } from './api'
 import type { IApiClientResponse } from '~/types'
-import { Long, Protocol, ProtocolCmd } from 'libs/base/protocol'
 
 export class GameApiClient extends ApiClient {
   constructor(protected readonly socket: SocketClient, protected readonly service: GameService) {

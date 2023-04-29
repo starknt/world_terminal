@@ -61,7 +61,7 @@ const rule: FormRules = {
   ],
 }
 
-const register = async () => {
+async function register() {
   try {
     await formRef.value?.validate()
 

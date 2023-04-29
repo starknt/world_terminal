@@ -66,7 +66,7 @@ watchEffect(() => {
   api?.updateTitle(formValue.displayName)
 })
 
-const login = async () => {
+async function login() {
   try {
     await formRef.value?.validate()
 
@@ -76,7 +76,7 @@ const login = async () => {
   }
 }
 
-const save = async () => {
+async function save() {
   try {
     await formRef.value?.validate()
 
@@ -92,7 +92,7 @@ const save = async () => {
   }
 }
 
-const handleChangeAccount = (account: Account) => {
+function handleChangeAccount(account: Account) {
   if (account.version.name === VERSION_KEY.GF) {
     formValue.username = account.username
     formValue.password = account.password
@@ -104,13 +104,13 @@ const handleChangeAccount = (account: Account) => {
   formValue.displayName = account.displayName
 }
 
-const handleClearAccount = () => {
+function handleClearAccount() {
   formValue.username = ''
   formValue.password = ''
   version = VERSION_KEY.GF
 }
 
-const handleRenameAccount = (account: Account) => {
+function handleRenameAccount(account: Account) {
   formValue.displayName = account.displayName
 }
 </script>

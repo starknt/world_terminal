@@ -1,4 +1,4 @@
-import { Protocol } from 'libs/base/protocol'
+import type { Protocol } from 'libs/base/protocol'
 import { Battle } from 'libs/service/Battle/battle'
 import type { GameMap } from './GameMap'
 import type { Model } from './Model'

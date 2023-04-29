@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { breakpointsTailwind } from '@vueuse/core'
 import { ServerInfo } from 'libs/typings/ServerInfo'
+
 const props = defineProps<{
   serverInfo: ServerInfo[]
 }>()
@@ -10,11 +11,11 @@ const emit = defineEmits<{
 const breakPoints = useBreakpoints(breakpointsTailwind)
 let checkedServer = $ref(props.serverInfo.find(info => info.logon)!.id)
 
-const handleCheck = (id: number) => {
+function handleCheck(id: number) {
   checkedServer = id
 }
 
-const handleLogin = () => {
+function handleLogin() {
   const info = props.serverInfo.find(v => v.id === checkedServer)!
 
   emit('login', info)
@@ -88,11 +89,11 @@ onMounted(() => {
   }, 30))
 })
 
-const randomInt = (min = 0, max = 0) => {
+function randomInt(min = 0, max = 0) {
   return Math.floor(Math.random() * max + min)
 }
 
-const randomType = (): 'default' | 'error' | 'info' | 'success' | 'warning' => {
+function randomType(): 'default' | 'error' | 'info' | 'success' | 'warning' {
   const TYPES = ['default', 'error', 'info', 'success', 'warning']
 
   const type = TYPES[randomInt(0, TYPES.length)]
@@ -103,17 +104,25 @@ const randomType = (): 'default' | 'error' | 'info' | 'success' | 'warning' => {
 
 <template>
   <div>
-    <n-descriptions p-4 rounded-md text-white bg="[#f1f1f1]" dark:bg="[#18181c]" label-placement="top"
-      label-align="center" title="服务器列表">
+    <n-descriptions
+      p-4 rounded-md text-white bg="[#f1f1f1]" dark:bg="[#18181c]" label-placement="top"
+      label-align="center" title="服务器列表"
+    >
       <n-descriptions-item ml-0 mt-4>
-        <n-grid ml-0 p-8 cols="6 m:9 l:12" responsive="screen" :item-responsive="true" :collapsed="false" :x-gap="8"
-          :y-gap="20">
+        <n-grid
+          ml-0 p-8 cols="6 m:9 l:12" responsive="screen" :item-responsive="true" :collapsed="false" :x-gap="8"
+          :y-gap="20"
+        >
           <n-grid-item v-for="info in props.serverInfo" span="3">
-            <n-badge :type="randomType()"
-              :value="info.stateStr.includes('#') ? `新服 ${info.actorCount}` : `${info.stateStr} ${info.actorCount}`">
-              <n-tag :key="info.id" :disabled="info.state === ServerInfo.SERVER_STATE_STOP"
+            <n-badge
+              :type="randomType()"
+              :value="info.stateStr.includes('#') ? `新服 ${info.actorCount}` : `${info.stateStr} ${info.actorCount}`"
+            >
+              <n-tag
+                :key="info.id" :disabled="info.state === ServerInfo.SERVER_STATE_STOP"
                 :checked="info.id === checkedServer" checkable size="large" round strong :value="info.id"
-                @update:checked="handleCheck(info.id)">
+                @update:checked="handleCheck(info.id)"
+              >
                 {{ info.name.slice(0, 4) }}
               </n-tag>
             </n-badge>

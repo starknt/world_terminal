@@ -4,7 +4,7 @@ import { useGlobalSettingStore } from '~/store/setting'
 let show = $ref(false)
 const store = useGlobalSettingStore()
 
-const toggleSettingWidget = () => {
+function toggleSettingWidget() {
   show = !show
 }
 </script>

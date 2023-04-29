@@ -1,4 +1,4 @@
-import { Protocol } from "libs/base/protocol"
+import type { Protocol } from 'libs/base/protocol'
 
 export class AchieveTitle {
   id = 0

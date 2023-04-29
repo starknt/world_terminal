@@ -9,15 +9,16 @@ export class PlayerBuffer {
   animeID = 0
   battle: any
 
-  constructor(t, e, n, i, o, a, r) {
-    this.battle = t
-    this.attrID = e
-    this.addValue = n
-    this.statusBit = i
-    this.lastTime = o
-    this.animeID = a
+  constructor(battle, attrID: number, addValue: number, statusBit: number, lastTime: number, animeID: number, addValue2: number) {
+    this.battle = battle
+    this.attrID = attrID
+    this.addValue = addValue
+    this.statusBit = statusBit
+    this.lastTime = lastTime
+    this.animeID = animeID
 
-    this.isPermanentBuffer() == false && (this.addValue = r)
+    if (!this.isPermanentBuffer())
+      this.addValue = addValue2
   }
 
   getLastTime() {

@@ -41,7 +41,7 @@ const cOptions: SelectMixedOption[] = $computed(() => {
   }))
 })
 
-const handleValueUpdate = (newValue: string) => {
+function handleValueUpdate(newValue: string) {
   value = newValue
 
   if (!newValue) {
@@ -56,7 +56,7 @@ const handleValueUpdate = (newValue: string) => {
     emit('change', account)
 }
 
-const showRename = () => {
+function showRename() {
   if (value) {
     show = !show
 
@@ -64,7 +64,7 @@ const showRename = () => {
   }
 }
 
-const handleRenameAccount = (v: string) => {
+function handleRenameAccount(v: string) {
   if (!value)
     return
 
@@ -78,7 +78,7 @@ const handleRenameAccount = (v: string) => {
   }
 }
 
-const handleDeleteAccount = () => {
+function handleDeleteAccount() {
   $Logger.log('删除账号', value)
 
   if (value) {
