@@ -3,6 +3,7 @@ import { Define } from 'libs/defined/defined'
 import { Battle } from 'libs/service/Battle/battle'
 import { Tool } from 'libs/shared/Tool'
 import { Model } from './Model'
+import type { Monster } from './Monster'
 import { Player } from './Player'
 import { Skill } from './Skill'
 
@@ -12,22 +13,22 @@ export class MonsterAI {
   msg: Array<string> = []
   skill1: Array<Skill | null> | null = null
   skill2: Array<Skill | null> | null = null
-  targetType: Array<any> = []
+  targetType: Array<number> = []
   targetPos = 0
   id = 0
 
-  getBattleSkill(t, e) {
+  getBattleSkill(battle: Battle, monster: Monster) {
     if (this.conType == null || this.conType.length <= 0)
       return null
-    const n = this.conType.length;
-    (this.targetPos = -1), (e.message = null)
+    const n = this.conType.length
+    this.targetPos = -1
     for (let i = 0; n > i; i++) {
-      if (this.isValidConAI(t, e, i)) {
-        const o = this.getConSkill(t, i)
-        if (!o || o.type != Define.SKILL_TYPE_ROUND) {
+      if (this.isValidConAI(battle, monster, i)) {
+        const o = this.getConSkill(battle, i)
+        if (!o || o.type !== Define.SKILL_TYPE_ROUND) {
           return (
-            (this.targetPos = this.selectAttackTarget(t, e, i)),
-            (e.message = this.msg[i]),
+            (this.targetPos = this.selectAttackTarget(battle, monster, i)),
+            (monster.message = this.msg[i]),
             o
           )
         }
@@ -36,235 +37,274 @@ export class MonsterAI {
     return null
   }
 
-  getAutoSkill(t, e) {
+  getAutoSkill(battle: Battle, monster: Monster) {
     if (this.conType == null || this.conType.length <= 0)
       return null
     const n = this.conType.length
-    e.message = null
     for (let i = 0; n > i; i++) {
-      if (this.isValidConAI(t, e, i)) {
-        const o = this.getConSkill(t, i)
+      if (this.isValidConAI(battle, monster, i)) {
+        const o = this.getConSkill(battle, i)
         if (
           o != null
-          && o.type == Define.SKILL_TYPE_ROUND
-          && !(o.useMP > e.get(Model.MP))
-          && o.isEnoughHP(e)
-        )
-          return (e.message = this.msg[i]), o
+          && o.type === Define.SKILL_TYPE_ROUND
+          && !(o.useMP > monster.get(Model.MP))
+          && o.isEnoughHP(monster)
+        ) {
+          monster.message = this.msg[i]
+          return o
+        }
       }
     }
     return null
   }
 
-  isValidConAI(t, e, n) {
+  isValidConAI(battle: Battle, monster: Monster, index: number) {
     let i = 0
-    let o = t.getLeftPosNum()
+    let o = battle.getLeftPosNum()
     let a = 0
-    switch (this.conType[n]) {
+    switch (this.conType[index]) {
       case Define.CONDITION_NONE:
         return true
       case Define.CONDITION_HP_BELOW:
         return (
-          (a = (100 * e.get(Model.HP)) / e.get(Model.HPMAX)),
-          a < this.conValue[n]
+          (a = (100 * monster.get(Model.HP)) / monster.get(Model.HPMAX)),
+          a < this.conValue[index]
         )
       case Define.CONDITION_HP_HIGH:
         return (
-          (a = (100 * e.get(Model.HP)) / e.get(Model.HPMAX)),
-          a > this.conValue[n]
+          (a = (100 * monster.get(Model.HP)) / monster.get(Model.HPMAX)),
+          a > this.conValue[index]
         )
       case Define.CONDITION_HELP_RATE:
-        return t.randInt(100) < this.conValue[n]
+        return battle.randInt(100) < this.conValue[index]
       case Define.CONDITION_ROUND:
-        return this.conValue[n] <= t.round
+        return this.conValue[index] <= battle.round
       case Define.CONDITION_PLAYER_COUNT:
         return (
-          Battle.isLeftSide(e.position) == true
+          Battle.isLeftSide(monster.position)
           && ((i = Battle.LEFT_MAX_POS), (o = Battle.MAX_POS)),
-          this.conValue[n] <= t.getActivePlayerNum(i, o, false)
+          this.conValue[index] <= battle.getActivePlayerNum(i, o, false)
         )
       case Define.CONDITION_MONSTER_COUNT:
         return (
-          Battle.isLeftSide(e.position)
+          Battle.isLeftSide(monster.position)
           || ((i = Battle.LEFT_MAX_POS), (o = Battle.MAX_POS)),
-          this.conValue[n] <= t.getActivePlayerNum(i, o, false)
+          this.conValue[index] <= battle.getActivePlayerNum(i, o, false)
         )
     }
     return false
   }
 
-  getConSkill(t, e) {
+  getConSkill(battle: Battle, index: number) {
     if (this.skill1 == null || this.skill1.length <= 0)
       return null
     if (this.skill2 == null || this.skill2.length <= 0)
       return null
-    const n = this.skill1[e]
-    const i = this.skill2[e]
+    const n = this.skill1[index]
+    const i = this.skill2[index]
     if (n && i) {
-      const o = t.random.nextInt()
-      return (1 & o) == 0 ? n : i
+      const o = battle.random.nextInt()
+      return (1 & o) === 0 ? n : i
     }
     return n || i
   }
 
-  selectAttackTarget(e, n, i) {
-    if (e == null)
+  selectAttackTarget(battle: Battle, monster: Monster, index: number) {
+    if (battle == null)
       return -1
-    if (n == null)
+    if (monster == null)
       return -1
-    if (Tool.isArrayIndexOutOfBounds(i, this.targetType))
+    if (Tool.isArrayIndexOutOfBounds(index, this.targetType))
       return -1
-    const o = this.targetType[i]
-    switch (o) {
+    const type = this.targetType[index]
+    switch (type) {
       case Define.AI_ESCAPE:
         return MonsterAI.TARGET_ESCAPE
       case Define.AI_HATE_MIN:
-        return MonsterAI.selectValueTarget(e, n, o, true)
+        return MonsterAI.selectValueTarget(battle, monster, type, true)
       case Define.AI_HATE_MAX:
-        return MonsterAI.selectValueTarget(e, n, o, true)
+        return MonsterAI.selectValueTarget(battle, monster, type, true)
       case Define.AI_HP_MIN_ENEMY:
-        return MonsterAI.selectValueTarget(e, n, o, true)
+        return MonsterAI.selectValueTarget(battle, monster, type, true)
       case Define.AI_HP_MAX_ENEMY:
-        return MonsterAI.selectValueTarget(e, n, o, true)
+        return MonsterAI.selectValueTarget(battle, monster, type, true)
       case Define.AI_SPEED_MIN_ENEMY:
-        return MonsterAI.selectValueTarget(e, n, o, true)
+        return MonsterAI.selectValueTarget(battle, monster, type, true)
       case Define.AI_SPEED_MAX_ENEMY:
-        return MonsterAI.selectValueTarget(e, n, o, true)
+        return MonsterAI.selectValueTarget(battle, monster, type, true)
       case Define.AI_HP_MIN_FRIEND:
-        return MonsterAI.selectValueTarget(e, n, o, false)
+        return MonsterAI.selectValueTarget(battle, monster, type, false)
       case Define.AI_HP_MAX_FRIEND:
-        return MonsterAI.selectValueTarget(e, n, o, false)
+        return MonsterAI.selectValueTarget(battle, monster, type, false)
       case Define.AI_SPEED_MIN_FRIEND:
-        return MonsterAI.selectValueTarget(e, n, o, false)
+        return MonsterAI.selectValueTarget(battle, monster, type, false)
       case Define.AI_SPEED_MAX_FRIEND:
-        return MonsterAI.selectValueTarget(e, n, o, false)
+        return MonsterAI.selectValueTarget(battle, monster, type, false)
       case Define.AI_RAND_ENEMY:
-        return MonsterAI.selectRandTarget(e, n, true)
+        return MonsterAI.selectRandTarget(battle, monster, true)
       case Define.AI_RAND_FRIEND:
-        return MonsterAI.selectRandTarget(e, n, false)
+        return MonsterAI.selectRandTarget(battle, monster, false)
       case Define.AI_SELF:
-        return n.position
+        return monster.position
       case Define.AI_RAND_FRIEND_DEAD:
-        return MonsterAI.selectRandDeadFriend(e, n)
+        return MonsterAI.selectRandDeadFriend(battle, monster)
       case Define.AI_RAND_ALL_ALIVE:
-        return MonsterAI.selectRandActivePlayer(e, n)
+        return MonsterAI.selectRandActivePlayer(battle, monster)
     }
     return -1
   }
 }
 
 export namespace MonsterAI {
-  export function selectRandActivePlayer(t, e) {
-    for (
-      var n = 0,
-        i = Battle.MAX_POS,
-        o = new Array(Battle.MAX_POS),
-        a = 0,
-        r = n;
-      i > r;
-      r++
-    ) {
-      const s = t.getPlayerByPos(r)
-      t.isValidBattlePlayer(s)
-        && s.position != e.position
-        && (Tool.isArrayIndexOutOfBounds(a, o) || ((o[a] = s.position), a++))
+  export function selectRandActivePlayer(battle: Battle, monster: Monster) {
+    const o = new Array(Battle.MAX_POS)
+    let a = 0
+
+    for (let i = 0; i <= Battle.MAX_POS; i++) {
+      const s = battle.getPlayerByPos(i)
+      if (battle.isValidBattlePlayer(s)
+        && s!.position !== monster.position) {
+        if (!Tool.isArrayIndexOutOfBounds(a, o)) {
+          o[a] = s!.position
+          a++
+        }
+      }
     }
     if (a <= 0)
-      return n
-    if (a == 1)
+      return 0
+    if (a === 1)
       return o[0]
-    const l = t.randRange(0, a - 1)
-    return o[l] == null ? n : o[l]
+    const l = battle.randRange(0, a - 1)
+    return o[l] == null ? 0 : o[l]
   }
 
-  export function selectRandDeadFriend(t, e) {
+  export function selectRandDeadFriend(battle: Battle, monster: Monster) {
     let n = 0
-    let i = t.getLeftPosNum()
-    Battle.isLeftSide(e.position)
-      || ((n = Battle.LEFT_MAX_POS), (i = Battle.MAX_POS))
-    for (var o = new Array(Battle.MAX_POS), a = 0, r = n; i > r; r++) {
-      const s = t.getPlayerByPos(r)
-      s != null
-        && (s.isBattleStatus(Player.BSTATUS_ESCAPE)
-          || (s.isDead()
-            && (Tool.isArrayIndexOutOfBounds(a, o)
-              || ((o[a] = s.position), a++))))
+    let i = battle.getLeftPosNum()
+    if (!Battle.isLeftSide(monster.position)) {
+      n = Battle.LEFT_MAX_POS
+      i = Battle.MAX_POS
+    }
+    const o = new Array(Battle.MAX_POS)
+    let a = 0
+
+    for (let r = n; i > r; r++) {
+      const s = battle.getPlayerByPos(r)
+      if (s !== null) {
+        s.isBattleStatus(Player.BSTATUS_ESCAPE)
+        if (s.isDead()) {
+          if (!Tool.isArrayIndexOutOfBounds(a, o)) {
+            o[a] = s.position
+            a++
+          }
+        }
+      }
     }
     if (a <= 0)
       return n
-    if (a == 1)
+    if (a === 1)
       return o[0]
-    const l = t.randRange(0, a - 1)
+    const l = battle.randRange(0, a - 1)
     return o[l] == null ? n : o[l]
   }
 
-  export function selectRandTarget(t, e, n) {
+  export function selectRandTarget(battle: Battle, monster: Monster, flag: boolean) {
     let i = 0
-    let o = t.getLeftPosNum()
-    n
-      ? Battle.isLeftSide(e.position)
-      && ((i = Battle.LEFT_MAX_POS), (o = Battle.MAX_POS))
-      : Battle.isLeftSide(e.position)
-      || ((i = Battle.LEFT_MAX_POS), (o = Battle.MAX_POS))
-    for (var a = new Array(Battle.MAX_POS), r = 0, s = i; o > s; s++) {
-      const l = t.getPlayerByPos(s)
-      t.isValidBattlePlayer(l)
-        && (Tool.isArrayIndexOutOfBounds(r, a) || ((a[r] = l.position), r++))
+    let o = battle.getLeftPosNum()
+    if (flag) {
+      if (Battle.isLeftSide(monster.position)) {
+        i = Battle.LEFT_MAX_POS
+        o = Battle.MAX_POS
+      }
+      else {
+        i = Battle.LEFT_MAX_POS
+        o = Battle.MAX_POS
+      }
+    }
+
+    const a = new Array(Battle.MAX_POS)
+    let r = 0
+
+    for (let s = i; o > s; s++) {
+      const l = battle.getPlayerByPos(s)
+      if (battle.isValidBattlePlayer(l) && !Tool.isArrayIndexOutOfBounds(r, a)) {
+        a[r] = l!.position
+        r++
+      }
     }
     if (r <= 0)
       return i
-    if (r == 1)
+    if (r === 1)
       return a[0]
-    const _ = t.randRange(0, r - 1)
+    const _ = battle.randRange(0, r - 1)
     return a[_] == null ? i : a[_]
   }
 
-  export function selectValueTarget(t, e, n, i) {
+  export function selectValueTarget(battle: Battle, monster: Monster, type: number, flag: boolean) {
     let o = 0
-    let a = t.getLeftPosNum()
-    i
-      ? Battle.isLeftSide(e.position)
-      && ((o = Battle.LEFT_MAX_POS), (a = Battle.MAX_POS))
-      : Battle.isLeftSide(e.position)
-      || ((o = Battle.LEFT_MAX_POS), (a = Battle.MAX_POS))
-    for (var r = -1, s = -1, l = o; a > l; l++) {
-      const _ = t.getPlayerByPos(l)
-      if (t.isValidBattlePlayer(_)) {
+    let a = battle.getLeftPosNum()
+    if (flag) {
+      if (Battle.isLeftSide(monster.position)) {
+        o = Battle.LEFT_MAX_POS
+        a = Battle.MAX_POS
+      }
+      else {
+        o = Battle.LEFT_MAX_POS
+        a = Battle.MAX_POS
+      }
+    }
+
+    let r = -1
+    let s = -1
+
+    for (let l = o; a > l; l++) {
+      const player = battle.getPlayerByPos(l)
+      if (battle.isValidBattlePlayer(player)) {
         let h = 0
-        switch (n) {
+        switch (type) {
           case Define.AI_HATE_MIN:
           case Define.AI_HATE_MAX:
-            h = _.get(Model.ARGO)
+            h = player!.get(Model.ARGO)
             break
           case Define.AI_HP_MIN_ENEMY:
           case Define.AI_HP_MAX_ENEMY:
           case Define.AI_HP_MIN_FRIEND:
           case Define.AI_HP_MAX_FRIEND:
-            h = _.get(Model.HP)
+            h = player!.get(Model.HP)
             break
           case Define.AI_SPEED_MIN_ENEMY:
           case Define.AI_SPEED_MAX_ENEMY:
           case Define.AI_SPEED_MIN_FRIEND:
           case Define.AI_SPEED_MAX_FRIEND:
-            h = _.get(Model.SPEED)
+            h = player!.get(Model.SPEED)
         }
-        r == -1 && ((s = l), (r = h)),
-        (n == Define.AI_HATE_MIN
-            || n == Define.AI_HP_MIN_ENEMY
-            || n == Define.AI_SPEED_MIN_ENEMY
-            || n == Define.AI_HP_MIN_FRIEND
-            || n == Define.AI_SPEED_MIN_FRIEND)
-          && r > h
-          && ((s = l), (r = h)),
-        (n == Define.AI_HATE_MAX
-            || n == Define.AI_HP_MAX_ENEMY
-            || n == Define.AI_SPEED_MAX_ENEMY
-            || n == Define.AI_HP_MAX_FRIEND
-            || n == Define.AI_SPEED_MAX_FRIEND)
-          && h > r
-          && ((s = l), (r = h))
+        if (r === -1) {
+          s = l
+          r = h
+        }
+
+        if ((type === Define.AI_HATE_MIN
+          || type === Define.AI_HP_MIN_ENEMY
+          || type === Define.AI_SPEED_MIN_ENEMY
+          || type === Define.AI_HP_MIN_FRIEND
+          || type === Define.AI_SPEED_MIN_FRIEND)
+          && r > h) {
+          s = l
+          r = h
+        }
+
+        if ((type === Define.AI_HATE_MAX
+          || type === Define.AI_HP_MAX_ENEMY
+          || type === Define.AI_SPEED_MAX_ENEMY
+          || type === Define.AI_HP_MAX_FRIEND
+          || type === Define.AI_SPEED_MAX_FRIEND)
+          && h > r) {
+          s = l
+          r = h
+        }
       }
     }
+
     return s
   }
 

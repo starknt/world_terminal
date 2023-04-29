@@ -2,6 +2,7 @@ import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { GameText } from 'libs/defined/gameText'
 import { Model } from './Model'
+import type { Player } from './Player'
 import { xhd } from '~/shared/enum'
 
 export class Skill {
@@ -52,24 +53,24 @@ export class Skill {
       : `${GameText.getText(GameText.TI_LEVEL)} ${this.level}`
   }
 
-  getPowerValue(t: number) {
-    let e = 0
-    this.power1 == t && (e += this.powerValue1)
-    this.power2 == t && (e += this.powerValue2)
-    this.power3 == t && (e += this.powerValue3)
+  getPowerValue(val: number) {
+    let result = 0
+    this.power1 === val && (result += this.powerValue1)
+    this.power2 === val && (result += this.powerValue2)
+    this.power3 === val && (result += this.powerValue3)
 
-    return e
+    return result
   }
 
   isRebornSkill() {
-    return this.power1 == Define.POWER_RECOVER
-      || this.power1 == Define.POWER_RECOVER_PERCENT
+    return (this.power1 === Define.POWER_RECOVER
+      || this.power1 === Define.POWER_RECOVER_PERCENT)
       ? true
-      : this.power2 == Define.POWER_RECOVER
-        || this.power2 == Define.POWER_RECOVER_PERCENT
-        ? true
-        : !!(this.power3 == Define.POWER_RECOVER
-          || this.power3 == Define.POWER_RECOVER_PERCENT)
+      : (this.power2 === Define.POWER_RECOVER
+        || this.power2 === Define.POWER_RECOVER_PERCENT)
+          ? true
+          : !!(this.power3 === Define.POWER_RECOVER
+          || this.power3 === Define.POWER_RECOVER_PERCENT)
   }
 
   getName() {
@@ -81,93 +82,93 @@ export class Skill {
   }
 
   getSkillTypeIcon() {
-    let t = 11
+    let icon = 11
     switch (this.skillWeapon) {
       case Define.SKILL_WEAPON_NONE:
-        t = 11
+        icon = 11
         break
       case Define.SKILL_WEAPON_MELEE_1:
-        t = 11
+        icon = 11
         break
       case Define.SKILL_WEAPON_MELEE_2:
-        t = 14
+        icon = 14
         break
       case Define.SKILL_WEAPON_MELEE_3:
-        t = 5
+        icon = 5
         break
       case Define.SKILL_WEAPON_RANGE:
-        t = 3
+        icon = 3
         break
       case Define.SKILL_WEAPON_ONE_HAND:
-        t = 10
+        icon = 10
         break
       case Define.SKILL_WEAPON_ONE_SWORD:
-        t = 15
+        icon = 15
         break
       case Define.SKILL_WEAPON_TWO_SWORD:
-        t = 7
+        icon = 7
         break
       case Define.SKILL_WEAPON_HEAVY_SWORD:
-        t = 6
+        icon = 6
         break
       case Define.SKILL_WEAPON_ONE_BLADE:
-        t = 12
+        icon = 12
         break
       case Define.SKILL_WEAPON_TWO_BLADE:
-        t = 13
+        icon = 13
         break
       case Define.SKILL_WEAPON_HEAVY_BLADE:
-        t = 12
+        icon = 12
         break
       case Define.SKILL_WEAPON_ONE_HEAVY:
-        t = 5
+        icon = 5
         break
       case Define.SKILL_WEAPON_LANCE:
-        t = 1
+        icon = 1
         break
       case Define.SKILL_WEAPON_ONE_CROSSBOW:
-        t = 4
+        icon = 4
         break
       case Define.SKILL_WEAPON_TOW_CROSSBOW:
-        t = 3
+        icon = 3
         break
       case Define.SKILL_WEAPON_HEAVY_CROSSBOW:
-        t = 4
+        icon = 4
         break
       case Define.SKILL_WEAPON_BOW:
-        t = 2
+        icon = 2
         break
       case Define.SKILL_WEAPON_HAND:
-        t = 10
+        icon = 10
         break
       case Define.SKILL_WEAPON_CANE:
-        t = 9
+        icon = 9
         break
       case Define.SKILL_WEAPON_BALL:
-        t = 8
+        icon = 8
         break
       case Define.SKILL_WEAPON_SWORD:
-        t = 6
+        icon = 6
         break
       case Define.SKILL_WEAPON_ONE_HAND_BLADE:
-        t = 14
+        icon = 14
         break
       case Define.SKILL_WEAPON_GUN:
       case Define.SKILL_WEAPON_TWO_GUN:
-        t = 16
+        icon = 16
         break
       case Define.SKILL_WEAPON_HEAVY_GUN:
-        t = 17
+        icon = 17
     }
-    return `skill_type_${t}${xhd ? '_hd' : '_sd'}`
+    return `skill_type_${icon}${xhd ? '_hd' : '_sd'}`
   }
 
-  isEnoughHP(t) {
+  isEnoughHP(player: Player) {
     return this.useHP <= 0
       ? true
-      : t == null
+      : player == null
         ? false
-        : t.get(Model.HP) >= this.useHP + 1
+        : player.get(Model.HP) >= this.useHP + 1
   }
 }
 
@@ -292,157 +293,162 @@ export namespace Skill {
     return skill
   }
 
-  export function isCanUse(e, n, i) {
-    if (e == null || n == null)
+  export function isCanUse(player: Player, skill: Skill, _ = null) {
+    if (player == null || skill == null)
       return false
-    if (e.get(Model.MP) < n.useMP)
-      return i != null && i.append(GameText.STR_SKILL_LACK_MP), false
-    if (n.isEnoughHP(e) == 0)
-      return i != null && i.append(GameText.STR_SKILL_LACK_HP), false
-    if (e.getType() == 3) {
-      const o = e.get(Model.LEFT_WEAPON_TYPE)
-      const a = e.get(Model.RIGHT_WEAPON_TYPE)
+    if (player.get(Model.MP) < skill.useMP) {
+      // _ != null && _.append(GameText.STR_SKILL_LACK_MP)
+      return false
+    }
+    if (skill.isEnoughHP(player)) {
+      // _ != null && _.append(GameText.STR_SKILL_LACK_HP)
+      return false
+    }
+    if (player.getType() === 3) {
+      const left = player.get(Model.LEFT_WEAPON_TYPE)
+      const right = player.get(Model.RIGHT_WEAPON_TYPE)
       if (
-        n.type == Define.SKILL_TYPE_ACTIVE
-        && ((o == Define.BACK_ERROR_DUR && a == Define.BACK_ERROR_DUR)
-          || (o == Define.BACK_ERROR_DUR && a == -1)
-          || (o == -1 && a == Define.BACK_ERROR_DUR))
-      )
-        return i != null && i.append(GameText.STR_SKILL_WEAPON_DESTROY), false
-      if (isValidSkillWeapon(o, a, n) == false) {
-        return (
-          i != null && i.append(GameText.STR_SKILL_WEAPON_DISCREPANCIES), false
-        )
+        skill.type === Define.SKILL_TYPE_ACTIVE
+        && ((left === Define.BACK_ERROR_DUR && right === Define.BACK_ERROR_DUR)
+          || (left === Define.BACK_ERROR_DUR && right === -1)
+          || (left === -1 && right === Define.BACK_ERROR_DUR))
+      ) {
+        // _ != null && _.append(GameText.STR_SKILL_WEAPON_DESTROY)
+        return false
+      }
+      if (!isValidSkillWeapon(left, right, skill)) {
+        // _ != null && _.append(GameText.STR_SKILL_WEAPON_DISCREPANCIES)
+        return false
       }
     }
     return true
   }
 
-  export function isValidSkillWeapon(t, e, n) {
-    switch (n.skillWeapon) {
+  export function isValidSkillWeapon(left: number, right: number, skill: Skill) {
+    switch (skill.skillWeapon) {
       case Define.SKILL_WEAPON_NONE:
         return true
       case Define.SKILL_WEAPON_MELEE_1:
         if (
-          Define.isNullHand(t, e)
-          || Define.isValidSword(t, e)
-          || Define.isValidBlade(t, e)
-          || Define.isValidHeavy(t, e)
-          || Define.isValidLance(t, e)
+          Define.isNullHand(left, right)
+          || Define.isValidSword(left, right)
+          || Define.isValidBlade(left, right)
+          || Define.isValidHeavy(left, right)
+          || Define.isValidLance(left, right)
         )
           return true
         break
       case Define.SKILL_WEAPON_MELEE_2:
-        if (Define.isValidOneSword(t, e) || Define.isValidOneBlade(t, e))
+        if (Define.isValidOneSword(left, right) || Define.isValidOneBlade(left, right))
           return true
         break
       case Define.SKILL_WEAPON_MELEE_3:
         if (
-          Define.isValidTwoSword(t, e)
-          || Define.isValidTwoBlade(t, e)
-          || Define.isValidTwoHeavy(t, e)
-          || Define.isValidLance(t, e)
+          Define.isValidTwoSword(left, right)
+          || Define.isValidTwoBlade(left, right)
+          || Define.isValidTwoHeavy(left, right)
+          || Define.isValidLance(left, right)
         )
           return true
         break
       case Define.SKILL_WEAPON_RANGE:
-        if (Define.isValidCrossrow(t, e) || Define.isValidBow(t, e))
+        if (Define.isValidCrossrow(left, right) || Define.isValidBow(left, right))
           return true
         break
       case Define.SKILL_WEAPON_ONE_HAND:
-        if (Define.isOneHandWeapon(t, e) || Define.isNullHand(t, e))
+        if (Define.isOneHandWeapon(left, right) || Define.isNullHand(left, right))
           return true
         break
       case Define.SKILL_WEAPON_ONE_SWORD:
-        if (Define.isOneHandWeapon(t, e) && Define.isValidOneSword(t, e))
+        if (Define.isOneHandWeapon(left, right) && Define.isValidOneSword(left, right))
           return true
         break
       case Define.SKILL_WEAPON_TWO_SWORD:
         if (
-          t == Define.ITEM_TYPE_WEAPON_ONEHAND_SWORD
-          && e == Define.ITEM_TYPE_WEAPON_ONEHAND_SWORD
+          left === Define.ITEM_TYPE_WEAPON_ONEHAND_SWORD
+          && right === Define.ITEM_TYPE_WEAPON_ONEHAND_SWORD
         )
           return true
         break
       case Define.SKILL_WEAPON_HEAVY_SWORD:
-        if (Define.isValidTwoSword(t, e))
+        if (Define.isValidTwoSword(left, right))
           return true
         break
       case Define.SKILL_WEAPON_ONE_BLADE:
-        if (Define.isValidBlade(t, e))
+        if (Define.isValidBlade(left, right))
           return true
         break
       case Define.SKILL_WEAPON_TWO_BLADE:
         if (
-          t == Define.ITEM_TYPE_WEAPON_ONEHAND_BLADE
-          && e == Define.ITEM_TYPE_WEAPON_ONEHAND_BLADE
+          left === Define.ITEM_TYPE_WEAPON_ONEHAND_BLADE
+          && right === Define.ITEM_TYPE_WEAPON_ONEHAND_BLADE
         )
           return true
         break
       case Define.SKILL_WEAPON_HEAVY_BLADE:
-        if (Define.isValidTwoBlade(t, e))
+        if (Define.isValidTwoBlade(left, right))
           return true
         break
       case Define.SKILL_WEAPON_ONE_HEAVY:
-        if (Define.isValidTwoHeavy(t, e))
+        if (Define.isValidTwoHeavy(left, right))
           return true
         break
       case Define.SKILL_WEAPON_LANCE:
-        if (Define.isValidLance(t, e))
+        if (Define.isValidLance(left, right))
           return true
         break
       case Define.SKILL_WEAPON_ONE_CROSSBOW:
-        if (Define.isValidCrossrow(t, e))
+        if (Define.isValidCrossrow(left, right))
           return true
         break
       case Define.SKILL_WEAPON_TOW_CROSSBOW:
         if (
-          t == Define.ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
-          && e == Define.ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
+          left === Define.ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
+          && right === Define.ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
         )
           return true
         break
       case Define.SKILL_WEAPON_HEAVY_CROSSBOW:
-        if (Define.isValidTwoCrossrow(t, e))
+        if (Define.isValidTwoCrossrow(left, right))
           return true
         break
       case Define.SKILL_WEAPON_BOW:
-        if (Define.isValidBow(t, e))
+        if (Define.isValidBow(left, right))
           return true
         break
       case Define.SKILL_WEAPON_HAND:
-        if (Define.isNullHand(t, e))
+        if (Define.isNullHand(left, right))
           return true
         break
       case Define.SKILL_WEAPON_CANE:
-        if (Define.isValidStaff(t, e))
+        if (Define.isValidStaff(left, right))
           return true
         break
       case Define.SKILL_WEAPON_BALL:
-        if (Define.isValidBall(t, e))
+        if (Define.isValidBall(left, right))
           return true
         break
       case Define.SKILL_WEAPON_SWORD:
-        if (Define.isValidSword(t, e))
+        if (Define.isValidSword(left, right))
           return true
         break
       case Define.SKILL_WEAPON_ONE_HAND_BLADE:
-        if (Define.isOneHandWeapon(t, e) && Define.isValidOneBlade(t, e))
+        if (Define.isOneHandWeapon(left, right) && Define.isValidOneBlade(left, right))
           return true
         break
       case Define.SKILL_WEAPON_GUN:
-        if (Define.isValidGun(t, e))
+        if (Define.isValidGun(left, right))
           return true
         break
       case Define.SKILL_WEAPON_TWO_GUN:
         if (
-          t == Define.ITEM_TYPE_WEAPON_ONEHAND_GUN
-          && e == Define.ITEM_TYPE_WEAPON_ONEHAND_GUN
+          left === Define.ITEM_TYPE_WEAPON_ONEHAND_GUN
+          && right === Define.ITEM_TYPE_WEAPON_ONEHAND_GUN
         )
           return true
         break
       case Define.SKILL_WEAPON_HEAVY_GUN:
-        if (Define.isValidTwoGun(t, e))
+        if (Define.isValidTwoGun(left, right))
           return true
     }
     return false

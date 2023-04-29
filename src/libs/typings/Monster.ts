@@ -1,5 +1,6 @@
 import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
+import type { Battle } from 'libs/service/Battle/battle'
 import { Tool } from 'libs/shared/Tool'
 import { Model } from './Model'
 import { MonsterAI } from './MonsterAI'
@@ -13,6 +14,7 @@ export class Monster extends Player {
   rewardExp = 0
   monsterAI: MonsterAI | null = null
   strength = 0
+  message = ''
 
   constructor() {
     super()
@@ -26,60 +28,56 @@ export class Monster extends Player {
     return monster
   }
 
-  setAI(t) {
-    this.monsterAI = t
+  setAI(ai?: MonsterAI) {
+    this.monsterAI = ai || null
   }
 
   getAITargetPos() {
     return this.monsterAI == null ? -1 : this.monsterAI.targetPos
   }
 
-  getAttackTarget(t) {
-    return t == null
-      ? -1
-      : this.monsterAI != null && t.isValidPos(this.monsterAI.targetPos)
-        ? this.monsterAI.targetPos
-        : MonsterAI.selectValueTarget(t, this, Define.AI_HATE_MAX, true)
+  getAttackTarget(battle: Battle) {
+    return (this.monsterAI != null && battle.isValidPos(this.monsterAI.targetPos))
+      ? this.monsterAI.targetPos
+      : MonsterAI.selectValueTarget(battle, this, Define.AI_HATE_MAX, true)
   }
 
-  getSkillByAI(t, e) {
-    if (t == null)
-      return null
+  getSkillByAI(battle: Battle, flag = false) {
     if (this.monsterAI == null)
       return null
-    if (e)
-      return this.monsterAI.getAutoSkill(t, this)
-    const n = this.monsterAI.getBattleSkill(t, this)
-    return n == null || n.useMP > this.get(Model.MP)
+    if (flag)
+      return this.monsterAI.getAutoSkill(battle, this)
+    const skill = this.monsterAI.getBattleSkill(battle, this)
+    return (skill == null || skill.useMP > this.get(Model.MP))
       ? null
-      : n.isEnoughHP(this)
-        ? n
+      : skill.isEnoughHP(this)
+        ? skill
         : null
   }
 
-  setBattleStatus(e) {
-    return e != Player.BSTATUS_ESCAPE
-      && this.isBornStatus(e)
-      && Define.getBufferType(e, true) == Define.BUFFER_TYPE_DEBUFF
+  setBattleStatus(status: number) {
+    return (status !== Player.BSTATUS_ESCAPE
+      && this.isBornStatus(status)
+      && Define.getBufferType(status, true) === Define.BUFFER_TYPE_DEBUFF)
       ? false
-      : super.setBattleStatus.call(this, e)
+      : super.setBattleStatus.call(this, status)
   }
 
-  isBattleStatus(e) {
-    return e == Player.BSTATUS_ESCAPE
-      || !this.isBornStatus(e)
-      || (Define.getBufferType(e, true) != Define.BUFFER_TYPE_BUFF
-        && e != Define.getBufferBitValue(Define.BUFFER_DIE_CANNOT_RELIVE))
-      ? super.isBattleStatus.call(this, e)
+  isBattleStatus(status: number) {
+    return (status === Player.BSTATUS_ESCAPE
+      || !this.isBornStatus(status)
+      || (Define.getBufferType(status, true) !== Define.BUFFER_TYPE_BUFF
+        && status !== Define.getBufferBitValue(Define.BUFFER_DIE_CANNOT_RELIVE)))
+      ? super.isBattleStatus.call(this, status)
       : true
   }
 
-  isBornStatus(t) {
-    return (this.bornStatus & t) != 0
+  isBornStatus(status: number) {
+    return (this.bornStatus & status) !== 0
   }
 
-  get(e) {
-    switch (e) {
+  get(type: number) {
+    switch (type) {
       case Model.ATK_TYPE:
         return this.getAttackType()
       case Model.HPMAX:
@@ -147,7 +145,7 @@ export class Monster extends Player {
       case Model.BACK_MAX:
         return 100
       default:
-        return super.get.call(this, e)
+        return super.get.call(this, type)
     }
   }
 

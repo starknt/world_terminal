@@ -72,15 +72,15 @@ export class NPC extends Model {
   }
 
   isMissionLoadEveryTime() {
-    return (16 & this.status) != 0
+    return (16 & this.status) !== 0
   }
 
   isJumpIcon() {
-    return (32 & this.status) != 0
+    return (32 & this.status) !== 0
   }
 
   isEnable() {
-    return (2 & this.status) != 0
+    return (2 & this.status) !== 0
   }
 
   setEnable(value: boolean) {
@@ -88,11 +88,11 @@ export class NPC extends Model {
   }
 
   isVisible() {
-    return (1 & this.status) != 0
+    return (1 & this.status) !== 0
   }
 
   isInitVisible() {
-    return (1024 & this.status) != 0
+    return (1024 & this.status) !== 0
   }
 
   setInitVisible(t: boolean) {
@@ -100,7 +100,7 @@ export class NPC extends Model {
   }
 
   isInitEnable() {
-    return (2048 & this.status) != 0
+    return (2048 & this.status) !== 0
   }
 
   setInitEnable(t: boolean) {

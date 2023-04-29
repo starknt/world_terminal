@@ -410,30 +410,31 @@ export class Battle {
         : this.playerPlanData[e]
   }
 
-  doPlayerPlan(t, e) {
-    if (t == null)
+  doPlayerPlan(player: Player, plan: egret.ByteArray) {
+    if (player == null)
       return false
-    if (e == null)
+    if (plan == null)
       return false
     let n = 0
-    e.position = 0
-    const i = e.readByte()
-    switch (i) {
+    plan.position = 0
+    const type = plan.readByte()
+    switch (type) {
       case Battle.PLAN_ATTACK:
-        (n = e.readByte()), this.doAttack(t, n)
+        this.doAttack(player, plan.readByte())
         break
       case Battle.PLAN_USE_SKILL:
-        n = e.readByte()
-        var o = e.readShort()
-        this.doUseSkillByID(t, o, n)
+        n = plan.readByte()
+        this.doUseSkillByID(player, plan.readShort(), n)
         break
       case Battle.PLAN_USE_ITEM:
-        n = e.readByte()
-        var a = e.readByte()
-        this.doUseItem(t, a, n)
+        {
+          n = plan.readByte()
+          const a = plan.readByte()
+          this.doUseItem(player, a, n)
+        }
         break
       case Battle.PLAN_ESCAPE:
-        this.doEscape(t, false)
+        this.doEscape(player, false)
         break
       case Battle.PLAN_NONE:
         return false
@@ -452,7 +453,7 @@ export class Battle {
         const a = o.getBagItemBySlotPos(n)
         if (
           a != null
-                    && ItemData.isValidEquipRequire(e, a) == Define.OK
+                    && ItemData.isValidEquipRequire(e, a) === Define.OK
                     && a.isCanUse(2) != 0
                     && !e.isBattleStatus(Define.getBufferBitValue(Define.BUFFER_STUN))
         ) {
@@ -498,13 +499,13 @@ export class Battle {
     }
   }
 
-  processItemPower(t, e, n) {
-    if (t != null && e != null) {
+  processItemPower(player: Player, e, n) {
+    if (player != null && e != null) {
       const i = 0
       e.power1 > 0
                 && Define.processBattlePower(
                   this,
-                  t,
+                  player,
                   null,
                   null,
                   e.power1,
@@ -517,7 +518,7 @@ export class Battle {
       e.power2 > 0
                 && Define.processBattlePower(
                   this,
-                  t,
+                  player,
                   null,
                   null,
                   e.power2,

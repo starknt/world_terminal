@@ -118,35 +118,37 @@ export class Mission {
   }
 
   isCountryAssignTask() {
-    return (2048 & this.setting) != 0
+    return (2048 & this.setting) !== 0
   }
 
   isShowGuide() {
-    return (256 & this.setting) != 0
+    return (256 & this.setting) !== 0
   }
 
   isOneKeyMission() {
-    return (4096 & this.setting) != 0
+    return (4096 & this.setting) !== 0
   }
 
   isOneKeyShow() {
-    return (1048576 & this.setting) != 0
+    return (1048576 & this.setting) !== 0
   }
 
   isHaveSpecailReward() {
-    return (512 & this.setting) != 0
+    return (512 & this.setting) !== 0
   }
 
   isHaveSpecailReward2() {
-    return (32768 & this.setting) != 0
+    return (32768 & this.setting) !== 0
   }
 
   isHaveSpecailExecute() {
-    return (1024 & this.setting) != 0
+    return (1024 & this.setting) !== 0
   }
 
   isVisibleAndSubmit(npc: NPC, map: GameMap) {
-    if (this.isCityOrCountry() && this.npcId !== npc.missionGroupID) { return false }
+    if (this.isCityOrCountry() && this.npcId !== npc.missionGroupID) {
+      return false
+    }
     else {
       if (Define.isAllocateCityMap(map.mapId))
         return false
@@ -155,13 +157,10 @@ export class Mission {
       let n = map.mapId
       if (Define.isAllocateMirrorMap(map.mapId))
         n = map.orgMapId
-
       if (Define.isCommonMap(n) && this.mapId !== n)
         return false
-
       if (Define.isCommonMap(n) && this.npcId !== npc.id)
         return false
-
       if (this.npcId !== npc.id)
         return false
       if (this.mapId !== n)
@@ -171,16 +170,10 @@ export class Mission {
     return true
   }
 
-  updateKillMission(e, n, i) {
+  updateKillMission(mid: number, killed: number, _ = '') {
     if (this.submitCondition != null) {
-      for (
-        let a = 0;
-        a < this.submitCondition.length;
-        a++
-      ) {
-        this.submitCondition[a] != null
-          && this.submitCondition[a].updateKilledMonsterNum(e, n)
-      }
+      for (let i = 0; i < this.submitCondition.length; i++)
+        this.submitCondition[i]?.updateKilledMonsterNum(mid, killed)
     }
   }
 
@@ -203,110 +196,112 @@ export class Mission {
     // if (npc.getM)
   }
 
-  createFromBytes(t: egret.ByteArray) {
-    const e = t.readShort()
+  createFromBytes(bytes: egret.ByteArray) {
+    const e = bytes.readShort()
     this.id = e
-    this.name = t.readUTF()
-    this.level = t.readByte()
-    this.simpleDesc = t.readUTF()
-    this.desc = t.readUTF()
-    this.setting = 65535 & t.readShort()
-    this.mapId = t.readShort()
-    this.npcId = t.readByte()
-    this.radarMapID = t.readShort()
+    this.name = bytes.readUTF()
+    this.level = bytes.readByte()
+    this.simpleDesc = bytes.readUTF()
+    this.desc = bytes.readUTF()
+    this.setting = 65535 & bytes.readShort()
+    this.mapId = bytes.readShort()
+    this.npcId = bytes.readByte()
+    this.radarMapID = bytes.readShort()
     if (this.radarMapID > 0) {
-      this.radarGx = t.readByte()
-      this.radarGy = t.readByte()
+      this.radarGx = bytes.readByte()
+      this.radarGy = bytes.readByte()
     }
-    this.dialogNotStartNotReady = t.readUTF()
-    this.dialogStartNotFinish = t.readUTF()
-    this.dialogStartFinish = t.readUTF()
-    this.exp = t.readInt()
-    this.money2 = t.readShort()
-    this.money3 = t.readShort()
+    this.dialogNotStartNotReady = bytes.readUTF()
+    this.dialogStartNotFinish = bytes.readUTF()
+    this.dialogStartFinish = bytes.readUTF()
+    this.exp = bytes.readInt()
+    this.money2 = bytes.readShort()
+    this.money3 = bytes.readShort()
     if (this.isHaveSpecailReward()) {
-      this.honor = t.readShort()
-      this.countryLand = t.readShort()
-      this.countryProsperity = t.readShort()
-      this.countryPeople = t.readShort()
-      this.countryWood = t.readShort()
-      this.countryStone = t.readShort()
-      this.countryIron = t.readShort()
-      this.cityArmy = t.readShort()
-      this.cityProsperity = t.readShort()
-      this.promoteProsperity = t.readShort()
+      this.honor = bytes.readShort()
+      this.countryLand = bytes.readShort()
+      this.countryProsperity = bytes.readShort()
+      this.countryPeople = bytes.readShort()
+      this.countryWood = bytes.readShort()
+      this.countryStone = bytes.readShort()
+      this.countryIron = bytes.readShort()
+      this.cityArmy = bytes.readShort()
+      this.cityProsperity = bytes.readShort()
+      this.promoteProsperity = bytes.readShort()
     }
 
     if (this.isHaveSpecailReward2())
-      this.countryArmy = t.readShort()
+      this.countryArmy = bytes.readShort()
 
     if (this.isHaveSpecailExecute()) {
-      this.acceptJumpMapID = t.readShort()
+      this.acceptJumpMapID = bytes.readShort()
       if (this.acceptJumpMapID > 0) {
-        this.acceptJumpMapGx = t.readByte()
-        this.acceptJumpMapGy = t.readByte()
+        this.acceptJumpMapGx = bytes.readByte()
+        this.acceptJumpMapGy = bytes.readByte()
       }
-      this.submitJumpMapID = t.readShort()
+      this.submitJumpMapID = bytes.readShort()
       if (this.submitJumpMapID > 0) {
-        this.submitJumpMapGx = t.readByte()
-        this.submitJumpMapGy = t.readByte()
+        this.submitJumpMapGx = bytes.readByte()
+        this.submitJumpMapGy = bytes.readByte()
       }
-      this.acceptBattleID = t.readShort()
-      this.submitBattleID = t.readShort()
-      this.submitNextMissionID = t.readShort()
+      this.acceptBattleID = bytes.readShort()
+      this.submitBattleID = bytes.readShort()
+      this.submitNextMissionID = bytes.readShort()
     }
 
     if (this.isEscort()) {
       this.escortCost = new Array(3)
-      this.escortCost[0] = t.readInt()
-      this.escortCost[1] = t.readInt()
-      this.escortCost[2] = t.readInt()
+      this.escortCost[0] = bytes.readInt()
+      this.escortCost[1] = bytes.readInt()
+      this.escortCost[2] = bytes.readInt()
 
-      t.readByte()
-      t.readByte()
+      bytes.readByte()
+      bytes.readByte()
     }
 
-    let n = t.readByte()
+    let n = bytes.readByte()
     if (n > 0) {
       this.rewardItems = new Array(n)
       for (let i = 0; i < n; i++) {
-        const o = ItemManager.getItemFromMissionBytes(t)
+        const o = ItemManager.getItemFromMissionBytes(bytes)
         this.rewardItems[i] = o
       }
     }
 
-    n = t.readByte()
+    n = bytes.readByte()
     if (n > 0) {
       this.selectItems = new Array(n)
       for (let i = 0; n > i; i++) {
-        const o = ItemManager.getItemFromMissionBytes(t)
+        const o = ItemManager.getItemFromMissionBytes(bytes)
         this.selectItems[i] = o
       }
     }
 
-    n = t.readByte()
+    n = bytes.readByte()
     if (n > 0) {
       this.acceptCondition = new Array(n)
-      for (var i = 0; n > i; i++)
-        this.acceptCondition[i] = Condition.fromBytes(t)
+      for (let i = 0; n > i; i++)
+        this.acceptCondition[i] = Condition.fromBytes(bytes)
     }
 
-    n = t.readByte()
+    n = bytes.readByte()
     if (n > 0) {
       this.submitCondition = new Array(n)
-      for (var i = 0; n > i; i++)
-        this.submitCondition[i] = Condition.fromBytes(t)
+      for (let i = 0; n > i; i++)
+        this.submitCondition[i] = Condition.fromBytes(bytes)
     }
   }
 }
 
 export namespace Mission {
-  export function clearNewRadar(e) {
-    e != null
-      && e.radarMapID == Mission.newRadarMapID
-      && e.radarGx == Mission.newRadarGx
-      && e.radarGy == Mission.newRadarGy
-      && ((Mission.newRadarMapID = 0), (Mission.newRadarGx = 0), (Mission.newRadarGy = 0))
+  export function clearNewRadar(e: Mission) {
+    if (e.radarMapID === Mission.newRadarMapID
+      && e.radarGx === Mission.newRadarGx
+      && e.radarGy === Mission.newRadarGy) {
+      Mission.newRadarMapID = 0
+      Mission.newRadarGx = 0
+      Mission.newRadarGy = 0
+    }
   }
 
   export function fromBytes(byte: egret.ByteArray): Mission {
@@ -537,12 +532,10 @@ export namespace Mission {
     }
   }
 
-  export function setNewRadar(e) {
-    e == null
-      || e.radarMapID <= 0
-      || ((Mission.newRadarMapID = e.radarMapID),
-      (Mission.newRadarGx = e.radarGx),
-      (Mission.newRadarGy = e.radarGy))
+  export function setNewRadar(mission: Mission) {
+    Mission.newRadarMapID = mission.radarMapID
+    Mission.newRadarGx = mission.radarGx
+    Mission.newRadarGy = mission.radarGy
   }
 
   function processNpcStatus(npc: NPC, byte: Protocol) {
@@ -574,9 +567,12 @@ export namespace Mission {
     3075: { name: '失魂沙漠高级任务', mapid: 820, npcid: 5 },
   }
 
-  export const newRadarMapID = 0
-  export const newRadarGx = 0
-  export const newRadarGy = 0
+  // eslint-disable-next-line prefer-const, import/no-mutable-exports
+  export let newRadarMapID = 0
+  // eslint-disable-next-line prefer-const, import/no-mutable-exports
+  export let newRadarGx = 0
+  // eslint-disable-next-line prefer-const, import/no-mutable-exports
+  export let newRadarGy = 0
   export const CAN_SUBMIT = 0
   export const NOT_CAN_SUBMIT = 1
   export const CAN_ACCEPT = 2

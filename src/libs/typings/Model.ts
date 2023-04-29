@@ -67,54 +67,48 @@ export class Model {
     }
   }
 
-  addMercenary(t) {
-    if (t == null)
+  addMercenary(mercenary: Mercenary) {
+    if (mercenary.type !== 5)
       return false
-    if (t.type != 5)
-      return false
-    this.merList == null
-      && (this.merList = new Array(Model.MAX_MERCENARY_MEMBER))
-    for (var n = 0, i = 0; i <= this.merList.length; i++) {
-      if (this.merList[i] == null) {
+    let n = 0
+    for (let i = 0; i <= this.merList.length; i++) {
+      if (this.merList[i] === null) {
         n = i
         break
       }
     }
-    if (this.addMember(t) == false)
+    if (this.addMember(mercenary) === false)
       return false
-    const o = this.merList[n]
-    o != null && this.removeMercenary(o), (this.merList[n] = t)
-    return (
-      true
-    )
+    const mer = this.merList[n]
+    if (mer !== null) {
+      this.removeMercenary(mer)
+      this.merList[n] = mercenary
+    }
+    return true
   }
 
-  getMercenaryById(t) {
-    if (this.merList == null)
-      return null
-    for (let e = 0; e < this.merList.length; e++) {
-      const n = this.merList[e]
-      if (n != null && n.type == 5 && n.groupId == t)
-        return n
+  getMercenaryById(id: number) {
+    for (let i = 0; i < this.merList.length; i++) {
+      const mer = this.merList[i]
+      if (mer !== null && mer.type === 5 && mer.groupId === id)
+        return mer
     }
     return null
   }
 
-  removeMercenary(t) {
-    if (t == null)
+  removeMercenary(mercenary: Mercenary) {
+    if (mercenary == null)
       return false
-    if (t.type != 5)
+    if (mercenary.type !== 5)
       return false
     if (this.merList == null)
       return false
     for (let e = 0; e < this.merList.length; e++) {
       const n = this.merList[e]
-      if (n != null && n.type == t.type && n.groupId == t.groupId) {
-        return (
-          this.removeMember(n.groupId, 5),
-          this.merList.splice(e, 1),
-          true
-        )
+      if (n != null && n.type === mercenary.type && n.groupId === mercenary.groupId) {
+        this.removeMember(n.groupId, 5)
+        this.merList.splice(e, 1)
+        return true
       }
     }
   }
@@ -124,115 +118,109 @@ export class Model {
   }
 
   isLeader() {
-    return this.leaderID == this.id
+    return this.leaderID === this.id
   }
 
   isMember() {
-    return this.isInTeam() && this.isLeader() == false
+    return this.isInTeam() && this.isLeader() === false
   }
 
-  addMember(t: Mercenary) {
-    if (t == null)
+  addMember(mercenary: Mercenary) {
+    if (mercenary.type === 3)
+      mercenary.clearMercenary()
+
+    if (mercenary.isInTeam())
       return false
-    if ((t.type == 3 && t.clearMercenary(), t.isInTeam() == true))
+
+    if (mercenary.type === 3 && mercenary.getId() === this.getId())
       return false
-    if (t.type == 3 && t.getId() == this.getId())
-      return false
-    if (this.isMember() == true)
+    if (this.isMember())
       return false
     let e = false
-    if (this.members != null) {
-      for (let n = 0; n < this.members.length; n++) {
-        const i = this.members[n]
-        if (
-          i != null
-          && i.type == t.type
-          && ((t.type == 3 && i.getId() == t.getId())
-            || (t.type == 5 && i.groupId == t.groupId))
-        ) {
-          e = true
-          break
-        }
+    for (let i = 0; i < this.members.length; i++) {
+      const member = this.members[i]
+      if (
+        member != null
+          && member.type === mercenary.type
+          && ((mercenary.type === 3 && member.getId() === mercenary.getId())
+            || (mercenary.type === 5 && member.groupId === mercenary.groupId))
+      ) {
+        e = true
+        break
       }
     }
-    e == true
-      && (t.type == 3
-        ? this.removeMember(t.getId(), 3)
-        : t.type == 5 && this.removeMember(t.groupId, 5)),
-    this.members == null && (this.members = []),
-    (this.leaderID = this.id),
-    (t.leaderID = this.id)
-    let o: any = null
-    const a = this.members.length
-    return (
-      (o = a > 0 ? this.members[a - 1] : this),
-      this.members.push(t),
-      true
-    )
+    if (e) {
+      mercenary.type === 3
+        ? this.removeMember(mercenary.getId(), 3)
+        : (mercenary.type === 5 && this.removeMember(mercenary.groupId, 5))
+    }
+
+    this.leaderID = this.id
+    mercenary.leaderID = this.id
+    this.members.push(mercenary)
+    return true
   }
 
-  removeMember(t, e) {
-    if (this.isMember() == true)
+  removeMember(id: number, type: number) {
+    if (this.isMember())
       return false
     if (this.members != null) {
       for (let n = 0; n < this.members.length; n++) {
-        const i = this.members[n]
-        if (i != null && i.type == e) {
-          let o = 0
-          if (
-            (i.type == 3 ? (o = i.id) : i.type == 5 && (o = i.groupId),
-            o == t)
-          ) {
-            this.members.splice(n, 1),
-            i.clearMember()
+        const member = this.members[n]
+        if (member != null && member.type === type) {
+          const oid = member.type === 3 ? member.id : (member.type === 5 ? member.groupId : 0)
+          if (oid === id) {
+            this.members.splice(n, 1)
+            member.clearMember()
             break
           }
         }
       }
     }
-    return (
-      (this.members == null || this.members.length <= 0)
-      && this.clearMember(),
-      true
-    )
+
+    if (this.members == null || this.members.length <= 0)
+      this.clearMember()
+
+    return true
   }
 
   clearMember() {
-    if (
-      (this.setTabStatus(false, Model.HIDE_SPIRTE),
-      this.members != null && this.members.length > 0)
-    ) {
-      for (let t = this.members.length - 1; t >= 0; t--) {
-        const n = this.members[t]
-        n != null
-          ? (n.getType() != 5
-            || this.getMercenaryById(n.groupId) == null)
-          && this.members.splice(t, 1)
-          : this.members.splice(t, 1)
+    this.setTabStatus(false, Model.HIDE_SPIRTE)
+
+    if (this.members !== null && this.members.length > 0) {
+      for (let i = this.members.length - 1; i >= 0; i--) {
+        const member = this.members[i]
+        member !== null
+          ? ((member.getType() !== 5
+            || this.getMercenaryById(member.groupId) == null)
+          && this.members.splice(i, 1))
+          : this.members.splice(i, 1)
       }
     }
-    (this.members == null || this.members.length <= 0)
-      && ((this.members = []), this.setLeaderID(-1))
+    if (this.members == null || this.members.length <= 0) {
+      this.members = []
+      this.setLeaderID(-1)
+    }
   }
 
   clearMercenary() {
     if (!(this.merList == null || this.merList.length < 0)) {
-      if (
-        ((this.merList = []),
-        this.members != null && this.members.length > 0)
-      ) {
-        for (let t = this.members.length - 1; t >= 0; t--) {
-          const e = this.members[t];
-          (e == null || e.getType() == 5) && this.members.splice(t, 1)
+      this.merList = []
+      if (this.members != null && this.members.length > 0) {
+        for (let i = this.members.length - 1; i >= 0; i--) {
+          const member = this.members[i];
+          (member === null || member.getType() === 5) && this.members.splice(i, 1)
         }
       }
-      (this.members == null || this.members.length <= 0)
-        && ((this.members = []), this.setLeaderID(-1))
+      if (this.members === null || this.members.length <= 0) {
+        this.members = []
+        this.setLeaderID(-1)
+      }
     }
   }
 
-  setLeaderID(t) {
-    this.leaderID = t
+  setLeaderID(id: number) {
+    this.leaderID = id
   }
 
   getPet() {
@@ -282,16 +270,16 @@ export class Model {
     }
   }
 
-  setId(t) {
-    this.id = t
+  setId(id: number) {
+    this.id = id
   }
 
   getId() {
     return this.id
   }
 
-  setType(t) {
-    this.type = t
+  setType(type: number) {
+    this.type = type
   }
 
   getType() {
@@ -302,60 +290,60 @@ export class Model {
     return this.playerName
   }
 
-  setName(t) {
-    this.playerName = t
+  setName(name: string) {
+    this.playerName = name
   }
 
   getLevel() {
     return this.level
   }
 
-  setLevel(t) {
-    this.level = t
+  setLevel(level: number) {
+    this.level = level
   }
 
   getSex() {
     return this.sex
   }
 
-  setSex(t) {
-    this.sex = t
+  setSex(sex: number) {
+    this.sex = sex
   }
 
   getJob() {
     return this.job
   }
 
-  setJob(t) {
-    this.job = t
+  setJob(job: number) {
+    this.job = job
   }
 
   getRace() {
     return this.race
   }
 
-  setRace(t) {
-    this.race = t
+  setRace(race: number) {
+    this.race = race
   }
 
   getInfo() {
     return this.info
   }
 
-  setInfo(t) {
-    this.info = t
+  setInfo(info: string) {
+    this.info = info
   }
 
   getTitle() {
     return this.title
   }
 
-  setTitle(t) {
-    this.title = t
+  setTitle(title: string) {
+    this.title = title
   }
 
-  setMode(t) {
-    const n = this.mode
+  setMode(mode: number) {
+    this.mode = mode
   }
 
   getMode() {
@@ -366,48 +354,48 @@ export class Model {
     return this.setting
   }
 
-  setSetting(t) {
-    this.setting = t
+  setSetting(setting: number) {
+    this.setting = setting
   }
 
   getLevel2() {
     return this.level2
   }
 
-  setLevel2(t) {
-    this.level2 = t
+  setLevel2(level2: number) {
+    this.level2 = level2
   }
 
   getEnchantValue() {
     return this.enchantValue
   }
 
-  setEnchantValue(t: number) {
-    this.enchantValue = t
+  setEnchantValue(enchant: number) {
+    this.enchantValue = enchant
   }
 
   getCountryId() {
     return this.countryId
   }
 
-  setCountryId(t: number) {
-    this.countryId = t
+  setCountryId(id: number) {
+    this.countryId = id
   }
 
   getCountryName() {
     return this.countryName
   }
 
-  setCountryName(t: string) {
-    this.countryName = t
+  setCountryName(name: string) {
+    this.countryName = name
   }
 
   getCountryRank() {
     return this.countryRank
   }
 
-  setCountryRank(t: number) {
-    this.countryRank = t
+  setCountryRank(rank: number) {
+    this.countryRank = rank
   }
 
   clearCountry() {
@@ -420,8 +408,8 @@ export class Model {
     return this.vipLevel
   }
 
-  setVipLevel(t: number) {
-    this.vipLevel = t
+  setVipLevel(vipLevel: number) {
+    this.vipLevel = vipLevel
   }
 
   setPosition(x: number, y: number) {
@@ -481,26 +469,24 @@ export class Model {
   }
 
   getCountryRankStr() {
-    let t = Define.getRankString(this.countryRank)
-    return (
-      this.isStatusBit(Model.STATUS_IS_SOLDIER)
-        ? (t += `(${GameText.STR_MODEL_SOLDIER})`)
-        : this.isStatusBit(Model.STATUS_IS_HELP)
-        && (t += `(${GameText.STR_MODEL_HELP})`),
-      t
-    )
+    let str = Define.getRankString(this.countryRank)
+    this.isStatusBit(Model.STATUS_IS_SOLDIER)
+      ? (str += `(${GameText.STR_MODEL_SOLDIER})`)
+      : (this.isStatusBit(Model.STATUS_IS_HELP)
+        && (str += `(${GameText.STR_MODEL_HELP})`))
+    return str
   }
 
   get status() {
     return this._status
   }
 
-  set status(s: number) {
-    this._status = s
+  set status(status: number) {
+    this._status = status
   }
 
-  get(t: number) {
-    switch (t) {
+  get(type: number) {
+    switch (type) {
       case Model.ID:
         return this.id
       case Model.SEX:
@@ -525,43 +511,43 @@ export class Model {
     return 0
   }
 
-  getMemberById(t) {
-    if (this.members == null || this.members.length <= 0)
+  getMemberById(id: number) {
+    if (this.members === null || this.members.length <= 0)
       return false
     for (let e = 0; e < this.members.length; e++) {
-      const n: any = this.members[e]
-      if (n.getType() == 3 && n.id == t)
+      const member = this.members[e]
+      if (member.getType() === 3 && member.id === id)
         return true
     }
     return false
   }
 
-  addValue(t, e) {
-    switch (t) {
+  addValue(type: number, value: number) {
+    switch (type) {
       case Model.LEVEL:
-        e > 0 && (this.level = Tool.sumValue(this.level, e, 0, 120))
+        value > 0 && (this.level = Tool.sumValue(this.level, value, 0, 120))
         break
       case Model.LEVEL2:
-        e > 0 && (this.level2 = Tool.sumValue(this.level2, e, 0, 120))
+        value > 0 && (this.level2 = Tool.sumValue(this.level2, value, 0, 120))
         break
       case Model.ENCHANTVALUE:
-        this.enchantValue += e
+        this.enchantValue += value
         break
       case Model.COUNTRY_RANK_SET:
-        this.countryRank = e
+        this.countryRank = value
         break
       case Model.COUNTRY_ID_SET:
-        this.countryId = e
+        this.countryId = value
         break
       case Model.STATUS_SET:
-        this.status = e
+        this.status = value
     }
   }
 
-  setBattleIntValue(t) {
-    for (let e = 27; e <= 30; e++) {
-      const n = 1 << e
-      Tool.isBit(n, t) ? (this.intValue1 |= n) : (this.intValue1 &= ~n)
+  setBattleIntValue(bit: number) {
+    for (let i = 27; i <= 30; i++) {
+      const n = 1 << i
+      Tool.isBit(n, bit) ? (this.intValue1 |= n) : (this.intValue1 &= ~n)
     }
   }
 
@@ -570,7 +556,7 @@ export class Model {
       return false
     for (let t = 0; t < this.members.length; t++) {
       const e = this.members[t]
-      if (e != null && e.type == 3)
+      if (e !== null && e.type === 3)
         return true
     }
     return false
@@ -609,15 +595,15 @@ export namespace Model {
 
   export function getAttributeName(attr: number) {
     switch (attr) {
-      case STR:
+      case Model.STR:
         return GameText.STR_ATTR_STR
-      case CON:
+      case Model.CON:
         return GameText.STR_ATTR_CON
-      case AGI:
+      case Model.AGI:
         return GameText.STR_ATTR_AGI
-      case ILT:
+      case Model.ILT:
         return GameText.STR_ATTR_ILT
-      case WIS:
+      case Model.WIS:
         return GameText.STR_ATTR_WIS
     }
   }

@@ -14,7 +14,8 @@ export class Mercenary extends Monster {
   }
 
   refreshWorldMercenaryData() {
-    (this.worldMer.hp = this.hp), (this.worldMer.mp = this.mp)
+    this.worldMer.hp = this.hp
+    this.worldMer.mp = this.mp
   }
 
   clone() {
@@ -81,9 +82,9 @@ export namespace Mercenary {
     monster.hp = byte.getInt()
     monster.mp = byte.getInt()
     // icon2
-    byte.getInt()
+    monster.icon2 = byte.getInt()
     // icon3
-    byte.getInt()
+    monster.icon3 = byte.getInt()
 
     const n = byte.getBoolean()
     if (n) {

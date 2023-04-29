@@ -32,40 +32,40 @@ export class Pet extends Player {
       : this.ageTime > Date.now()
   }
 
-  isBornStatus(t) {
-    return (this.bornStatus & t) != 0
+  isBornStatus(status: number) {
+    return (this.bornStatus & status) !== 0
   }
 
-  setBattleStatus(e) {
-    return e != Player.BSTATUS_ESCAPE
-      && this.isBornStatus(e)
-      && Define.getBufferType(e, true) == Define.BUFFER_TYPE_DEBUFF
+  setBattleStatus(status: number) {
+    return (status !== Player.BSTATUS_ESCAPE
+      && this.isBornStatus(status)
+      && Define.getBufferType(status, true) === Define.BUFFER_TYPE_DEBUFF)
       ? false
-      : super.setBattleStatus.call(this, e)
+      : super.setBattleStatus.call(this, status)
   }
 
-  isBattleStatus(e) {
-    return e == Player.BSTATUS_ESCAPE
-      || !this.isBornStatus(e)
-      || (Define.getBufferType(e, true) != Define.BUFFER_TYPE_BUFF
-        && e != Define.getBufferBitValue(Define.BUFFER_DIE_CANNOT_RELIVE))
-      ? super.isBattleStatus.call(this, e)
+  isBattleStatus(status: number) {
+    return ((status === Player.BSTATUS_ESCAPE
+      || !this.isBornStatus(status)
+      || (Define.getBufferType(status, true) !== Define.BUFFER_TYPE_BUFF))
+        && (status !== Define.getBufferBitValue(Define.BUFFER_DIE_CANNOT_RELIVE)))
+      ? super.isBattleStatus.call(this, status)
       : true
   }
 
-  addValue(e, n) {
-    switch (e) {
+  addValue(type: number, val: number) {
+    switch (type) {
       case Model.PET_GROW_LEVEL:
-        this.growLevel = Tool.sumValue(this.growLevel, n, 0, 120)
+        this.growLevel = Tool.sumValue(this.growLevel, val, 0, 120)
         break
       default:
-        super.addValue.call(this, e, n)
+        super.addValue.call(this, type, val)
     }
   }
 
-  get(e) {
+  get(type: number) {
     let n = 0
-    switch (e) {
+    switch (type) {
       case Model.PET_COLOR:
         return this.color
       case Model.PET_GRADE:
@@ -258,12 +258,12 @@ export class Pet extends Player {
       default:
         return (
           this.owner && (this.formationSkill = this.owner.formationSkill),
-          super.get.call(this, e)
+          super.get.call(this, type)
         )
     }
   }
 
-  getPetBaseValue(t, e, n, i, o, a, r) {
+  getPetBaseValue(t: number, e: number, n: number, i: number, o: number, a: number, r: number) {
     let s = t
     s += this.getSkillPowerValue(i, e)
     let l = this.getSkillPowerValue(i, n)

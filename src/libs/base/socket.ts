@@ -160,9 +160,8 @@ class WebSocketClient {
   }
 
   readUTF() {
-    let message: string
+    const message: string = this.readBuffer.readUTF()
     this.readBuffer.position = 0
-    message = this.readBuffer.readUTF()
     this.readBuffer.clear()
 
     return message

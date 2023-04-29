@@ -1,6 +1,7 @@
 import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { Battle } from 'libs/service/Battle/battle'
+import type { Control } from 'libs/service/Battle/Control'
 import { GZIP } from 'libs/shared/GZIP'
 import { Tool } from 'libs/shared/Tool'
 import { Mission } from './Mission'
@@ -11,8 +12,8 @@ import { Skill } from './Skill'
 
 export class Player extends Model {
   bag: PlayerBag = new PlayerBag(this)
-  battleBufferList: any[] = []
-  itemSetData: any[] = []
+  battleBufferList: PlayerBuffer[] = []
+  itemSetData: number[] = []
   playerTurnMonster: any
   exp_up = 0
   argo = 0
@@ -109,19 +110,17 @@ export class Player extends Model {
     super(3)
   }
 
-  addMission(t) {
-    return t == null
-      ? false
-      : t.isEscort() == 1
-        ? true
-        : (this.missionList == null && (this.missionList = []),
-          this.getMissionById(t.getId()) != null
-            ? false
-            : this.missionList.length < Player.MAX_MISSION_SIZE
-              ? (this.missionList.push(t),
-                Mission.setNewRadar(t),
-                true)
-              : false)
+  addMission(mission: Mission) {
+    return mission.isEscort()
+      ? true
+      : (this.missionList == null && (this.missionList = []),
+        this.getMissionById(mission.getId()) != null
+          ? false
+          : this.missionList.length < Player.MAX_MISSION_SIZE
+            ? (this.missionList.push(mission),
+              Mission.setNewRadar(mission),
+              true)
+            : false)
   }
 
   addValue(type: number, value: number) {
@@ -603,7 +602,8 @@ export class Player extends Model {
   }
 
   setBattleStatus(t: number) {
-    return (this.bStatus |= t), true
+    this.bStatus |= t
+    return true
   }
 
   clearBattleStatus(t: number) {
@@ -611,7 +611,7 @@ export class Player extends Model {
   }
 
   isBattleStatus(t: number) {
-    return (this.bStatus & t) != 0
+    return (this.bStatus & t) !== 0
   }
 
   isDead() {
@@ -629,54 +629,51 @@ export class Player extends Model {
     return this.isDead() && !this.isDeadDelay()
   }
 
-  addBuffer(t) {
-    if (t != null) {
-      if (
-        (this.battleBufferList == null && (this.battleBufferList = []),
-        t.isClearStatusBitBuffer())
-      ) { this.battleBufferList.unshift(t) }
+  addBuffer(buffer: PlayerBuffer) {
+    if (buffer != null) {
+      if (buffer.isClearStatusBitBuffer()) {
+        this.battleBufferList.unshift(buffer)
+      }
       else {
-        const e = this.setBattleStatus(Define.getBufferBitValue(t.getStatus()))
-        e == false ? t.clearStatus() : this.checkBufferSize(t),
-        this.battleBufferList.push(t),
-        e && this.setBattleStatus(Define.getBufferBitValue(t.getStatus()))
+        const e = this.setBattleStatus(Define.getBufferBitValue(buffer.getStatus()))
+        !e ? buffer.clearStatus() : this.checkBufferSize(buffer)
+        this.battleBufferList.push(buffer)
+        e && this.setBattleStatus(Define.getBufferBitValue(buffer.getStatus()))
       }
     }
   }
 
-  checkBufferSize(t) {
-    if (t.getStatus() != Define.BUFFER_NONE) {
-      for (
-        var e = 0,
-          n = Define.BUFFER_NONE,
-          i = this.battleBufferList.length - 1;
-        i >= 0;
-        i--
-      ) {
-        var o = this.battleBufferList[i]
-        if (o != null && o.getStatus() != Define.BUFFER_NONE) {
-          if (t.isDieStatus() && o.isDieStatus()) {
-            this.clearBattleStatus(Define.getBufferBitValue(o.getStatus())),
+  checkBufferSize(buffer: PlayerBuffer) {
+    if (buffer.getStatus() !== Define.BUFFER_NONE) {
+      let e = 0
+      let n = Define.BUFFER_NONE
+
+      for (let i = this.battleBufferList.length - 1; i >= 0; i--) {
+        const o = this.battleBufferList[i]
+        if (o && o.getStatus() !== Define.BUFFER_NONE) {
+          if (buffer.isDieStatus() && o.isDieStatus()) {
+            this.clearBattleStatus(Define.getBufferBitValue(o.getStatus()))
             o.destroy(this)
-            var a = this.battleBufferList.indexOf(o)
+            const a = this.battleBufferList.indexOf(o)
             this.battleBufferList.splice(a, 1)
           }
           else if (
             Define.getBufferType(o.getStatus())
-            == Define.getBufferType(t.getStatus())
-            && (e++, e >= PlayerBuffer.MAX_SIZE)
+            === Define.getBufferType(buffer.getStatus())
+            && ++e >= PlayerBuffer.MAX_SIZE
           ) {
-            (n = o.getStatus()), o.destroy(this)
-            var a = this.battleBufferList.indexOf(o)
+            n = o.getStatus()
+            o.destroy(this)
+            const a = this.battleBufferList.indexOf(o)
             this.battleBufferList.splice(a, 1)
             break
           }
         }
       }
-      if (n != Define.BUFFER_NONE) {
-        for (var i = 0; i < this.battleBufferList.length; i++) {
-          var o = this.battleBufferList[i]
-          if (o != null && o.getStatus() == n)
+      if (n !== Define.BUFFER_NONE) {
+        for (let i = 0; i < this.battleBufferList.length; i++) {
+          const o = this.battleBufferList[i]
+          if (o && o.getStatus() === n)
             return
         }
         this.clearBattleStatus(Define.getBufferBitValue(n))
@@ -684,13 +681,13 @@ export class Player extends Model {
     }
   }
 
-  clearBufferList(t) {
+  clearBufferList(flag = false) {
     for (let e = this.battleBufferList.length - 1; e >= 0; e--) {
       const n = this.battleBufferList[e]
-      if (n != null && (t != 0 || !n.isCannotReliveStatus())) {
+      if (n != null && (flag || !n.isCannotReliveStatus())) {
         n.destroy(this)
         const i = this.battleBufferList.indexOf(n)
-        this.battleBufferList.splice(i, 1),
+        this.battleBufferList.splice(i, 1)
         this.clearBattleStatus(Define.getBufferBitValue(n.getStatus()))
       }
     }
@@ -708,16 +705,16 @@ export class Player extends Model {
     return false
   }
 
-  removeBufferByStatus(t) {
+  removeBufferByStatus(value: number) {
     if (this.battleBufferList != null) {
       for (let e = this.battleBufferList.length - 1; e >= 0; e--) {
         const n = this.battleBufferList[e]
         if (n != null) {
-          const i = n.isSameStatusType(t)
+          const i = n.isSameStatusType(value)
           if (i) {
             n.destroy(this)
             const o = this.battleBufferList.indexOf(n)
-            this.battleBufferList.splice(o, 1),
+            this.battleBufferList.splice(o, 1)
             this.clearBattleStatus(Define.getBufferBitValue(n.getStatus()))
           }
         }
@@ -725,21 +722,23 @@ export class Player extends Model {
     }
   }
 
-  runBufferList(t) {
-    if (this.battleBufferList == null)
-      return null
-    for (var e: any[] = [], n: any[] = [], i = 0; i < this.battleBufferList.length; i++) {
-      var o = this.battleBufferList[i]
-      if (o != null) {
-        if (t) {
-          if ((o.run(this, e), this.battleBufferList == null))
-            return e
+  runBufferList(flag = false) {
+    const control: Control[] = []
+    const n: any[] = []
+
+    for (let i = 0; i < this.battleBufferList.length; i++) {
+      const o = this.battleBufferList[i]
+      if (o) {
+        if (flag) {
+          if ((o.run(this, control), this.battleBufferList == null))
+            return control
           if (o.isClearStatusBitBuffer()) {
             for (let a = i + 1; a < this.battleBufferList.length; a++) {
               const r = this.battleBufferList[a]
-              r != null
-                && r.isSameStatusType(o.getAddValue())
-                && (r.finish(), n.push(r))
+              if (r && r.isSameStatusType(o.getAddValue())) {
+                r.finish()
+                n.push(r)
+              }
             }
           }
         }
@@ -748,148 +747,162 @@ export class Player extends Model {
     }
     const s = n.length
     if (s <= 0)
-      return e
-    for (var i = 0; s > i; i++) {
-      var o = n[i]
+      return control
+    for (let i = 0; s > i; i++) {
+      const o = n[i]
       o.destroy(this)
       const l = this.battleBufferList.indexOf(o)
-      this.battleBufferList.splice(l, 1),
+      this.battleBufferList.splice(l, 1)
       this.clearBattleStatus(Define.getBufferBitValue(o.getStatus()))
     }
-    for (var i = 0; i < this.battleBufferList.length; i++) {
-      var o = this.battleBufferList[i]
-      o != null
-        && this.setBattleStatus(Define.getBufferBitValue(o.getStatus()))
+    for (let i = 0; i < this.battleBufferList.length; i++) {
+      const o = this.battleBufferList[i]
+      o && this.setBattleStatus(Define.getBufferBitValue(o.getStatus()))
     }
-    return e
+    return control
   }
 
-  getPower(t?: boolean, e?: any, n?: any) {
-    void 0 === t && (t = true),
-    void 0 === e && (e = false),
-    void 0 === n && (n = null),
-    n == null && (n = this)
-    let i = 0.96 * n.get(Model.SPEED)
-    if (
-      ((i += 0.8 * n.get(Model.ATK_STR)),
-      (i += 0.5 * n.get(Model.ATK_AGI)),
-      (i += 0.5 * n.get(Model.ATK_MAGIC)),
-      (i += 0.8 * n.get(Model.DEF_STR)),
-      (i += 0.8 * n.get(Model.DEF_AGI)),
-      (i += 0.6 * n.get(Model.DEF_MAGIC)),
-      (i += 0.09 * n.get(Model.HPMAX)),
-      (i += 0.084 * n.get(Model.MPMAX)),
-      (i += 5 * n.get(Model.DODGE)),
-      (i += 0.9 * n.get(Model.HIT_RATE)),
-      (i += 4.5 * n.get(Model.HIT_MAGIC)),
-      (i += 5 * n.get(Model.CRITICAL)),
-      (i += 13.3 * n.get(Model.WIL)),
-      (i += 15 * n.get(Model.TOUGH)),
-      (i += 3.75 * n.get(Model.BLOCK)),
-      (i += 1.3 * n.get(Model.BRK_ARMOR)),
-      (i += 15 * n.get(Model.INSIGHT)),
-      (i += 1.3 * n.get(Model.DEF_FIELD)),
-      (i += 7.5 * n.get(Model.BACK)),
-      (i += 7.5 * n.get(Model.MAGIC_BACK)),
-      (i += 2 * n.get(Model.LIFE_ABSORPTION)),
-      (i += 2 * n.get(Model.MANA_ABSORPTION)),
-      (i += 1.3 * n.get(Model.MAGIC_PENETRATION)),
-      (i += 0.5 * n.get(Model.FORCE_HIT)),
-      (i += n.get(Model.ATK_MAX) * n.get(Model.ATK_TIME) * 0.5),
-      (i += 200 * n.get(Model.KEEPOUT_ATK_TIME)),
-      (i += 8 * n.get(Model.IGNORE_WIL)),
-      (i += 12 * n.get(Model.IGNORE_TOUCH)),
-      (i += 7.5 * n.get(Model.IGNORE_BLOCK)),
-      (i += 12 * n.get(Model.IGNORE_BACK)),
-      (i += 6 * n.get(Model.IGNORE_INSIGHT)),
-      (i += 12 * n.get(Model.IGNORE_MAGIC_BACK)),
-      (i += n.get(Model.STR)),
-      (i += n.get(Model.CON)),
-      (i += n.get(Model.AGI)),
-      (i += n.get(Model.ILT)),
-      (i += n.get(Model.WIS)),
-      t)
-    ) {
-      const o = n.getPet()
+  getPower(t = false, e = false, player?: Player) {
+    if (t === false)
+      t = true
+    if (e === false)
+      e = false
+    if (!player)
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      player = this
+
+    let i = 0.96 * player.get(Model.SPEED)
+    i += 0.8 * player.get(Model.ATK_STR)
+    i += 0.5 * player.get(Model.ATK_AGI)
+    i += 0.5 * player.get(Model.ATK_MAGIC)
+    i += 0.8 * player.get(Model.DEF_STR)
+    i += 0.8 * player.get(Model.DEF_AGI)
+    i += 0.6 * player.get(Model.DEF_MAGIC)
+    i += 0.09 * player.get(Model.HPMAX)
+    i += 0.084 * player.get(Model.MPMAX)
+    i += 5 * player.get(Model.DODGE)
+    i += 0.9 * player.get(Model.HIT_RATE)
+    i += 4.5 * player.get(Model.HIT_MAGIC)
+    i += 5 * player.get(Model.CRITICAL)
+    i += 13.3 * player.get(Model.WIL)
+    i += 15 * player.get(Model.TOUGH)
+    i += 3.75 * player.get(Model.BLOCK)
+    i += 1.3 * player.get(Model.BRK_ARMOR)
+    i += 15 * player.get(Model.INSIGHT)
+    i += 1.3 * player.get(Model.DEF_FIELD)
+    i += 7.5 * player.get(Model.BACK)
+    i += 7.5 * player.get(Model.MAGIC_BACK)
+    i += 2 * player.get(Model.LIFE_ABSORPTION)
+    i += 2 * player.get(Model.MANA_ABSORPTION)
+    i += 1.3 * player.get(Model.MAGIC_PENETRATION)
+    i += 0.5 * player.get(Model.FORCE_HIT)
+    i += player.get(Model.ATK_MAX) * player.get(Model.ATK_TIME) * 0.5
+    i += 200 * player.get(Model.KEEPOUT_ATK_TIME)
+    i += 8 * player.get(Model.IGNORE_WIL)
+    i += 12 * player.get(Model.IGNORE_TOUCH)
+    i += 7.5 * player.get(Model.IGNORE_BLOCK)
+    i += 12 * player.get(Model.IGNORE_BACK)
+    i += 6 * player.get(Model.IGNORE_INSIGHT)
+    i += 12 * player.get(Model.IGNORE_MAGIC_BACK)
+    i += player.get(Model.STR)
+    i += player.get(Model.CON)
+    i += player.get(Model.AGI)
+    i += player.get(Model.ILT)
+    i += player.get(Model.WIS)
+    if (t) {
+      const o = player.getPet()
       o && (i += o.getPower())
     }
-    return e && (i /= 1e4), Math.ceil(i)
+
+    if (e)
+      i /= 1e4
+
+    return Math.ceil(i)
   }
 
-  getSkillPowerValue(t, e) {
-    if (e <= 0)
+  getSkillPowerValue(type: number, time: number) {
+    if (time <= 0)
       return 0
     let n = 0
-    if (this.skillList == null || this.skillList.length == 0)
+    if (this.skillList === null || this.skillList.length === 0)
       return n
     for (let i: any = null, o = 0; o < this.skillList.length; o++) {
-      (i = this.skillList[o]),
-      i != null && i.type == t && (n += i.getPowerValue(e))
+      i = this.skillList[o]
+      i != null && i.type === type && (n += i.getPowerValue(time))
     }
     return n
   }
 
-  getBagEquipPowerValue(t: any, n?: any) {
-    if ((void 0 === n && (n = false), this.bag == null))
+  getBagEquipPowerValue(time: number, n = false) {
+    if (this.bag === null)
       return 0
-    let i = this.bag.getEquipPowerValue(t)
+    let i = this.bag.getEquipPowerValue(time)
     if (this.itemSetData) {
-      for (
-        let o = void 0, a = void 0, r: any = void 0, s: any = void 0, l: any = void 0, _ = 0;
-        _ < this.itemSetData.length;
+      let o: number
+      let a: number
+      let r: number
+      let s: number
+      let l: number
 
-      ) {
-        (o = this.itemSetData[_++]),
-        (a = this.itemSetData[_++]),
-        (r = this.itemSetData[_++]),
-        a == t
-          && ((s = Player.getItemSetID(o)),
-          (l = Player.getItemSetNum(o)),
-          this.bag.getEquipItemSetNum(s) < l || (i += r))
+      for (let _ = 0; _ < this.itemSetData.length;) {
+        o = this.itemSetData[_++]
+        a = this.itemSetData[_++]
+        r = this.itemSetData[_++]
+        if (a === time) {
+          s = Player.getItemSetID(o)
+          l = Player.getItemSetNum(o)
+          if (!(this.bag.getEquipItemSetNum(s) < l))
+            i += r
+        }
       }
     }
-    return n && (i += this.getPowerValueByBuffer(t)), i
+    if (n)
+      i += this.getPowerValueByBuffer(time)
+
+    return i
   }
 
-  getPowerValueByBuffer(t: any) {
+  getPowerValueByBuffer(time: number) {
     let e = 0
-    this.power == t && (e += this.powerValue),
-    this.titlePower1 == t && (e += this.titlePowerValue1),
-    this.titlePower2 == t && (e += this.titlePowerValue2)
+    if (this.power === time)
+      e += this.powerValue
+    if (this.titlePower1 === time)
+      e += this.titlePowerValue1
+    this.titlePower2 === time && (e += this.titlePowerValue2)
     for (let n = 0; n < this.fightPowerList.length; n++) {
       const i = this.fightPowerList[n]
-      i[0] == t && (e += i[1])
+      i[0] === time && (e += i[1])
     }
-    return (e += this.getCountryBuffer(t))
+    return (e += this.getCountryBuffer(time))
   }
 
-  getCountryBuffer(t) {
-    return t == Define.POWER_STR_PERCENT
-      || t == Define.POWER_CON_PERCENT
-      || t == Define.POWER_AGI_PERCENT
-      || t == Define.POWER_ILT_PERCENT
-      || t == Define.POWER_WIS_PERCENT
+  getCountryBuffer(type: number) {
+    return (type === Define.POWER_STR_PERCENT
+      || type === Define.POWER_CON_PERCENT
+      || type === Define.POWER_AGI_PERCENT
+      || type === Define.POWER_ILT_PERCENT
+      || type === Define.POWER_WIS_PERCENT)
       ? this.countrypowerValue
       : 0
   }
 
-  getBaseValue(t, e, n, i, o, a) {
+  getBaseValue(t: number, str: number, str_percent: number, skill_type: number, contant: number, attr: number) {
     let r = t
-    r += this.getSkillPowerValue(i, e)
-    let s = this.getSkillPowerValue(i, n)
+    r += this.getSkillPowerValue(skill_type, str)
+    let s = this.getSkillPowerValue(skill_type, str_percent)
     return (
-      (s += this.getBagEquipPowerValue(n)),
-      (r += this.getPowerValueByBuffer(e)),
-      (s += this.getPowerValueByBuffer(n)),
+      (s += this.getBagEquipPowerValue(str_percent)),
+      (r += this.getPowerValueByBuffer(str)),
+      (s += this.getPowerValueByBuffer(str_percent)),
       this.formationSkill
-      && ((r += this.formationSkill.getPowerValue(e)),
-      (s += this.formationSkill.getPowerValue(n))),
+      && ((r += this.formationSkill.getPowerValue(str)),
+      (s += this.formationSkill.getPowerValue(str_percent))),
       this.playerTurnMonster != null
-      && ((r += this.playerTurnMonster.getPowerValue(e)),
-      (s += this.playerTurnMonster.getPowerValue(n))),
+      && ((r += this.playerTurnMonster.getPowerValue(str)),
+      (s += this.playerTurnMonster.getPowerValue(str_percent))),
       (r += Math.floor((r * s) / 100)),
-      (r += this.getBagEquipPowerValue(e)),
-      (r = Tool.sumValue(r, 0, o, a))
+      (r += this.getBagEquipPowerValue(str)),
+      (r = Tool.sumValue(r, 0, contant, attr))
     )
   }
 
@@ -913,43 +926,42 @@ export class Player extends Model {
   }
 
   getAttakAnimePos() {
-    const t = this.getEquipWeaponType()
-    return t == Define.ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
-      || t == Define.ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW
-      || t == Define.ITEM_TYPE_WEAPON_TWOHAND_BOW
-      || t == Define.ITEM_TYPE_WEAPON_TWOHAND_STAFF
-      || t == Define.ITEM_TYPE_WEAPON_BALL
-      || t == Define.ITEM_TYPE_WEAPON_ONEHAND_GUN
-      || t == Define.ITEM_TYPE_WEAPON_TWOHAND_GUN
+    const type = this.getEquipWeaponType()
+    return (type === Define.ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
+      || type === Define.ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW
+      || type === Define.ITEM_TYPE_WEAPON_TWOHAND_BOW
+      || type === Define.ITEM_TYPE_WEAPON_TWOHAND_STAFF
+      || type === Define.ITEM_TYPE_WEAPON_BALL
+      || type === Define.ITEM_TYPE_WEAPON_ONEHAND_GUN
+      || type === Define.ITEM_TYPE_WEAPON_TWOHAND_GUN)
       ? Define.SKILL_POS_STAND
       : Battle.SKILL_POS_FRONT
   }
 
   getAttackRangeAnime() {
-    const t = this.getEquipWeaponType()
-    return t == Define.ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
-      || t == Define.ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW
+    const type = this.getEquipWeaponType()
+    return (type === Define.ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
+      || type === Define.ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW)
       ? 0
       : 0
   }
 
-  getPowerValue(t, e, n, i, o, a, r, s?: any) {
-    void 0 === s && (s = false)
+  getPowerValue(t: number, max_val: number, max: number, max_percent: number, skill_type: number, contant: number, player_max: number, s = false) {
     let l = t
-    l += this.getSkillPowerValue(o, n)
-    let _ = this.getSkillPowerValue(o, i)
+    l += this.getSkillPowerValue(skill_type, max)
+    let _ = this.getSkillPowerValue(skill_type, max_percent)
     return (
-      (l += this.getPowerValueByBuffer(n)),
-      (_ += this.getPowerValueByBuffer(i)),
+      (l += this.getPowerValueByBuffer(max)),
+      (_ += this.getPowerValueByBuffer(max_percent)),
       this.bag
-      && ((l += this.getBagEquipPowerValue(n)),
-      (_ += this.getBagEquipPowerValue(i))),
+      && ((l += this.getBagEquipPowerValue(max)),
+      (_ += this.getBagEquipPowerValue(max_percent))),
       this.formationSkill
-      && ((l += this.formationSkill.getPowerValue(n)),
-      (_ += this.formationSkill.getPowerValue(i))),
+      && ((l += this.formationSkill.getPowerValue(max)),
+      (_ += this.formationSkill.getPowerValue(max_percent))),
       this.playerTurnMonster != null
-      && ((l += this.playerTurnMonster.getPowerValue(n)),
-      (_ += this.playerTurnMonster.getPowerValue(i))),
+      && ((l += this.playerTurnMonster.getPowerValue(max)),
+      (_ += this.playerTurnMonster.getPowerValue(max_percent))),
       s
       && this.getEquipWeaponType() == Define.BACK_ERROR_NULL_HAND
       && (this.bag
@@ -959,13 +971,13 @@ export class Player extends Model {
         Define.POWER_HAND_PERCENT,
       ))),
       (l += ((l * _) / 100) >> 0),
-      (l = Tool.sumValue(l, e, a, r))
+      (l = Tool.sumValue(l, max_val, contant, player_max))
     )
   }
 
-  get(e: number) {
+  get(type: number): number {
     let n = 0
-    switch (e) {
+    switch (type) {
       case Model.INTEGRAL:
         return this.integral
       case Model.EXP:
@@ -1072,13 +1084,14 @@ export class Player extends Model {
       case Model.PARTNER_ID:
         return this.partnerId
       case Model.HPMAX:
-        var i = this.get(Model.LEVEL) + this.get(Model.LEVEL2)
+      {
+        const i = this.get(Model.LEVEL) + this.get(Model.LEVEL2)
         return (
           (n
-            = Math.floor((65 * this.get(Model.CON)) / 10)
-            + 3 * this.get(Model.STR)
-            + 100
-            + 40 * (i - 1)),
+              = Math.floor((65 * this.get(Model.CON)) / 10)
+              + 3 * this.get(Model.STR)
+              + 100
+              + 40 * (i - 1)),
           (n = this.getPowerValue(
             n,
             this.hpMax,
@@ -1090,14 +1103,16 @@ export class Player extends Model {
           )),
           Math.floor(n)
         )
+      }
       case Model.MPMAX:
-        var o = this.get(Model.LEVEL) + this.get(Model.LEVEL2)
+      {
+        const o = this.get(Model.LEVEL) + this.get(Model.LEVEL2)
         return (
           (n
-            = Math.floor((75 * this.get(Model.ILT)) / 10)
-            + Math.floor((35 * this.get(Model.WIS)) / 10)
-            + 50
-            + 10 * (o - 1)),
+              = Math.floor((75 * this.get(Model.ILT)) / 10)
+              + Math.floor((35 * this.get(Model.WIS)) / 10)
+              + 50
+              + 10 * (o - 1)),
           (n = this.getPowerValue(
             n,
             this.mpMax,
@@ -1109,6 +1124,7 @@ export class Player extends Model {
           )),
           Math.floor(n)
         )
+      }
       case Model.SPEED:
         return (
           (n
@@ -1160,9 +1176,13 @@ export class Player extends Model {
           Tool.sumValue(n, 0, 0, Model.MAX_ATK)
         )
       case Model.ATK_MIN:
-        var a = this.get(Model.LEFT_ATK_MIN)
-        var r = this.get(Model.RIGHT_ATK_MIN)
-        return (n = a), r > n && (n = r), Math.floor(n)
+      {
+        const a = this.get(Model.LEFT_ATK_MIN)
+        const r = this.get(Model.RIGHT_ATK_MIN)
+        n = a
+        r > n && (n = r)
+        return Math.floor(n)
+      }
       case Model.LEFT_ATK_MAX:
         return (
           this.bag
@@ -1186,9 +1206,12 @@ export class Player extends Model {
           Tool.sumValue(n, 0, 0, Model.MAX_ATK)
         )
       case Model.ATK_MAX:
-        var s = this.get(Model.LEFT_ATK_MAX)
-        var l = this.get(Model.RIGHT_ATK_MAX)
-        return (n = s), l > n && (n = l), Math.floor(n)
+      { const s = this.get(Model.LEFT_ATK_MAX)
+        const l = this.get(Model.RIGHT_ATK_MAX)
+        n = s
+        l > n && (n = l)
+        return Math.floor(n)
+      }
       case Model.LEFT_ATK_TIME:
         return this.bag
           && ((n = this.bag.getAttributeByPos(7, PlayerBag.WEAPON_LEFT_POS)),
@@ -1698,7 +1721,7 @@ export class Player extends Model {
       case Model.BACK_MAX:
         return 70
       default:
-        return super.get.call(this, e)
+        return super.get.call(this, type)
     }
   }
 

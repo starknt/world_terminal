@@ -212,12 +212,14 @@ export class Condition {
         }
         break
       case 24:
-      {
+        {
         // vip
-        const vip = this.data.readByte()
-        result = player.vipLevel >= vip
-      }
+          const vip = this.data.readByte()
+          result = player.vipLevel >= vip
+        }
+        break
       case 25:
+        break
       case 28:
         break
       case 26:
@@ -254,68 +256,68 @@ export class Condition {
     return this.not ? !result : result
   }
 
-  setKilledMonsterNum(t, e, n) {
-    if (this.type == 2) {
+  setKilledMonsterNum(id: number, killed: number, flag = false) {
+    if (this.type === 2) {
       const o = this.data
       o.position = 0
-      const a = o.readShort()
-      const r = o.readUTF()
+      const mid = o.readShort()
+      const description = o.readUTF()
       const s = o.readByte()
-      const l = o.readByte()
+      const okilled = o.readByte()
       let _ = 0
-      if (n == 0) {
-        if (a != t)
+      if (!flag) {
+        if (mid !== id)
           return
-        let h = l + e
-        h > Tool.MAX_VALUE_byte && (h = Tool.MAX_VALUE_byte),
-        (_ = h)
+        let h = okilled + killed
+        if (h > Tool.MAX_VALUE_byte)
+          _ = h = Tool.MAX_VALUE_byte
       }
       const u = new egret.ByteArray()
-      u.writeShort(a),
-      u.writeUTF(r),
-      u.writeByte(s),
-      u.writeByte(_),
-      (this.data = u)
+      u.writeShort(mid)
+      u.writeUTF(description)
+      u.writeByte(s)
+      u.writeByte(_)
+      this.data = u
     }
   }
 
   isShowTargetType() {
-    return !!(this.type == 2 || this.type == 7)
+    return !!(this.type === 2 || this.type === 7)
   }
 
   getTargetData(player: Player) {
     const t = this.data
     t.position = 0
-    let e: TaskTargetData | null = null
-    if (this.type == 2) {
+    let taskTargetData: TaskTargetData | null = null
+    if (this.type === 2) {
       t.readShort()
-      const n = t.readUTF()
-      var i = t.readByte()
-      var o = t.readByte();
-      (e = new TaskTargetData()),
-      (e.showName = n),
-      (e.currentCount = o),
-      (e.needCount = i)
+      const name = t.readUTF()
+      const needCount = t.readByte()
+      const currentCount = t.readByte()
+      taskTargetData = new TaskTargetData()
+      taskTargetData.showName = name
+      taskTargetData.currentCount = currentCount
+      taskTargetData.needCount = needCount
     }
-    else if (this.type == 7) {
-      const a = t.readInt()
-      const r = t.readUTF()
-      var i = t.readByte()
-      var o = player.bag.getItemNumByID(a);
-      (e = new TaskTargetData()),
-      (e.showName = r),
-      (e.currentCount = o),
-      (e.needCount = i)
+    else if (this.type === 7) {
+      const id = t.readInt()
+      const name = t.readUTF()
+      const needCount = t.readByte()
+      const currentCount = player.bag.getItemNumByID(id)
+      taskTargetData = new TaskTargetData()
+      taskTargetData.showName = name
+      taskTargetData.currentCount = currentCount
+      taskTargetData.needCount = needCount
     }
-    return e
+    return taskTargetData
   }
 
   cleanKillMonster() {
     this.setKilledMonsterNum(0, 0, true)
   }
 
-  updateKilledMonsterNum(t, e) {
-    this.setKilledMonsterNum(t, e, false)
+  updateKilledMonsterNum(mid: number, killed: number) {
+    this.setKilledMonsterNum(mid, killed, false)
   }
 
   isNestedMissionType() {

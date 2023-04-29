@@ -5,812 +5,6 @@ import type { Player } from 'libs/typings/Player'
 import { PlayerBuffer } from 'libs/typings/PlayerBuffer'
 
 export namespace Define {
-  export function addValuePlayer(t: Player, e: number, n: number, i: boolean, o: number) {
-    if (t != null) {
-      const a = function (t: Player) {
-        return (e = i ? ((n * t.get(o)) / 100) >> 0 : n)
-      }
-      const r = a(t)
-      t.addValue(e, r)
-      let s = t.getPet()
-      if (s) {
-        const l = a(s)
-        s.addValue(e, l)
-      }
-      const _ = t.getMerList()
-      if (_) {
-        for (let h = 0; h < _.length; h++) {
-          const u = _[h]
-          if (u != null) {
-            let c = a(u)
-            u.addValue(e, c),
-            (s = u.getPet()),
-            s != null && ((c = a(s)), s.addValue(e, c))
-          }
-        }
-      }
-    }
-  }
-
-  export function isAllocateMirrorMap(e: number): boolean {
-    return e >= Define.MAP_ID_START_MIRROR_ALLOCATE && e <= Define.MAP_ID_END_MIRROR_ALLOCATE
-  }
-
-  export function isAllocateCityMap(e: number): boolean {
-    return e >= Define.MAP_ID_START_CITY_ALLOCATE && e <= Define.MAP_ID_END_CITY_ALLOCATE
-  }
-
-  export function isAllocateCountryMap(e: number): boolean {
-    return !!(e >= Define.MAP_ID_START_COUNTRY_ALLOCATE
-      && e <= Define.MAP_ID_END_COUNTRY_ALLOCATE)
-  }
-
-  export function isCountrySkillShop(e: number): boolean {
-    return e >= Define.SKILL_SHOP_COUNTRY_START_PLAYER
-      && e <= Define.SKILL_SHOP_COUNTRY_END_PLAYER
-      ? true
-      : !!(e >= Define.SKILL_SHOP_COUNTRY_START_PET
-        && e <= Define.SKILL_SHOP_COUNTRY_END_PET)
-  }
-
-  export function isCountryShop(e: number): boolean {
-    return e >= Define.SHOP_COUNTRY_START && e <= Define.SHOP_COUNTRY_END
-  }
-
-  export function isCommonMap(e: number): boolean {
-    return !!(e >= Define.MAP_ID_START_COMMON && e <= Define.MAP_ID_END_COMMON)
-  }
-
-  export function getTypeBySkillShopID(e: number): number {
-    return e >= Define.SKILL_SHOP_START_PLAYER && e < Define.SKILL_SHOP_END_PLAYER
-      ? Define.SKILL_TYPE_PLAYER
-      : e >= Define.SKILL_SHOP_START_PET && e < Define.SKILL_SHOP_END_PET
-        ? Define.SKILL_TYPE_PET
-        : Define.SKILL_TYPE_OTHER
-  }
-
-  export function getRankString(e: number) {
-    return e < 0 || e >= Define.rankText.length ? '' : Define.rankText[e]
-  }
-
-  export function isNetBattleID(e: number) {
-    return e >= Define.BATTLE_NET_START && e <= Define.BATTLE_NET_END
-  }
-
-  export function getSexString(e: number) {
-    return e < 0 || e >= Define.sexTEXT.length ? `sex_${e}` : Define.sexTEXT[e]
-  }
-
-  export function getRaceString(e: number) {
-    return e < 0 || e >= Define.raceText.length ? `race_${e}` : Define.raceText[e]
-  }
-
-  export function getJobString(e: number) {
-    return e < 0 || e >= Define.jobText.length ? `job_${e}` : Define.jobText[e]
-  }
-
-  export function getBufferBitValue(e) {
-    return e == BUFFER_NONE ? 0 : 1 << e
-  }
-
-  export function getBufferType(e, n?: any) {
-    if ((void 0 === n && (n = false), n == 1)) {
-      if (
-        e >= getBufferBitValue(BUFFER_POISON)
-        && e <= getBufferBitValue(BUFFER_WEAK)
-      )
-        return BUFFER_TYPE_DEBUFF
-      if (e == getBufferBitValue(BUFFER_DIE_CANNOT_RELIVE))
-        return BUFFER_TYPE_DEBUFF
-    }
-    else {
-      if (e >= BUFFER_POISON && e <= BUFFER_WEAK)
-        return BUFFER_TYPE_DEBUFF
-      if (e == BUFFER_DIE_CANNOT_RELIVE)
-        return BUFFER_TYPE_DEBUFF
-    }
-    return BUFFER_TYPE_BUFF
-  }
-
-  export function isPhysicalAtkType(e) {
-    return e <= ATKTYPE_RANGE_AGI
-  }
-
-  export function getSkillAreaPlayerNum(e) {
-    switch (e) {
-      case SKILL_AREA_PLAYER_AND_PET:
-      case SKILL_AREA_FRONT_BACK_TWO:
-      case SKILL_AREA_UP_DOWN_TWO:
-      case SKILL_AREA_ENEMY_FONT_BACK_TWO:
-      case SKILL_AREA_ENEMY_UP_DOWN_TWO:
-      case SKILL_AREA_ME_FONT_BACK_TWO:
-      case SKILL_AREA_ME_UP_DOWN_TWO:
-        return SKILL_AREA_CURSOR_2
-      case SKILL_AREA_UP_DOWN_THREE:
-      case SKILL_AREA_ENEMY_UP_DOWN_THREE:
-      case SKILL_AREA_ME_UP_DOWN_THREE:
-        return SKILL_AREA_CURSOR_3
-      case SKILL_AREA_UP_DOWN_FOUR:
-      case SKILL_AREA_ENEMY_UP_DOWN_FOUR:
-      case SKILL_AREA_ME_UP_DOWN_FOUR:
-      case SKILL_AREA_SQUARE:
-      case SKILL_AREA_ENEMY_SQUARE:
-      case SKILL_AREA_ME_SQUARE:
-      case SKILL_AREA_TEN:
-      case SKILL_AREA_ENEMY_TEN:
-      case SKILL_AREA_ME_TEN:
-        return SKILL_AREA_CURSOR_4
-      case SKILL_AREA_UP_DOWN_FIVE:
-      case SKILL_AREA_ENEMY_UP_DOWN_FIVE:
-      case SKILL_AREA_ME_UP_DOWN_FIVE:
-        return SKILL_AREA_CURSOR_5
-      case SKILL_AREA_AROUND_SIX:
-      case SKILL_AREA_ENEMY_AROUND_SIX:
-      case SKILL_AREA_ME_AROUND_SIX:
-        return SKILL_AREA_CURSOR_6
-      case SKILL_AREA_ALL:
-      case SKILL_AREA_ENEMY_ALL:
-      case SKILL_AREA_ME_ALL:
-      case SKILL_AREA_ME_ALL_NO_SELF:
-      case SKILL_AREA_ALL_NO_SELF:
-        return SKILL_AREA_CURSOR_ALL
-    }
-    return SKILL_AREA_CURSOR_1
-  }
-
-  export function processBattleReborn(e, n, i, o, a) {
-    if (e.isDead() == 0)
-      return false
-    if (e.isBattleStatus(getBufferBitValue(BUFFER_DIE_CANNOT_RELIVE)))
-      return false
-    e.clearBufferList(true), e.addValue(Model.HP, n)
-    const r = Battle.EFFECT_HIT | Battle.EFFECT_REBORN
-    // s = Control.createBattleTargetEffectOther(e.position, n, r, o);
-    return i != 0 && e.addValue(Model.MP, i), true
-  }
-
-  export function processBattleHpMpPower(e, n, i, o, a) {
-    return processBattleHpMpPowerBySelf(e, n, i, o, a, false)
-  }
-
-  export function processBattleHpMpPowerBySelf(t, e, n, i, o, a) {
-    if (t == null)
-      return false
-    if (t.isDead())
-      return false
-    t.addValue(e, n)
-    let r = Battle.EFFECT_HIT
-    e == Model.HP
-      ? t.isDeadNoWithDelay() && (r |= Battle.EFFECT_DIE)
-      : (r |= Battle.EFFECT_MP_CHANGE)
-    const s = Control.createBattleTargetEffect(a, t.position, n, r, i)
-    return o != null && o.push(s), true
-  }
-
-  export function getSearchTypeByArea(e) {
-    return (e >= SKILL_AREA_ENEMY_SINGLE && e <= SKILL_AREA_ENEMY_ALL)
-      || e == SKILL_AREA_ENEMY_HP_LEAST
-      || e == SKILL_AREA_ENEMY_HP_MOST
-      ? SKILL_AREA_SEARCH_ENEMY
-      : (e >= SKILL_AREA_ME_SIGHLE && e <= SKILL_AREA_ME_ALL)
-        || e == SKILL_AREA_ME_HP_LEAST
-        || e == SKILL_AREA_ME_HP_MOST
-        || e == SKILL_AREA_ME_ALL_NO_SELF
-          ? SKILL_AREA_SEARCH_FRIEND
-          : e == SKILL_AREA_MY_SELF
-            ? SKILL_AREA_SEARCH_MY_SELF
-            : e == SKILL_AREA_MY_OWNER
-              ? SKILL_AREA_SEARCH_MY_OWNER
-              : SKILL_AREA_SEARCH_ALL
-  }
-
-  export function processBattlePower(e, n, i, o, a, r, s, l, _, h) {
-    if (e != null && n != null && !(a <= 0)) {
-      let u = 0
-      let c = -1
-      let T = 0
-      switch (a) {
-        case POWER_SWORD_ATK_TIME:
-        case POWER_BLADE_ATK_TIME:
-        case POWER_HEAVY_ATK_TIME:
-        case POWER_LANCE_ATK_TIME:
-        case POWER_STAFF_ATK_TIME:
-        case POWER_HAND_ATK_TIME:
-        case POWER_BOW_ATK_TIME:
-        case POWER_HAND_ITEM_ATK_TIME:
-        case POWER_ALL_ATK_TIME:
-        case POWER_BALL_ATK_TIME:
-        case POWER_GUN_ATK_TIME:
-          var p = n.getEquipWeaponType()
-          if (
-            a == POWER_SWORD_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_ONEHAND_SWORD
-            && p != ITEM_TYPE_WEAPON_TWOHAND_SWORD
-          )
-            return
-          if (
-            a == POWER_BLADE_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_ONEHAND_BLADE
-            && p != ITEM_TYPE_WEAPON_TWOHAND_BLADE
-          )
-            return
-          if (
-            a == POWER_HEAVY_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_ONEHAND_HEAVY
-            && p != ITEM_TYPE_WEAPON_TWOHAND_HEAVY
-          )
-            return
-          if (
-            a == POWER_LANCE_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_TWOHAND_LANCE
-          )
-            return
-          if (
-            a == POWER_STAFF_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_TWOHAND_STAFF
-          )
-            return
-          if (a == POWER_BALL_ATK_TIME && p != ITEM_TYPE_WEAPON_BALL)
-            return
-          if (
-            a == POWER_GUN_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_ONEHAND_GUN
-            && p != ITEM_TYPE_WEAPON_TWOHAND_GUN
-          )
-            return
-          if (a == POWER_HAND_ATK_TIME && p != BACK_ERROR_NULL_HAND)
-            return
-          if (
-            a == POWER_BOW_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
-            && p != ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW
-            && p != ITEM_TYPE_WEAPON_TWOHAND_BOW
-          )
-            return
-          if (
-            a == POWER_HAND_ITEM_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_ONEHAND_HAND
-          )
-            return;
-          (c = Model.ATK_TIME), (u = r), n.addValue(c, u)
-          break
-        case POWER_SWORD_PERCENT:
-        case POWER_BLADE_PERCENT:
-        case POWER_HEAVY_PERCENT:
-        case POWER_LANCE_PERCENT:
-        case POWER_STAFF_PERCENT:
-        case POWER_HAND_PERCENT:
-        case POWER_BOW_PERCENT:
-        case POWER_HAND_ITEM_PERCENT:
-        case POWER_BALL_PERCENT:
-        case POWER_GUN_PERCENT:
-        case POWER_ALL_PERCENT:
-          if (
-            ((p = n.getEquipWeaponType()),
-            a == POWER_SWORD_ATK_TIME
-              && p != ITEM_TYPE_WEAPON_ONEHAND_SWORD
-              && p != ITEM_TYPE_WEAPON_TWOHAND_SWORD)
-          )
-            return
-          if (
-            a == POWER_BLADE_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_ONEHAND_BLADE
-            && p != ITEM_TYPE_WEAPON_TWOHAND_BLADE
-          )
-            return
-          if (
-            a == POWER_HEAVY_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_ONEHAND_HEAVY
-            && p != ITEM_TYPE_WEAPON_TWOHAND_HEAVY
-          )
-            return
-          if (
-            a == POWER_LANCE_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_TWOHAND_LANCE
-          )
-            return
-          if (
-            a == POWER_STAFF_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_TWOHAND_STAFF
-          )
-            return
-          if (a == POWER_BALL_ATK_TIME && p != ITEM_TYPE_WEAPON_BALL)
-            return
-          if (
-            a == POWER_GUN_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_ONEHAND_GUN
-            && p != ITEM_TYPE_WEAPON_TWOHAND_GUN
-          )
-            return
-          if (a == POWER_HAND_ATK_TIME && p != BACK_ERROR_NULL_HAND)
-            return
-          if (
-            a == POWER_BOW_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
-            && p != ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW
-            && p != ITEM_TYPE_WEAPON_TWOHAND_BOW
-          )
-            return
-          if (
-            a == POWER_HAND_ITEM_ATK_TIME
-            && p != ITEM_TYPE_WEAPON_ONEHAND_HAND
-          )
-            return;
-          (c = Model.WEAPON_DAMAGE_PERCENT), (u = r), n.addValue(c, u)
-          break
-        case POWER_SPEED:
-          (c = Model.SPEED), (u = r), n.addValue(c, u)
-          break
-        case POWER_SPEED_PERCENT:
-          (c = Model.SPEED),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_ATK_STR:
-          (c = Model.ATK_STR), (u = r), n.addValue(c, u)
-          break
-        case POWER_ATK_STR_PERCENT:
-          (c = Model.ATK_STR),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_ATK_AGI:
-          (c = Model.ATK_AGI), (u = r), n.addValue(c, u)
-          break
-        case POWER_ATK_AGI_PERCENT:
-          (c = Model.ATK_AGI),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_ATK_MAGIC:
-          (c = Model.ATK_MAGIC), (u = r), n.addValue(c, u)
-          break
-        case POWER_ATK_MAGIC_PERCENT:
-          (c = Model.ATK_MAGIC),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_DEF_STR:
-          (c = Model.DEF_STR), (u = r), n.addValue(c, u)
-          break
-        case POWER_DEF_STR_PERCENT:
-          (c = Model.DEF_STR),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_DEF_AGI:
-          (c = Model.DEF_AGI), (u = r), n.addValue(c, u)
-          break
-        case POWER_DEF_AGI_PERCENT:
-          (c = Model.DEF_AGI),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_DEF_MAGIC:
-          (c = Model.DEF_MAGIC), (u = r), n.addValue(c, u)
-          break
-        case POWER_DEF_MAGIC_PERCENT:
-          (c = Model.DEF_MAGIC),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_CRITICAL:
-          (c = Model.CRITICAL), (u = r), n.addValue(c, u)
-          break
-        case POWER_CRITICAL_PERCENT:
-          (c = Model.CRITICAL),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_MAGIC_HITRATE:
-          (c = Model.HIT_MAGIC), (u = r), n.addValue(c, u)
-          break
-        case POWER_MAGIC_HITRATE_PERCENT:
-          (c = Model.HIT_MAGIC),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_HITRATE:
-          (c = Model.HIT_RATE), (u = r), n.addValue(c, u)
-          break
-        case POWER_HITRATE_PERCENT:
-          (c = Model.HIT_RATE),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_HIT_FORCE:
-          (c = Model.FORCE_HIT), (u = r), n.addValue(c, u)
-          break
-        case POWER_HIT_FORCE_PERCENT:
-          (c = Model.FORCE_HIT),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_DODGE:
-          (c = Model.DODGE), (u = r), n.addValue(c, u)
-          break
-        case POWER_DODGE_PERCENT:
-          (c = Model.DODGE),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_WIL:
-          (c = Model.WIL), (u = r), n.addValue(c, u)
-          break
-        case POWER_WIL_PERCENT:
-          (c = Model.WIL),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_TOUGH:
-          (c = Model.TOUGH), (u = r), n.addValue(c, u)
-          break
-        case POWER_TOUGH_PERCENT:
-          (c = Model.TOUGH),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_PENETRATION:
-          (c = Model.BRK_ARMOR), (u = r), n.addValue(c, u)
-          break
-        case POWER_PENETRATION_PERCENT:
-          (c = Model.BRK_ARMOR),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_MAGIC_PENETRATION:
-          (c = Model.MAGIC_PENETRATION), (u = r), n.addValue(c, u)
-          break
-        case POWER_MAGIC_PENETRATION_PERCENT:
-          (c = Model.MAGIC_PENETRATION),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_BLOCK:
-          (c = Model.BLOCK), (u = r), n.addValue(c, u)
-          break
-        case POWER_BLOCK_PERCENT:
-          (c = Model.BLOCK),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_DEF_FIELD:
-          (c = Model.DEF_FIELD), (u = r), n.addValue(c, u)
-          break
-        case POWER_DEF_FIELD_PERCENT:
-          (c = Model.DEF_FIELD),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_INSIGHT:
-          (c = Model.INSIGHT), (u = r), n.addValue(c, u)
-          break
-        case POWER_INSIGHT_PERCENT:
-          (c = Model.INSIGHT),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_BACK:
-          (c = Model.BACK), (u = r), n.addValue(c, u)
-          break
-        case POWER_BACK_PERCENT:
-          (c = Model.BACK),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_MAGIC_BACK:
-          (c = Model.MAGIC_BACK), (u = r), n.addValue(c, u)
-          break
-        case POWER_MAGIC_BACK_PERCENT:
-          (c = Model.MAGIC_BACK),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_LIFE_ABSORPTION:
-          (c = Model.LIFE_ABSORPTION), (u = r), n.addValue(c, u)
-          break
-        case POWER_LIFE_ABSORPTION_PERCENT:
-          (c = Model.LIFE_ABSORPTION),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_MANA_ABSORPTION:
-          (c = Model.MANA_ABSORPTION), (u = r), n.addValue(c, u)
-          break
-        case POWER_MANA_ABSORPTION_PERCENT:
-          (c = Model.MANA_ABSORPTION),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_HEAL_RECOVERY:
-          (c = Model.HEAL_RECOVERY), (u = r), n.addValue(c, u)
-          break
-        case POWER_HEAL_RECOVERY_PERCENT:
-          (c = Model.HEAL_RECOVERY),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_MANA_RECOVERY:
-          (c = Model.MANA_RECOVERY), (u = r), n.addValue(c, u)
-          break
-        case POWER_MANA_RECOVERY_PERCENT:
-          (c = Model.MANA_RECOVERY),
-          (u = ((r * n.get(c)) / 100) >> 0),
-          n.addValue(c, u)
-          break
-        case POWER_HP:
-          if (
-            ((c = Model.HP),
-            (u = r),
-            o != null
-              && o.area != SKILL_AREA_MY_SELF
-              && processBattleKeepOutPower(n, u, h))
-          )
-            break
-          if (
-            (u > 0
-              && n.isBattleStatus(getBufferBitValue(BUFFER_BURN))
-              && (u = (u / 2) >> 0),
-            processBattleHpMpPower(n, c, u, _, h) == false)
-          )
-            return void addBufferBySpecial(l, c, u, s, n, e, _)
-          e.checkDie1Hp(n, null)
-          break
-        case POWER_HP_PERCENT:
-          if (
-            ((c = Model.HP),
-            (u = ((r * n.get(Model.HPMAX)) / 100) >> 0),
-            o != null
-              && o.area != SKILL_AREA_MY_SELF
-              && processBattleKeepOutPower(n, u, h))
-          )
-            break
-          if (u < 0) {
-            let d = Battle.calTouch(n)
-            i != null && n != i && (d -= i.get(Model.IGNORE_TOUCH)),
-            d > Battle.MAX_RATE_TOUCH && (d = Battle.MAX_RATE_TOUCH),
-            d > 0 && ((u -= ((u * d) / 1e3) >> 0), u > 0 && (u = 0))
-          }
-          if (
-            (u > 0
-              && n.isBattleStatus(getBufferBitValue(BUFFER_BURN))
-              && (u = (u / 2) >> 0),
-            processBattleHpMpPower(n, c, u, _, h) == false)
-          )
-            return void addBufferBySpecial(l, c, u, s, n, e, _)
-          e.checkDie1Hp(n, null)
-          break
-        case POWER_RECOVER:
-          if (processBattleReborn(n, u, u, _, h) == false)
-            return
-          break
-        case POWER_RECOVER_PERCENT:
-          var E = ((r * n.get(Model.HPMAX)) / 100) >> 0
-          var g = ((r * n.get(Model.MPMAX)) / 100) >> 0
-          if (processBattleReborn(n, E, g, _, h) == false)
-            return
-          break
-        case POWER_MP:
-          if (
-            ((c = Model.MP),
-            (u = r),
-            u > 0
-              && n.isBattleStatus(getBufferBitValue(BUFFER_POISON))
-              && (u = (u / 2) >> 0),
-            processBattleHpMpPower(n, c, u, _, h) == false)
-          )
-            return void addBufferBySpecial(l, c, u, s, n, e, _)
-          break
-        case POWER_MP_PERCENT:
-          if (
-            ((c = Model.MP),
-            (u = ((r * n.get(Model.MPMAX)) / 100) >> 0),
-            u > 0
-              && n.isBattleStatus(getBufferBitValue(BUFFER_POISON))
-              && (u = (u / 2) >> 0),
-            processBattleHpMpPower(n, c, u, _, h) == false)
-          )
-            return void addBufferBySpecial(l, c, u, s, n, e, _)
-          break
-        case POWER_REMOVE_STATUS:
-          (c = Model.BUFFER_REMOVE_STATUS),
-          (u = r),
-          n.removeBufferByStatus(r)
-          break
-        case POWER_KEEPOUT_ATK_TIME:
-          (c = Model.KEEPOUT_ATK_TIME),
-          (u = r),
-          (T = n.keepout_atk_time),
-          u < 0
-            && T + u <= 0
-            && n.isTabStatus(Model.TAG_IS_KEEP_OUT)
-            && u++,
-          n.addValue(c, u)
-      }
-      if (l > 0 && c >= 0) {
-        if (u == 0 && s == BUFFER_NONE)
-          return
-        l--
-        let S = n.readAddValue
-        a == POWER_KEEPOUT_ATK_TIME
-          && u < 0
-          && n.isTabStatus(Model.TAG_IS_KEEP_OUT)
-          && (T--, (S = n.keepout_atk_time - T))
-        const m = new PlayerBuffer(e, c, u, s, l, _, S)
-        n.addBuffer(m)
-      }
-    }
-  }
-
-  export function addBufferBySpecial(e, n, i, o, a, r, s) {
-    if (o == BUFFER_DIE_CANNOT_RELIVE && e > 0 && n >= 0) {
-      if (i == 0 && o == BUFFER_NONE)
-        return
-      e--
-      const l = a.readAddValue
-      const _ = new PlayerBuffer(r, n, i, o, e, s, l)
-      a.addBuffer(_)
-    }
-  }
-
-  export function processBattleKeepOutPower(t, e, n) {
-    if (t == null)
-      return false
-    if (e >= 0)
-      return false
-    if (t.keepout_atk_time <= 0)
-      return false
-    let i = Battle.EFFECT_HIT
-    t.isTabStatus(Model.TAG_IS_KEEP_OUT) == 0
-      && (i |= Battle.EFFECT_KEEPOUT),
-    t.setTabStatus(true, Model.TAG_IS_KEEP_OUT)
-    // var o = Control.createBattleTargetEffect(false, t.position, 0, i, 0);
-    return true
-  }
-
-  export function isNullHand(t, e) {
-    return !!(t < 0 && e < 0)
-  }
-
-  export function isValidOneSword(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_ONEHAND_SWORD == e
-      || ITEM_TYPE_WEAPON_ONEHAND_SWORD == n
-    )
-  }
-
-  export function isValidTwoSword(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_TWOHAND_SWORD == e
-      || ITEM_TYPE_WEAPON_TWOHAND_SWORD == n
-    )
-  }
-
-  export function isValidSword(e, n) {
-    return isValidOneSword(e, n) || isValidTwoSword(e, n)
-  }
-
-  export function isValidOneBlade(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_ONEHAND_BLADE == e
-      || ITEM_TYPE_WEAPON_ONEHAND_BLADE == n
-    )
-  }
-
-  export function isValidTwoBlade(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_TWOHAND_BLADE == e
-      || ITEM_TYPE_WEAPON_TWOHAND_BLADE == n
-    )
-  }
-
-  export function isValidBlade(e, n) {
-    return isValidOneBlade(e, n) || isValidTwoBlade(e, n)
-  }
-
-  export function isValidOneHeavy(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_ONEHAND_HEAVY == e
-      || ITEM_TYPE_WEAPON_ONEHAND_HEAVY == n
-    )
-  }
-
-  export function isValidTwoHeavy(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_TWOHAND_HEAVY == e
-      || ITEM_TYPE_WEAPON_TWOHAND_HEAVY == n
-    )
-  }
-
-  export function isValidHeavy(e, n) {
-    return isValidOneHeavy(e, n) || isValidTwoHeavy(e, n)
-  }
-
-  export function isValidLance(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_TWOHAND_LANCE == e
-      || ITEM_TYPE_WEAPON_TWOHAND_LANCE == n
-    )
-  }
-
-  export function isValidOneCrossrow(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW == e
-      || ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW == n
-    )
-  }
-
-  export function isValidTwoCrossrow(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW == e
-      || ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW == n
-    )
-  }
-
-  export function isValidCrossrow(e, n) {
-    return isValidOneCrossrow(e, n) || isValidTwoCrossrow(e, n)
-  }
-
-  export function isValidBow(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_TWOHAND_BOW == e
-      || ITEM_TYPE_WEAPON_TWOHAND_BOW == n
-    )
-  }
-
-  export function isTwoHand(t, e) {
-    return !!(t > 0 && e > 0)
-  }
-
-  export function isNoHeavyTypeWeapon(e) {
-    return !!(e > 0
-      && (e == ITEM_TYPE_WEAPON_ONEHAND_SWORD
-        || e == ITEM_TYPE_WEAPON_ONEHAND_BLADE
-        || e == ITEM_TYPE_WEAPON_ONEHAND_HEAVY
-        || e == ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
-        || e == ITEM_TYPE_WEAPON_ONEHAND_HEAVY
-        || e == ITEM_TYPE_WEAPON_ONEHAND_GUN))
-  }
-
-  export function isOneHandWeapon(e, n) {
-    return isNullHand(e, n)
-      ? false
-      : isTwoHand(e, n)
-        && e != ITEM_TYPE_WEAPON_ONEHAND_HAND
-        && n != ITEM_TYPE_WEAPON_ONEHAND_HAND
-        ? false
-        : !!(isNoHeavyTypeWeapon(e) || isNoHeavyTypeWeapon(n))
-  }
-
-  export function isValidStaff(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_TWOHAND_STAFF == e
-      || ITEM_TYPE_WEAPON_TWOHAND_STAFF == n
-    )
-  }
-
-  export function isValidBall(e, n) {
-    return ITEM_TYPE_WEAPON_BALL == e || ITEM_TYPE_WEAPON_BALL == n
-  }
-
-  export function isValidOneGun(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_ONEHAND_GUN == e
-      || ITEM_TYPE_WEAPON_ONEHAND_GUN == n
-    )
-  }
-
-  export function isValidTwoGun(e, n) {
-    return (
-      ITEM_TYPE_WEAPON_TWOHAND_GUN == e
-      || ITEM_TYPE_WEAPON_TWOHAND_GUN == n
-    )
-  }
-
-  export function isValidGun(e, n) {
-    return isValidOneGun(e, n) || isValidTwoGun(e, n)
-  }
-
   export const SPRITE_USE_ITEM = 1215
   export const ID_PER_AREA = 5e7
   export const startChar = 97
@@ -2216,4 +1410,867 @@ export namespace Define {
   export const CHANNEL_MANBA = 10800
   export const CHANNEL_XIAOMI = 10900
   export const CHANNEL_QUANQUAN = 11e3
+
+  export function addValuePlayer(player: Player, type: number, n: number, i: boolean, o: number) {
+    if (player != null) {
+      const get = function (player: Player) {
+        return (type = i ? ((n * player.get(o)) / 100) >> 0 : n)
+      }
+      const val = get(player)
+      player.addValue(type, val)
+      let pet = player.getPet()
+      if (pet) {
+        const val = get(pet)
+        pet.addValue(type, val)
+      }
+      const mercenaries = player.getMerList()
+      for (let i = 0; i < mercenaries.length; i++) {
+        const mercenary = mercenaries[i]
+        if (mercenary !== null) {
+          let val = get(mercenary)
+          mercenary.addValue(type, val)
+          pet = mercenary.getPet()
+          if (pet !== null) {
+            val = get(pet)
+            pet.addValue(type, val)
+          }
+        }
+      }
+    }
+  }
+
+  export function isAllocateMirrorMap(e: number): boolean {
+    return e >= Define.MAP_ID_START_MIRROR_ALLOCATE && e <= Define.MAP_ID_END_MIRROR_ALLOCATE
+  }
+
+  export function isAllocateCityMap(e: number): boolean {
+    return e >= Define.MAP_ID_START_CITY_ALLOCATE && e <= Define.MAP_ID_END_CITY_ALLOCATE
+  }
+
+  export function isAllocateCountryMap(e: number): boolean {
+    return !!(e >= Define.MAP_ID_START_COUNTRY_ALLOCATE
+      && e <= Define.MAP_ID_END_COUNTRY_ALLOCATE)
+  }
+
+  export function isCountrySkillShop(id: number): boolean {
+    return (id >= Define.SKILL_SHOP_COUNTRY_START_PLAYER
+      && id <= Define.SKILL_SHOP_COUNTRY_END_PLAYER)
+      ? true
+      : !!(id >= Define.SKILL_SHOP_COUNTRY_START_PET
+        && id <= Define.SKILL_SHOP_COUNTRY_END_PET)
+  }
+
+  export function isCountryShop(id: number): boolean {
+    return id >= Define.SHOP_COUNTRY_START && id <= Define.SHOP_COUNTRY_END
+  }
+
+  export function isCommonMap(id: number): boolean {
+    return !!(id >= Define.MAP_ID_START_COMMON && id <= Define.MAP_ID_END_COMMON)
+  }
+
+  export function getTypeBySkillShopID(id: number): number {
+    return (id >= Define.SKILL_SHOP_START_PLAYER && id < Define.SKILL_SHOP_END_PLAYER)
+      ? Define.SKILL_TYPE_PLAYER
+      : (id >= Define.SKILL_SHOP_START_PET && id < Define.SKILL_SHOP_END_PET)
+          ? Define.SKILL_TYPE_PET
+          : Define.SKILL_TYPE_OTHER
+  }
+
+  export function getRankString(rank: number) {
+    return (rank < 0 || rank >= Define.rankText.length) ? '' : Define.rankText[rank]
+  }
+
+  export function isNetBattleID(id: number) {
+    return id >= Define.BATTLE_NET_START && id <= Define.BATTLE_NET_END
+  }
+
+  export function getSexString(sex: number) {
+    return (sex < 0 || sex >= Define.sexTEXT.length) ? `sex_${sex}` : Define.sexTEXT[sex]
+  }
+
+  export function getRaceString(race: number) {
+    return (race < 0 || race >= Define.raceText.length) ? `race_${race}` : Define.raceText[race]
+  }
+
+  export function getJobString(job: number) {
+    return (job < 0 || job >= Define.jobText.length) ? `job_${job}` : Define.jobText[job]
+  }
+
+  export function getBufferBitValue(bit: number) {
+    return bit === BUFFER_NONE ? 0 : 1 << bit
+  }
+
+  export function getBufferType(type: number, flag = false) {
+    if (flag) {
+      if (
+        type >= getBufferBitValue(BUFFER_POISON)
+        && type <= getBufferBitValue(BUFFER_WEAK)
+      )
+        return BUFFER_TYPE_DEBUFF
+      if (type === getBufferBitValue(BUFFER_DIE_CANNOT_RELIVE))
+        return BUFFER_TYPE_DEBUFF
+    }
+    else {
+      if (type >= BUFFER_POISON && type <= BUFFER_WEAK)
+        return BUFFER_TYPE_DEBUFF
+      if (type === BUFFER_DIE_CANNOT_RELIVE)
+        return BUFFER_TYPE_DEBUFF
+    }
+    return BUFFER_TYPE_BUFF
+  }
+
+  export function isPhysicalAtkType(type: number) {
+    return type <= ATKTYPE_RANGE_AGI
+  }
+
+  export function getSkillAreaPlayerNum(type: number) {
+    switch (type) {
+      case SKILL_AREA_PLAYER_AND_PET:
+      case SKILL_AREA_FRONT_BACK_TWO:
+      case SKILL_AREA_UP_DOWN_TWO:
+      case SKILL_AREA_ENEMY_FONT_BACK_TWO:
+      case SKILL_AREA_ENEMY_UP_DOWN_TWO:
+      case SKILL_AREA_ME_FONT_BACK_TWO:
+      case SKILL_AREA_ME_UP_DOWN_TWO:
+        return SKILL_AREA_CURSOR_2
+      case SKILL_AREA_UP_DOWN_THREE:
+      case SKILL_AREA_ENEMY_UP_DOWN_THREE:
+      case SKILL_AREA_ME_UP_DOWN_THREE:
+        return SKILL_AREA_CURSOR_3
+      case SKILL_AREA_UP_DOWN_FOUR:
+      case SKILL_AREA_ENEMY_UP_DOWN_FOUR:
+      case SKILL_AREA_ME_UP_DOWN_FOUR:
+      case SKILL_AREA_SQUARE:
+      case SKILL_AREA_ENEMY_SQUARE:
+      case SKILL_AREA_ME_SQUARE:
+      case SKILL_AREA_TEN:
+      case SKILL_AREA_ENEMY_TEN:
+      case SKILL_AREA_ME_TEN:
+        return SKILL_AREA_CURSOR_4
+      case SKILL_AREA_UP_DOWN_FIVE:
+      case SKILL_AREA_ENEMY_UP_DOWN_FIVE:
+      case SKILL_AREA_ME_UP_DOWN_FIVE:
+        return SKILL_AREA_CURSOR_5
+      case SKILL_AREA_AROUND_SIX:
+      case SKILL_AREA_ENEMY_AROUND_SIX:
+      case SKILL_AREA_ME_AROUND_SIX:
+        return SKILL_AREA_CURSOR_6
+      case SKILL_AREA_ALL:
+      case SKILL_AREA_ENEMY_ALL:
+      case SKILL_AREA_ME_ALL:
+      case SKILL_AREA_ME_ALL_NO_SELF:
+      case SKILL_AREA_ALL_NO_SELF:
+        return SKILL_AREA_CURSOR_ALL
+    }
+    return SKILL_AREA_CURSOR_1
+  }
+
+  export function processBattleReborn(player: Player, type: number, i: number, _: number, __: any[]) {
+    if (player.isDead())
+      return false
+    if (player.isBattleStatus(getBufferBitValue(BUFFER_DIE_CANNOT_RELIVE)))
+      return false
+    player.clearBufferList(true)
+    player.addValue(Model.HP, type)
+    if (i !== 0)
+      player.addValue(Model.MP, i)
+    return true
+  }
+
+  export function processBattleHpMpPower(player: Player, attrID: number, addValue: number, animeID: number, control: Control[]) {
+    return processBattleHpMpPowerBySelf(player, attrID, addValue, animeID, control, false)
+  }
+
+  export function processBattleHpMpPowerBySelf(player: Player, attrID: number, addValue: number, animeID: number, control: Control[], flag = false) {
+    if (player.isDead())
+      return false
+    player.addValue(attrID, addValue)
+    let r = Battle.EFFECT_HIT
+    attrID === Model.HP
+      ? (player.isDeadNoWithDelay() && (r |= Battle.EFFECT_DIE))
+      : (r |= Battle.EFFECT_MP_CHANGE)
+    const s = Control.createBattleTargetEffect(flag, player.position, addValue, r, animeID)
+    control != null && control.push(s)
+    return true
+  }
+
+  export function getSearchTypeByArea(area: number) {
+    return ((area >= SKILL_AREA_ENEMY_SINGLE && area <= SKILL_AREA_ENEMY_ALL)
+      || area === SKILL_AREA_ENEMY_HP_LEAST
+      || area === SKILL_AREA_ENEMY_HP_MOST)
+      ? SKILL_AREA_SEARCH_ENEMY
+      : ((area >= SKILL_AREA_ME_SIGHLE && area <= SKILL_AREA_ME_ALL)
+        || area === SKILL_AREA_ME_HP_LEAST
+        || area === SKILL_AREA_ME_HP_MOST
+        || area === SKILL_AREA_ME_ALL_NO_SELF)
+          ? SKILL_AREA_SEARCH_FRIEND
+          : area === SKILL_AREA_MY_SELF
+            ? SKILL_AREA_SEARCH_MY_SELF
+            : area === SKILL_AREA_MY_OWNER
+              ? SKILL_AREA_SEARCH_MY_OWNER
+              : SKILL_AREA_SEARCH_ALL
+  }
+
+  export function processBattlePower(battle: Battle, player: Player, i: Player, o, a, r, s, l, _, h) {
+    if (battle != null && player != null && !(a <= 0)) {
+      let u = 0
+      let c = -1
+      let T = 0
+      let p: number
+      switch (a) {
+        case POWER_SWORD_ATK_TIME:
+        case POWER_BLADE_ATK_TIME:
+        case POWER_HEAVY_ATK_TIME:
+        case POWER_LANCE_ATK_TIME:
+        case POWER_STAFF_ATK_TIME:
+        case POWER_HAND_ATK_TIME:
+        case POWER_BOW_ATK_TIME:
+        case POWER_HAND_ITEM_ATK_TIME:
+        case POWER_ALL_ATK_TIME:
+        case POWER_BALL_ATK_TIME:
+        case POWER_GUN_ATK_TIME:
+          {
+            p = player.getEquipWeaponType()
+            if (
+              a === POWER_SWORD_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_ONEHAND_SWORD
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_SWORD
+            )
+              return
+            if (
+              a === POWER_BLADE_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_ONEHAND_BLADE
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_BLADE
+            )
+              return
+            if (
+              a === POWER_HEAVY_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_ONEHAND_HEAVY
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_HEAVY
+            )
+              return
+            if (
+              a === POWER_LANCE_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_LANCE
+            )
+              return
+            if (
+              a === POWER_STAFF_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_STAFF
+            )
+              return
+            if (a === POWER_BALL_ATK_TIME && p !== ITEM_TYPE_WEAPON_BALL)
+              return
+            if (
+              a === POWER_GUN_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_ONEHAND_GUN
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_GUN
+            )
+              return
+            if (a === POWER_HAND_ATK_TIME && p !== BACK_ERROR_NULL_HAND)
+              return
+            if (
+              a === POWER_BOW_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_BOW
+            )
+              return
+            if (
+              a === POWER_HAND_ITEM_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_ONEHAND_HAND
+            )
+              return
+            c = Model.ATK_TIME
+            u = r
+            player.addValue(c, u)
+          }
+          break
+        case POWER_SWORD_PERCENT:
+        case POWER_BLADE_PERCENT:
+        case POWER_HEAVY_PERCENT:
+        case POWER_LANCE_PERCENT:
+        case POWER_STAFF_PERCENT:
+        case POWER_HAND_PERCENT:
+        case POWER_BOW_PERCENT:
+        case POWER_HAND_ITEM_PERCENT:
+        case POWER_BALL_PERCENT:
+        case POWER_GUN_PERCENT:
+        case POWER_ALL_PERCENT:
+          {
+            p = player.getEquipWeaponType()
+            if (
+              a === POWER_SWORD_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_ONEHAND_SWORD
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_SWORD
+            )
+              return
+            if (
+              a === POWER_BLADE_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_ONEHAND_BLADE
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_BLADE
+            )
+              return
+            if (
+              a === POWER_HEAVY_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_ONEHAND_HEAVY
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_HEAVY
+            )
+              return
+            if (
+              a === POWER_LANCE_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_LANCE
+            )
+              return
+            if (
+              a === POWER_STAFF_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_STAFF
+            )
+              return
+            if (a === POWER_BALL_ATK_TIME && p !== ITEM_TYPE_WEAPON_BALL)
+              return
+            if (
+              a === POWER_GUN_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_ONEHAND_GUN
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_GUN
+            )
+              return
+            if (a === POWER_HAND_ATK_TIME && p !== BACK_ERROR_NULL_HAND)
+              return
+            if (
+              a === POWER_BOW_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW
+              && p !== ITEM_TYPE_WEAPON_TWOHAND_BOW
+            )
+              return
+            if (
+              a === POWER_HAND_ITEM_ATK_TIME
+              && p !== ITEM_TYPE_WEAPON_ONEHAND_HAND
+            )
+              return
+            c = Model.WEAPON_DAMAGE_PERCENT
+            u = r
+            player.addValue(c, u)
+          }
+          break
+        case POWER_SPEED:
+          c = Model.SPEED
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_SPEED_PERCENT:
+          c = Model.SPEED
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_ATK_STR:
+          c = Model.ATK_STR
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_ATK_STR_PERCENT:
+          c = Model.ATK_STR
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_ATK_AGI:
+          c = Model.ATK_AGI
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_ATK_AGI_PERCENT:
+          c = Model.ATK_AGI
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_ATK_MAGIC:
+          c = Model.ATK_MAGIC
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_ATK_MAGIC_PERCENT:
+          c = Model.ATK_MAGIC
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_DEF_STR:
+          c = Model.DEF_STR
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_DEF_STR_PERCENT:
+          c = Model.DEF_STR
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_DEF_AGI:
+          c = Model.DEF_AGI
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_DEF_AGI_PERCENT:
+          c = Model.DEF_AGI
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_DEF_MAGIC:
+          c = Model.DEF_MAGIC
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_DEF_MAGIC_PERCENT:
+          c = Model.DEF_MAGIC
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_CRITICAL:
+          c = Model.CRITICAL
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_CRITICAL_PERCENT:
+          c = Model.CRITICAL
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_MAGIC_HITRATE:
+          c = Model.HIT_MAGIC
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_MAGIC_HITRATE_PERCENT:
+          c = Model.HIT_MAGIC
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_HITRATE:
+          c = Model.HIT_RATE
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_HITRATE_PERCENT:
+          c = Model.HIT_RATE
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_HIT_FORCE:
+          c = Model.FORCE_HIT
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_HIT_FORCE_PERCENT:
+          c = Model.FORCE_HIT
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_DODGE:
+          c = Model.DODGE
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_DODGE_PERCENT:
+          c = Model.DODGE
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_WIL:
+          c = Model.WIL
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_WIL_PERCENT:
+          c = Model.WIL
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_TOUGH:
+          c = Model.TOUGH
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_TOUGH_PERCENT:
+          c = Model.TOUGH
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_PENETRATION:
+          c = Model.BRK_ARMOR
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_PENETRATION_PERCENT:
+          c = Model.BRK_ARMOR
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_MAGIC_PENETRATION:
+          c = Model.MAGIC_PENETRATION
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_MAGIC_PENETRATION_PERCENT:
+          c = Model.MAGIC_PENETRATION
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_BLOCK:
+          c = Model.BLOCK
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_BLOCK_PERCENT:
+          c = Model.BLOCK
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_DEF_FIELD:
+          c = Model.DEF_FIELD
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_DEF_FIELD_PERCENT:
+          c = Model.DEF_FIELD
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_INSIGHT:
+          c = Model.INSIGHT
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_INSIGHT_PERCENT:
+          c = Model.INSIGHT
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_BACK:
+          c = Model.BACK
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_BACK_PERCENT:
+          c = Model.BACK
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_MAGIC_BACK:
+          c = Model.MAGIC_BACK
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_MAGIC_BACK_PERCENT:
+          c = Model.MAGIC_BACK
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_LIFE_ABSORPTION:
+          c = Model.LIFE_ABSORPTION
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_LIFE_ABSORPTION_PERCENT:
+          c = Model.LIFE_ABSORPTION
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_MANA_ABSORPTION:
+          c = Model.MANA_ABSORPTION
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_MANA_ABSORPTION_PERCENT:
+          c = Model.MANA_ABSORPTION
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_HEAL_RECOVERY:
+          c = Model.HEAL_RECOVERY
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_HEAL_RECOVERY_PERCENT:
+          c = Model.HEAL_RECOVERY
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_MANA_RECOVERY:
+          c = Model.MANA_RECOVERY
+          u = r
+          player.addValue(c, u)
+          break
+        case POWER_MANA_RECOVERY_PERCENT:
+          c = Model.MANA_RECOVERY
+          u = ((r * player.get(c)) / 100) >> 0
+          player.addValue(c, u)
+          break
+        case POWER_HP:
+          c = Model.HP
+          u = r
+          if (
+            o != null
+            && o.area !== SKILL_AREA_MY_SELF
+            && processBattleKeepOutPower(player, u, h)
+          )
+            break
+          if (u > 0 && player.isBattleStatus(getBufferBitValue(BUFFER_BURN)))
+            u = (u / 2) >> 0
+
+          if (processBattleHpMpPower(player, c, u, _, h) === false)
+            return addBufferBySpecial(l, c, u, s, player, battle, _)
+          battle.checkDie1Hp(player, null)
+          break
+        case POWER_HP_PERCENT:
+          c = Model.HP
+          u = ((r * player.get(Model.HPMAX)) / 100) >> 0
+          if (
+            o != null
+              && o.area !== SKILL_AREA_MY_SELF
+              && processBattleKeepOutPower(player, u, h)
+          )
+            break
+          if (u < 0) {
+            let d = Battle.calTouch(player)
+            i !== null && player !== i && (d -= i.get(Model.IGNORE_TOUCH))
+            d > Battle.MAX_RATE_TOUCH && (d = Battle.MAX_RATE_TOUCH)
+            if (d > 0) {
+              u -= ((u * d) / 1e3) >> 0
+              u > 0 && (u = 0)
+            }
+          }
+
+          if (u > 0 && player.isBattleStatus(getBufferBitValue(BUFFER_BURN)))
+            u = (u / 2) >> 0
+
+          if (!processBattleHpMpPower(player, c, u, _, h))
+            return addBufferBySpecial(l, c, u, s, player, battle, _)
+          battle.checkDie1Hp(player, null)
+          break
+        case POWER_RECOVER:
+          if (!processBattleReborn(player, u, u, _, h))
+            return
+          break
+        case POWER_RECOVER_PERCENT:
+          {
+            const E = ((r * player.get(Model.HPMAX)) / 100) >> 0
+            const g = ((r * player.get(Model.MPMAX)) / 100) >> 0
+            if (!processBattleReborn(player, E, g, _, h))
+              return
+          }
+
+          break
+        case POWER_MP:
+          c = Model.MP
+          u = r
+          if (u > 0 && player.isBattleStatus(getBufferBitValue(BUFFER_POISON)))
+            u = (u / 2) >> 0
+
+          if (!processBattleHpMpPower(player, c, u, _, h))
+            return addBufferBySpecial(l, c, u, s, player, battle, _)
+          break
+        case POWER_MP_PERCENT:
+          c = Model.MP
+          u = ((r * player.get(Model.MPMAX)) / 100) >> 0
+          if (u > 0 && player.isBattleStatus(getBufferBitValue(BUFFER_POISON)))
+            u = (u / 2) >> 0
+          if (!processBattleHpMpPower(player, c, u, _, h))
+            return addBufferBySpecial(l, c, u, s, player, battle, _)
+          break
+        case POWER_REMOVE_STATUS:
+          c = Model.BUFFER_REMOVE_STATUS
+          u = r
+          player.removeBufferByStatus(r)
+          break
+        case POWER_KEEPOUT_ATK_TIME:
+          c = Model.KEEPOUT_ATK_TIME
+          u = r
+          T = player.keepout_atk_time
+          if (u < 0 && T + u <= 0 && player.isTabStatus(Model.TAG_IS_KEEP_OUT))
+            u++
+          player.addValue(c, u)
+      }
+      if (l > 0 && c >= 0) {
+        if (u === 0 && s === BUFFER_NONE)
+          return
+        l--
+        let S = player.readAddValue
+        if (a === POWER_KEEPOUT_ATK_TIME && u < 0 && player.isTabStatus(Model.TAG_IS_KEEP_OUT)) {
+          T--
+          S = player.keepout_atk_time - T
+        }
+        const m = new PlayerBuffer(battle, c, u, s, l, _, S)
+        player.addBuffer(m)
+      }
+    }
+  }
+
+  export function addBufferBySpecial(e, n, i, o, a, r, s) {
+    if (o === BUFFER_DIE_CANNOT_RELIVE && e > 0 && n >= 0) {
+      if (i === 0 && o === BUFFER_NONE)
+        return
+      e--
+      const l = a.readAddValue
+      const _ = new PlayerBuffer(r, n, i, o, e, s, l)
+      a.addBuffer(_)
+    }
+  }
+
+  export function processBattleKeepOutPower(t, e, n) {
+    if (t == null)
+      return false
+    if (e >= 0)
+      return false
+    if (t.keepout_atk_time <= 0)
+      return false
+    let i = Battle.EFFECT_HIT
+    t.isTabStatus(Model.TAG_IS_KEEP_OUT) === 0
+      && (i |= Battle.EFFECT_KEEPOUT)
+    t.setTabStatus(true, Model.TAG_IS_KEEP_OUT)
+    // var o = Control.createBattleTargetEffect(false, t.position, 0, i, 0);
+    return true
+  }
+
+  export function isNullHand(left: number, right: number) {
+    return !!(left < 0 && right < 0)
+  }
+
+  export function isValidOneSword(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_ONEHAND_SWORD === left
+      || ITEM_TYPE_WEAPON_ONEHAND_SWORD === right
+    )
+  }
+
+  export function isValidTwoSword(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_TWOHAND_SWORD === left
+      || ITEM_TYPE_WEAPON_TWOHAND_SWORD === right
+    )
+  }
+
+  export function isValidSword(left: number, right: number) {
+    return isValidOneSword(left, right) || isValidTwoSword(left, right)
+  }
+
+  export function isValidOneBlade(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_ONEHAND_BLADE === left
+      || ITEM_TYPE_WEAPON_ONEHAND_BLADE === right
+    )
+  }
+
+  export function isValidTwoBlade(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_TWOHAND_BLADE === left
+      || ITEM_TYPE_WEAPON_TWOHAND_BLADE === right
+    )
+  }
+
+  export function isValidBlade(left: number, right: number) {
+    return isValidOneBlade(left, right) || isValidTwoBlade(left, right)
+  }
+
+  export function isValidOneHeavy(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_ONEHAND_HEAVY === left
+      || ITEM_TYPE_WEAPON_ONEHAND_HEAVY === right
+    )
+  }
+
+  export function isValidTwoHeavy(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_TWOHAND_HEAVY === left
+      || ITEM_TYPE_WEAPON_TWOHAND_HEAVY === right
+    )
+  }
+
+  export function isValidHeavy(left: number, right: number) {
+    return isValidOneHeavy(left, right) || isValidTwoHeavy(left, right)
+  }
+
+  export function isValidLance(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_TWOHAND_LANCE === left
+      || ITEM_TYPE_WEAPON_TWOHAND_LANCE === right
+    )
+  }
+
+  export function isValidOneCrossrow(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW === left
+      || ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW === right
+    )
+  }
+
+  export function isValidTwoCrossrow(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW === left
+      || ITEM_TYPE_WEAPON_TWOHAND_CROSSBOW === right
+    )
+  }
+
+  export function isValidCrossrow(left: number, right: number) {
+    return isValidOneCrossrow(left, right) || isValidTwoCrossrow(left, right)
+  }
+
+  export function isValidBow(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_TWOHAND_BOW === left
+      || ITEM_TYPE_WEAPON_TWOHAND_BOW === right
+    )
+  }
+
+  export function isTwoHand(left: number, right: number) {
+    return !!(left > 0 && right > 0)
+  }
+
+  export function isNoHeavyTypeWeapon(type: number) {
+    return !!(type > 0
+      && (type === ITEM_TYPE_WEAPON_ONEHAND_SWORD
+        || type === ITEM_TYPE_WEAPON_ONEHAND_BLADE
+        || type === ITEM_TYPE_WEAPON_ONEHAND_HEAVY
+        || type === ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
+        || type === ITEM_TYPE_WEAPON_ONEHAND_HEAVY
+        || type === ITEM_TYPE_WEAPON_ONEHAND_GUN))
+  }
+
+  export function isOneHandWeapon(left: number, right: number) {
+    return isNullHand(left, right)
+      ? false
+      : (isTwoHand(left, right)
+        && left !== ITEM_TYPE_WEAPON_ONEHAND_HAND
+        && right !== ITEM_TYPE_WEAPON_ONEHAND_HAND)
+          ? false
+          : !!(isNoHeavyTypeWeapon(left) || isNoHeavyTypeWeapon(right))
+  }
+
+  export function isValidStaff(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_TWOHAND_STAFF === left
+      || ITEM_TYPE_WEAPON_TWOHAND_STAFF === right
+    )
+  }
+
+  export function isValidBall(left: number, right: number) {
+    return ITEM_TYPE_WEAPON_BALL === left || ITEM_TYPE_WEAPON_BALL === right
+  }
+
+  export function isValidOneGun(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_ONEHAND_GUN === left
+      || ITEM_TYPE_WEAPON_ONEHAND_GUN === right
+    )
+  }
+
+  export function isValidTwoGun(left: number, right: number) {
+    return (
+      ITEM_TYPE_WEAPON_TWOHAND_GUN === left
+      || ITEM_TYPE_WEAPON_TWOHAND_GUN === right
+    )
+  }
+
+  export function isValidGun(left: number, right: number) {
+    return isValidOneGun(left, right) || isValidTwoGun(left, right)
+  }
+
 }

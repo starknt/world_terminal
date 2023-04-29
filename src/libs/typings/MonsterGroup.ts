@@ -14,7 +14,7 @@ export class MonsterGroup {
   npcs: number[] = new Array(MonsterGroup.MONSTERGROUP_NPCS)
 
   isFlag(flag: number) {
-    return (this.flag & flag) != 0
+    return (this.flag & flag) !== 0
   }
 
   setGroupMonsterDataToBattle(map: GameMap, layout: any[]) {
@@ -34,16 +34,20 @@ export class MonsterGroup {
   getGroupNPCList(map: GameMap) {
     const n: Monster[] = new Array(this.npcs.length)
     let t: number
-    let e: Monster
+    let e: Monster | null = null
     for (
       let i = 0;
       i < this.npcs.length;
       i++
     ) {
-      (t = this.npcs[i]),
-      t <= 0
-        || ((e = map.getMonster(t)),
-        e != null && ((e = e.clone()), e.resumeHPMP(), (n[i] = e)))
+      t = this.npcs[i]
+      if (!(t <= 0))
+        e = map.getMonster(t)
+      if (e !== null) {
+        e = e.clone()
+        e.resumeHPMP()
+        n[i] = e
+      }
     }
     return n
   }
@@ -102,34 +106,45 @@ export namespace MonsterGroup {
     const _ = player.getMerList()
     for (let h = 0, u = 0; u < _.length; u++) {
       const c = _[u]
+      if ((1 & h) === 0) {
+        l = r
+        r -= 2
+      }
+      else {
+        l = s
+        s += 2
+      }
+
+      h++
       if (
         c != null
-        && ((1 & h) == 0 ? ((l = r), (r -= 2)) : ((l = s), (s += 2)),
-        h++,
-        !(l < 0 || l >= Battle.MAX_POS || Battle.isLeftSide(l)))
+        && !(l < 0 || l >= Battle.MAX_POS || Battle.isLeftSide(l))
       ) {
-        const T = c.clone();
-        (T.position = l), (o[T.position] = T)
+        const T = c.clone()
+        T.position = l
+        o[T.position] = T
         const p = c.pet as unknown as Monster
         if (p != null) {
-          const d = p.clone();
-          (d.position = l - 1), (o[d.position] = d)
+          const d = p.clone()
+          d.position = l - 1
+          o[d.position] = d
         }
       }
     }
 
     const E = group.getGroupNPCList(map)
-    if (E != null) {
-      for (let u = 0; u < E.length; u++) {
-        const c = E[u]
-        c != null
-          && ((l = r),
-          u >= 2 && (l = s),
-          (1 & u) != 0 && (l -= 1),
-          l < 0
-            || l >= Battle.MAX_POS
-            || Battle.isLeftSide(l)
-            || ((c.position = l), (o[c.position] = c)))
+    for (let u = 0; u < E.length; u++) {
+      const c = E[u]
+      if (c !== null) {
+        l = r
+        u >= 2 && (l = s);
+        (1 & u) !== 0 && (l -= 1)
+        if (!(l < 0
+          || l >= Battle.MAX_POS
+          || Battle.isLeftSide(l))) {
+          c.position = l
+          o[c.position] = c
+        }
       }
     }
 

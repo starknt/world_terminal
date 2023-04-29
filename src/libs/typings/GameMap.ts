@@ -57,12 +57,11 @@ export class GameMap {
     this.monsterList = {}
   }
 
-  getNpcByID(t: number, e?: boolean): NPC | null {
-    const n = this.npcList
-
-    for (let i: NPC, o = n.length, a = 0; o > a; a++) {
-      if (((i = n[a]), i != null && (!e || i.isVisible()) && i.getId() == t))
-        return i
+  getNpcByID(t: number, visible?: boolean): NPC | null {
+    for (let i = 0; i <= this.npcList.length; i++) {
+      const npc = this.npcList[i]
+      if ((!visible || npc.isVisible()) && npc.getId() === t)
+        return npc
     }
     return null
   }

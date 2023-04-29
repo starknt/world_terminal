@@ -4,6 +4,7 @@ import { GameText } from 'libs/defined/gameText'
 import { GZIP } from 'libs/shared/GZIP'
 import { Tool } from 'libs/shared/Tool'
 import { Model } from './Model'
+import type { Player } from './Player'
 import { PlayerBag } from './PlayerBag'
 
 export class ItemData {
@@ -93,8 +94,8 @@ export class ItemData {
   enchantPower2 = 0
   enchantPowerValue2 = 0
 
-  get(t) {
-    if (t == 9)
+  get(type: number) {
+    if (type === 9)
       return this.durability > 0 ? this.type : Define.BACK_ERROR_DUR
     if (this.durability <= 0)
       return 0
@@ -102,17 +103,17 @@ export class ItemData {
       return 0
     if (this.isVipItem() && this.isVipItemTimeOut())
       return 0
-    switch (t) {
+    switch (type) {
       case 5:
         return this.atkMin
       case 6:
         return this.atkMax
       case 7:
-        return this.type == Define.ITEM_TYPE_WEAPON_ONEHAND_HAND
+        return this.type === Define.ITEM_TYPE_WEAPON_ONEHAND_HAND
           ? -1
           : this.atk_time
       case 8:
-        return this.type == Define.ITEM_TYPE_WEAPON_ONEHAND_HAND
+        return this.type === Define.ITEM_TYPE_WEAPON_ONEHAND_HAND
           ? -1
           : this.atkType
       case 1:
@@ -157,16 +158,16 @@ export class ItemData {
     this.expireTime = new Date().getTime() + 1 * time * (60 * 1000)
   }
 
-  setShopLocked(t) {
-    this.setStatusBit(t, 4)
+  setShopLocked(status: number) {
+    this.setStatusBit(status, 4)
   }
 
-  setStatusBit(t, e) {
-    t ? (this.status |= e) : (this.status &= ~e)
+  setStatusBit(status: number, bit: number) {
+    status ? (this.status |= bit) : (this.status &= ~bit)
   }
 
-  isStatusBit(t) {
-    return (this.status & t) != 0
+  isStatusBit(bit: number) {
+    return (this.status & bit) !== 0
   }
 
   isSelling() {
@@ -181,20 +182,20 @@ export class ItemData {
     return (4096 & this.status) > 0
   }
 
-  setIntegral(t) {
-    this.setStatusBit(t, 4096)
+  setIntegral(status: number) {
+    this.setStatusBit(status, 4096)
   }
 
   isEnchant() {
     return (8192 & this.status) > 0
   }
 
-  setEnchant(t) {
-    this.setStatusBit(t, 8192)
+  setEnchant(status: number) {
+    this.setStatusBit(status, 8192)
   }
 
-  setMailSelect(t) {
-    this.setStatusBit(t, 2048)
+  setMailSelect(status: number) {
+    this.setStatusBit(status, 2048)
   }
 
   isNotOperate() {
@@ -202,24 +203,23 @@ export class ItemData {
   }
 
   getItemClass() {
-    return this.type == Define.ITEM_TYPE_PET
-      ? 3
-      : this.type == Define.ITEM_TYPE_GEM
-        ? 6
-        : this.type == Define.ITEM_TYPE_TASK
-          || this.type == Define.ITEM_TYPE_BUILD_MATERIAL
-          || this.type == Define.ITEM_TYPE_SPECEAIL
-          ? 5
-          : (this.type >= Define.ITEM_TYPE_WEAPON_ONEHAND_SWORD
-            && this.type <= Define.ITEM_TYPE_WEAPON_ONEHAND_HAND)
-            || (this.type >= Define.ITEM_TYPE_WEAPON_BALL
-              && this.type <= Define.ITEM_TYPE_WEAPON_TWOHAND_GUN)
-              ? 1
-              : (this.type >= Define.ITEM_TYPE_BATTLE_USE
-              && this.type <= Define.ITEM_TYPE_NOT_BATTLE_USE)
-              || this.type == Define.ITEM_TYPE_SKILL_BOOK
-                  ? 4
-                  : 2
+    const type = this.type
+    if (type === Define.ITEM_TYPE_PET)
+      return 3
+    if (type === Define.ITEM_TYPE_GEM)
+      return 6
+    if (type === Define.ITEM_TYPE_TASK || type === Define.ITEM_TYPE_BUILD_MATERIAL || type === Define.ITEM_TYPE_SPECEAIL)
+      return 5
+    if ((this.type >= Define.ITEM_TYPE_WEAPON_ONEHAND_SWORD
+      && this.type <= Define.ITEM_TYPE_WEAPON_ONEHAND_HAND) || (this.type >= Define.ITEM_TYPE_WEAPON_BALL
+        && this.type <= Define.ITEM_TYPE_WEAPON_TWOHAND_GUN))
+      return 1
+    if ((this.type >= Define.ITEM_TYPE_BATTLE_USE
+      && this.type <= Define.ITEM_TYPE_NOT_BATTLE_USE)
+      || this.type === Define.ITEM_TYPE_SKILL_BOOK)
+      return 4
+
+    return 2
   }
 
   isVipItem() {
@@ -227,15 +227,15 @@ export class ItemData {
   }
 
   isAutoBinding() {
-    return this.autoBinding != 0
+    return this.autoBinding !== 0
   }
 
   isBinded() {
     return this.isAutoBinding() ? true : (2 & this.status) > 0
   }
 
-  isAscension(t) {
-    switch (t) {
+  isAscension(type: number) {
+    switch (type) {
       case Define.POWER_RECOVER:
         break
       case Define.POWER_SKILL_DAMAGE:
@@ -380,130 +380,136 @@ export class ItemData {
     return false
   }
 
-  getPower1AndPower2(e) {
-    let n = 0
-    return (
-      this.power1 == e
-      && (n += ItemData.getpowerValueAdd(
+  getPower1AndPower2(power: number) {
+    let result = 0
+    if (this.power1 === power) {
+      result += ItemData.getpowerValueAdd(
         this.powerValue1,
         this.ascensionStar,
         this.star,
         this.isBinded(),
-        this.isAscension(this.power1),
-      )),
-      this.power2 == e
-      && (n += ItemData.getpowerValueAdd(
+        this.isAscension(this.power1))
+    }
+    if (this.power2 === power) {
+      result += ItemData.getpowerValueAdd(
         this.powerValue2,
         this.ascensionStar,
         this.star,
         this.isBinded(),
-        this.isAscension(this.power2),
-      )),
-      this.power3 == e
-      && (n += ItemData.getpowerValueAdd(
+        this.isAscension(this.power2))
+    }
+    if (this.power3 === power) {
+      result += ItemData.getpowerValueAdd(
         this.powerValue3,
         this.ascensionStar,
         this.star,
         this.isBinded(),
-        this.isAscension(this.power3),
-      )),
-      n
-    )
+        this.isAscension(this.power3))
+    }
+
+    return result
   }
 
-  getPowerValue(e) {
+  getPowerValue(value: number) {
     if (this.durability <= 0)
       return 0
     if (this.isTimeItem() && this.isTimeItemTimeOut())
       return 0
     if (this.isVipItem() && this.isVipItemTimeOut())
       return 0
-    let n = 0
-    return (
-      (n += this.getPower1AndPower2(e)),
-      this.isBinded()
-      && (this.bindPower1 == e
-        && (n += ItemData.getpowerValueAdd(
-          this.bindPowerValue1,
-          this.ascensionStar,
-          this.star,
-          this.isBinded(),
-          this.isAscension(this.bindPower1),
-        )),
-      this.bindPower2 == e
-        && (n += ItemData.getpowerValueAdd(
-          this.bindPowerValue2,
-          this.ascensionStar,
-          this.star,
-          this.isBinded(),
-          this.isAscension(this.bindPower2),
-        ))),
-      this.attachPower == e && (n += this.attachValue),
-      this.enchantPower1 == e && (n += this.enchantPowerValue1),
-      this.enchantPower2 == e && (n += this.enchantPowerValue2),
-      this.isBinded()
-      && ItemData.isUpgradeItemOpen
-      && (this.power4 == e
-        && (n += ItemData.getpowerValueAdd(
-          this.powerValue4,
-          this.upgradeAscensionStar,
-          this.upgradeStar,
-          this.isBinded(),
-          this.isAscension(this.power4),
-        )),
-      this.power5 == e
-        && (n += ItemData.getpowerValueAdd(
-          this.powerValue5,
-          this.upgradeAscensionStar,
-          this.upgradeStar,
-          this.isBinded(),
-          this.isAscension(this.power5),
-        )),
-      this.power6 == e
-        && (n += ItemData.getpowerValueAdd(
-          this.powerValue6,
-          this.upgradeAscensionStar,
-          this.upgradeStar,
-          this.isBinded(),
-          this.isAscension(this.power6),
-        )),
-      this.power7 == e
-        && (n += ItemData.getpowerValueAdd(
-          this.powerValue7,
-          this.upgradeAscensionStar,
-          this.upgradeStar,
-          this.isBinded(),
-          this.isAscension(this.power7),
-        ))),
-      n
-    )
+    let result = this.getPower1AndPower2(value)
+    if (this.isBinded() && this.bindPower1 === value) {
+      result += ItemData.getpowerValueAdd(
+        this.bindPowerValue1,
+        this.ascensionStar,
+        this.star,
+        this.isBinded(),
+        this.isAscension(this.bindPower1),
+      )
+    }
+
+    if (this.bindPower2 === value) {
+      result += ItemData.getpowerValueAdd(
+        this.bindPowerValue2,
+        this.ascensionStar,
+        this.star,
+        this.isBinded(),
+        this.isAscension(this.bindPower2),
+      )
+    }
+
+    this.attachPower === value && (result += this.attachValue)
+    this.enchantPower1 === value && (result += this.enchantPowerValue1)
+    this.enchantPower2 === value && (result += this.enchantPowerValue2)
+
+    if (this.isBinded() && ItemData.isUpgradeItemOpen && this.power4 === value) {
+      result += ItemData.getpowerValueAdd(
+        this.powerValue4,
+        this.upgradeAscensionStar,
+        this.upgradeStar,
+        this.isBinded(),
+        this.isAscension(this.power4),
+      )
+    }
+
+    if (this.power5 === value) {
+      result += ItemData.getpowerValueAdd(
+        this.powerValue5,
+        this.upgradeAscensionStar,
+        this.upgradeStar,
+        this.isBinded(),
+        this.isAscension(this.power5),
+      )
+    }
+
+    if (this.power6 === value) {
+      result += ItemData.getpowerValueAdd(
+        this.powerValue6,
+        this.upgradeAscensionStar,
+        this.upgradeStar,
+        this.isBinded(),
+        this.isAscension(this.power6),
+      )
+    }
+
+    if (this.power7 === value) {
+      result += ItemData.getpowerValueAdd(
+        this.powerValue7,
+        this.upgradeAscensionStar,
+        this.upgradeStar,
+        this.isBinded(),
+        this.isAscension(this.power7),
+      )
+    }
+
+    return result
   }
 
   isCanEquip() {
     return !!((this.type >= Define.ITEM_TYPE_ARMOR_HEAD
       && this.type <= Define.ITEM_TYPE_WEAPON_ONEHAND_HAND)
-      || this.type == Define.ITEM_TYPE_PET
+      || this.type === Define.ITEM_TYPE_PET
       || (this.type >= Define.ITEM_TYPE_WEAPON_BALL
         && this.type <= Define.ITEM_TYPE_WEAPON_TWOHAND_GUN))
   }
 
   isEquipClass() {
-    return this.getItemClass() == 2 || this.getItemClass() == 1
+    return this.getItemClass() === 2 || this.getItemClass() === 1
   }
 
   isWeapon() {
-    return this.getItemClass() == 1
+    return this.getItemClass() === 1
   }
 
   isArmor() {
     return (
-      this.type == Define.ITEM_TYPE_ARMOR_HEAD
-      || this.type == Define.ITEM_TYPE_ARMOR_CLOTHES
-      || this.type == Define.ITEM_TYPE_ARMOR_TROUSERS
-      || this.type == Define.ITEM_TYPE_ARMOR_WAIST
-      || this.type == Define.ITEM_TYPE_ARMOR_SHOULDER
-      || this.type == Define.ITEM_TYPE_ARMOR_SHOES
-      || this.type == Define.ITEM_TYPE_ARMOR_HAND
+      this.type === Define.ITEM_TYPE_ARMOR_HEAD
+      || this.type === Define.ITEM_TYPE_ARMOR_CLOTHES
+      || this.type === Define.ITEM_TYPE_ARMOR_TROUSERS
+      || this.type === Define.ITEM_TYPE_ARMOR_WAIST
+      || this.type === Define.ITEM_TYPE_ARMOR_SHOULDER
+      || this.type === Define.ITEM_TYPE_ARMOR_SHOES
+      || this.type === Define.ITEM_TYPE_ARMOR_HAND
     )
   }
 
@@ -517,7 +523,7 @@ export class ItemData {
   }
 
   isStackable() {
-    return this.isTimeItem() == true
+    return this.isTimeItem() === true
       ? false
       : this.isShopLocked()
         ? false
@@ -525,35 +531,35 @@ export class ItemData {
   }
 
   isPetType() {
-    return this.type == Define.ITEM_TYPE_PET
+    return this.type === Define.ITEM_TYPE_PET
   }
 
   isPetEquip() {
-    return this.slotPos == PlayerBag.PET_POS
+    return this.slotPos === PlayerBag.PET_POS
   }
 
   isVIPSlot() {
-    return this.slotPos == PlayerBag.SPIRIT_POS
+    return this.slotPos === PlayerBag.SPIRIT_POS
   }
 
   isPetEgg() {
-    return this.power1 == Define.POWER_PET_EGG
+    return this.power1 === Define.POWER_PET_EGG
   }
 
   isOpenStoreItem() {
-    return this.power1 == Define.POWER_OPEN_STORE
+    return this.power1 === Define.POWER_OPEN_STORE
   }
 
   isCountryBook() {
-    return this.id == Define.ITEM_ID_COMMAND_BOOK
+    return this.id === Define.ITEM_ID_COMMAND_BOOK
   }
 
   isChangeNameItem() {
-    return this.id == Define.ITEM_ID_CHANGE_NAME
+    return this.id === Define.ITEM_ID_CHANGE_NAME
   }
 
   isRepairItem() {
-    return this.id == Define.ITEM_ID_REPAIR
+    return this.id === Define.ITEM_ID_REPAIR
   }
 
   isPetCanUseItem() {
@@ -579,102 +585,102 @@ export class ItemData {
   }
 
   isSkillBook() {
-    return this.type == Define.ITEM_TYPE_SKILL_BOOK
+    return this.type === Define.ITEM_TYPE_SKILL_BOOK
   }
 
   isPetSkillBook() {
     return (
-      this.type == Define.ITEM_TYPE_SKILL_BOOK
-      && this.power1 == Define.POWER_SKILL_SCROLL_PET
+      this.type === Define.ITEM_TYPE_SKILL_BOOK
+      && this.power1 === Define.POWER_SKILL_SCROLL_PET
     )
   }
 
   isPetSealSkillBook() {
-    return this.power1 == Define.POWER_SKILL_BOOK_PET
+    return this.power1 === Define.POWER_SKILL_BOOK_PET
   }
 
   isPetAddSkill() {
-    return this.id == Define.ITEM_ID_PET_ADD_SKILL
+    return this.id === Define.ITEM_ID_PET_ADD_SKILL
   }
 
   isPetReset1() {
-    return this.id == Define.ITEM_ID_PET_RESET
+    return this.id === Define.ITEM_ID_PET_RESET
   }
 
   isPetReset2() {
-    return this.id == Define.ITEM_ID_PET_RESET2
+    return this.id === Define.ITEM_ID_PET_RESET2
   }
 
   isPetAgeItem() {
-    return this.id == Define.ITEM_ID_PET_AGE
+    return this.id === Define.ITEM_ID_PET_AGE
   }
 
   isPetResetItem() {
     return (
-      this.id == Define.ITEM_ID_PET_RESET
-      || this.id == Define.ITEM_ID_PET_RESET2
+      this.id === Define.ITEM_ID_PET_RESET
+      || this.id === Define.ITEM_ID_PET_RESET2
     )
   }
 
   isIdentifyScrollItem() {
     return (
-      this.id == Define.ITEM_ID_IDENTIFY_SCROLL
-      || this.id == Define.ITEM_ID_IDENTIFY_SCROLL_BIND
+      this.id === Define.ITEM_ID_IDENTIFY_SCROLL
+      || this.id === Define.ITEM_ID_IDENTIFY_SCROLL_BIND
     )
   }
 
   isHighIdentifyScrollItem() {
     return (
-      this.id == Define.ITEM_ID_HIGH_IDENTIFY_SCROLL
-      || this.id == Define.ITEM_ID_HIGH_IDENTIFY_SCROLL_BIND
+      this.id === Define.ITEM_ID_HIGH_IDENTIFY_SCROLL
+      || this.id === Define.ITEM_ID_HIGH_IDENTIFY_SCROLL_BIND
     )
   }
 
   isUpgradeIdentifyScrollItem() {
     return (
-      this.id == Define.ITEM_ID_UPGRADE_INTENSIFY_SCROLL
-      || this.id == Define.ITEM_ID_UPGRAND_INTENSIFY_SCROLL_BIND
+      this.id === Define.ITEM_ID_UPGRADE_INTENSIFY_SCROLL
+      || this.id === Define.ITEM_ID_UPGRAND_INTENSIFY_SCROLL_BIND
     )
   }
 
   isStarScroll() {
-    return this.id == Define.ITEM_ID_STAR_SCROLL
+    return this.id === Define.ITEM_ID_STAR_SCROLL
   }
 
   isPetExpItem() {
-    return this.power1 == Define.POWER_PET_ADD_EXP
+    return this.power1 === Define.POWER_PET_ADD_EXP
   }
 
   isTitleItem() {
-    return this.power1 == Define.POWER_POWER_TITLE
+    return this.power1 === Define.POWER_POWER_TITLE
   }
 
   isPlayerExpItem() {
-    return this.power1 == Define.POWER_ADD_EXP
+    return this.power1 === Define.POWER_ADD_EXP
   }
 
   isCrystal() {
     return (
-      this.id == Define.ITEM_ID_CRYSTAL1
-      || this.id == Define.ITEM_ID_CRYSTAL2
-      || this.id == Define.ITEM_ID_CRYSTAL3
-      || this.id == Define.ITEM_ID_CRYSTAL4
-      || this.id == Define.ITEM_ID_CRYSTAL5
+      this.id === Define.ITEM_ID_CRYSTAL1
+      || this.id === Define.ITEM_ID_CRYSTAL2
+      || this.id === Define.ITEM_ID_CRYSTAL3
+      || this.id === Define.ITEM_ID_CRYSTAL4
+      || this.id === Define.ITEM_ID_CRYSTAL5
     )
   }
 
   isMaigcCrystal() {
     return (
-      this.id == Define.ITEM_ID_MAGICCRYSTAL1
-      || this.id == Define.ITEM_ID_MAGICCRYSTAL2
-      || this.id == Define.ITEM_ID_MAGICCRYSTAL3
-      || this.id == Define.ITEM_ID_MAGICCRYSTAL4
-      || this.id == Define.ITEM_ID_MAGICCRYSTAL5
+      this.id === Define.ITEM_ID_MAGICCRYSTAL1
+      || this.id === Define.ITEM_ID_MAGICCRYSTAL2
+      || this.id === Define.ITEM_ID_MAGICCRYSTAL3
+      || this.id === Define.ITEM_ID_MAGICCRYSTAL4
+      || this.id === Define.ITEM_ID_MAGICCRYSTAL5
     )
   }
 
   isMateria() {
-    return this.type == Define.ITEM_TYPE_BUILD_MATERIAL
+    return this.type === Define.ITEM_TYPE_BUILD_MATERIAL
   }
 
   isCountryMateria() {
@@ -684,46 +690,46 @@ export class ItemData {
   }
 
   isCountryWood() {
-    return !!(this.id == Define.ITEM_ID_WOOD || this.name.includes('碎木'))
+    return !!(this.id === Define.ITEM_ID_WOOD || this.name.includes('碎木'))
   }
 
   isCountryStone() {
-    return !!(this.id == Define.ITEM_ID_STONE || this.name.includes('碎石'))
+    return !!(this.id === Define.ITEM_ID_STONE || this.name.includes('碎石'))
   }
 
   isCountryIron() {
-    return !!(this.id == Define.ITEM_ID_IRON || this.name.includes('碎矿'))
+    return !!(this.id === Define.ITEM_ID_IRON || this.name.includes('碎矿'))
   }
 
   isMagicArmor() {
-    return !(this.getItemClass() != 2 || (this.reqIlt == 0 && this.reqWis == 0))
+    return !(this.getItemClass() !== 2 || (this.reqIlt === 0 && this.reqWis === 0))
   }
 
   isLightWeapon() {
-    return !!(this.type == Define.ITEM_TYPE_WEAPON_ONEHAND_SWORD
-      || this.type == Define.ITEM_TYPE_WEAPON_ONEHAND_BLADE
-      || this.type == Define.ITEM_TYPE_WEAPON_ONEHAND_HEAVY
-      || this.type == Define.ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
-      || this.type == Define.ITEM_TYPE_WEAPON_BALL
-      || this.type == Define.ITEM_TYPE_WEAPON_TWOHAND_STAFF)
+    return !!(this.type === Define.ITEM_TYPE_WEAPON_ONEHAND_SWORD
+      || this.type === Define.ITEM_TYPE_WEAPON_ONEHAND_BLADE
+      || this.type === Define.ITEM_TYPE_WEAPON_ONEHAND_HEAVY
+      || this.type === Define.ITEM_TYPE_WEAPON_ONEHAND_CROSSBOW
+      || this.type === Define.ITEM_TYPE_WEAPON_BALL
+      || this.type === Define.ITEM_TYPE_WEAPON_TWOHAND_STAFF)
   }
 
   isGem() {
-    return this.type == Define.ITEM_TYPE_GEM
+    return this.type === Define.ITEM_TYPE_GEM
   }
 
   isChestItem() {
     return (
-      this.power1 == Define.POWER_CHEST_LV1
-      || this.power1 == Define.POWER_CHEST_LV2
-      || this.power1 == Define.POWER_CHEST_LV3
-      || this.power1 == Define.POWER_CHEST_LV4
-      || this.power1 == Define.POWER_COLOR_BOX
+      this.power1 === Define.POWER_CHEST_LV1
+      || this.power1 === Define.POWER_CHEST_LV2
+      || this.power1 === Define.POWER_CHEST_LV3
+      || this.power1 === Define.POWER_CHEST_LV4
+      || this.power1 === Define.POWER_COLOR_BOX
     )
   }
 
   isColorBox() {
-    return this.power1 == Define.POWER_COLOR_BOX
+    return this.power1 === Define.POWER_COLOR_BOX
   }
 
   isIdentifyItem() {
@@ -751,57 +757,57 @@ export class ItemData {
   }
 
   isChangeSexItem() {
-    return this.id == Define.ITEM_ID_CHANGE_SEX
+    return this.id === Define.ITEM_ID_CHANGE_SEX
   }
 
   isCpPointAddItem() {
-    return this.id == Define.ITEM_ID_CP_POINT_ADD
+    return this.id === Define.ITEM_ID_CP_POINT_ADD
   }
 
   isSkillPlayerItem() {
     return (
-      this.id == Define.ITEM_ID_SKILL_PLAYER
-      || Define.ITEM_ID_SKILL_PLAYER_BIND == this.id
-      || this.id == Define.ITEM_ID_SKILL_PLAYER_2
-      || Define.ITEM_ID_SKILL_PLAYER_2_BIND == this.id
-      || this.id == Define.ITEM_ID_SKILL_PLAYER_3
-      || Define.ITEM_ID_SKILL_PLAYER_3_BIND == this.id
-      || this.id == Define.ITEM_ID_SKILL_PLAYER_4
-      || Define.ITEM_ID_SKILL_PLAYER_4_BIND == this.id
-      || this.id == Define.ITEM_ID_SKILL_PLAYER_5
-      || Define.ITEM_ID_SKILL_PLAYER_5_BIND == this.id
+      this.id === Define.ITEM_ID_SKILL_PLAYER
+      || Define.ITEM_ID_SKILL_PLAYER_BIND === this.id
+      || this.id === Define.ITEM_ID_SKILL_PLAYER_2
+      || Define.ITEM_ID_SKILL_PLAYER_2_BIND === this.id
+      || this.id === Define.ITEM_ID_SKILL_PLAYER_3
+      || Define.ITEM_ID_SKILL_PLAYER_3_BIND === this.id
+      || this.id === Define.ITEM_ID_SKILL_PLAYER_4
+      || Define.ITEM_ID_SKILL_PLAYER_4_BIND === this.id
+      || this.id === Define.ITEM_ID_SKILL_PLAYER_5
+      || Define.ITEM_ID_SKILL_PLAYER_5_BIND === this.id
     )
   }
 
   isSkillPetItem() {
     return (
-      this.id == Define.ITEM_ID_SKILL_PET
-      || Define.ITEM_ID_SKILL_PET_2 == this.id
+      this.id === Define.ITEM_ID_SKILL_PET
+      || Define.ITEM_ID_SKILL_PET_2 === this.id
     )
   }
 
   isSpPointAddItem() {
-    return this.id == Define.ITEM_ID_SP_POINT_ADD
+    return this.id === Define.ITEM_ID_SP_POINT_ADD
   }
 
   isProsperityDegreePointAddItem() {
-    return this.id == Define.ITEM_ID_PROSPERITY_DEGREE_POINT_ADD
+    return this.id === Define.ITEM_ID_PROSPERITY_DEGREE_POINT_ADD
   }
 
-  isCanUse(t) {
-    switch (t) {
+  isCanUse(type: number) {
+    switch (type) {
       case 1:
         if (
-          this.type == Define.ITEM_TYPE_ANYTIME_USE
-          || this.type == Define.ITEM_TYPE_NOT_BATTLE_USE
-          || this.type == Define.ITEM_TYPE_SKILL_BOOK
+          this.type === Define.ITEM_TYPE_ANYTIME_USE
+          || this.type === Define.ITEM_TYPE_NOT_BATTLE_USE
+          || this.type === Define.ITEM_TYPE_SKILL_BOOK
         )
           return true
         break
       case 2:
         if (
-          this.type == Define.ITEM_TYPE_ANYTIME_USE
-          || this.type == Define.ITEM_TYPE_BATTLE_USE
+          this.type === Define.ITEM_TYPE_ANYTIME_USE
+          || this.type === Define.ITEM_TYPE_BATTLE_USE
         )
           return true
         break
@@ -812,95 +818,108 @@ export class ItemData {
   }
 
   isRebornItem() {
-    return this.power1 == Define.POWER_RECOVER
-      || this.power1 == Define.POWER_RECOVER_PERCENT
-      ? true
-      : !!(this.power2 == Define.POWER_RECOVER
-        || this.power2 == Define.POWER_RECOVER_PERCENT)
+    if (this.power1 === Define.POWER_RECOVER
+      || this.power1 === Define.POWER_RECOVER_PERCENT)
+      return true
+
+    return !!(this.power2 === Define.POWER_RECOVER
+        || this.power2 === Define.POWER_RECOVER_PERCENT)
   }
 
   getInfo() {
-    return this.info == null || this.info == '' || this.info == '0'
-      ? ''
-      : this.info
+    return this.info
   }
 
-  setInfo(t) {
-    this.info = t
+  setInfo(info: string) {
+    this.info = info
   }
 }
 
 export namespace ItemData {
-  export function isValidEquipRequire(t, e) {
-    let n = true
-    if (t == null || e == null)
-      return Define.NO
-    let i = ''
-    let o = t.get(Model.LEVEL)
-    return (
-      o < e.reqLv
-      && ((i += Tool.manageStringU(
+  export function isValidEquipRequire(player: Player, item: ItemData) {
+    let flag = true
+    let info = ''
+    let val = player.get(Model.LEVEL)
+    if (val < item.reqLv) {
+      info += Tool.manageStringU(
         GameText.STR_ITEM_REQ_LEVEL,
-        `${e.reqLv - o}`,
-      )),
-      (n = false)),
-      e.getItemClass() == 4
-        ? n
-          ? Define.OK
-          : (i = Tool.convertLastLinefeed(i))
-        : ((o = t.get(Model.STR)),
-          o < e.reqStr
-          && ((i += Tool.manageStringU(
-            GameText.STR_ITEM_REQ_STR,
-            `${e.reqStr - o}`,
-          )),
-          (n = false)),
-          (o = t.get(Model.CON)),
-          o < e.reqCon
-          && ((i += Tool.manageStringU(
-            GameText.STR_ITEM_REQ_CON,
-            `${e.reqCon - o}`,
-          )),
-          (n = false)),
-          (o = t.get(Model.AGI)),
-          o < e.reqAgi
-          && ((i += Tool.manageStringU(
-            GameText.STR_ITEM_REQ_AGI,
-            `${e.reqAgi - o}`,
-          )),
-          (n = false)),
-          (o = t.get(Model.ILT)),
-          o < e.reqIlt
-          && ((i += Tool.manageStringU(
-            GameText.STR_ITEM_REQ_ILT,
-            `${e.reqIlt - o}`,
-          )),
-          (n = false)),
-          (o = t.get(Model.WIS)),
-          o < e.reqWis
-          && ((i += Tool.manageStringU(
-            GameText.STR_ITEM_REQ_WIS,
-            `${e.reqWis - o}`,
-          )),
-          (n = false)),
-          n ? Define.OK : (i = Tool.convertLastLinefeed(i)))
-    )
+        `${item.reqLv - val}`,
+      )
+      flag = false
+    }
+
+    if (item.getItemClass() === 4) {
+      if (flag)
+        return Define.OK
+      else
+        info = Tool.convertLastLinefeed(info)
+    }
+
+    val = player.get(Model.STR)
+    if (val < item.reqStr) {
+      info += Tool.manageStringU(
+        GameText.STR_ITEM_REQ_STR,
+        `${item.reqStr - val}`,
+      )
+
+      return info
+    }
+
+    val = player.get(Model.CON)
+    if (val < item.reqCon) {
+      info += Tool.manageStringU(
+        GameText.STR_ITEM_REQ_CON,
+        `${item.reqCon - val}`,
+      )
+
+      return info
+    }
+
+    val = player.get(Model.AGI)
+    if (val < item.reqAgi) {
+      info += Tool.manageStringU(
+        GameText.STR_ITEM_REQ_AGI,
+        `${item.reqAgi - val}`,
+      )
+
+      return info
+    }
+
+    val = player.get(Model.ILT)
+    if (val < item.reqIlt) {
+      info += Tool.manageStringU(
+        GameText.STR_ITEM_REQ_ILT,
+        `${item.reqIlt - val}`,
+      )
+
+      return info
+    }
+
+    val = player.get(Model.WIS)
+    if (val < item.reqWis) {
+      info += Tool.manageStringU(
+        GameText.STR_ITEM_REQ_WIS,
+        `${item.reqWis - val}`,
+      )
+
+      return info
+    }
+
+    return Define.OK
   }
 
-  export function getpowerValueAdd(t, e, n, i, o) {
-    if (i == 0 || o == 0)
-      return t
-    if (e <= 0)
-      return t
-    if (n <= 0)
-      return t
-    let a = t
-    a < 0 && (a = -1 * a)
-    const r = Math.floor((a * e * n + 50) / 100)
-    let s = GZIP.toShort(r)
-    return (
-      s + t > Tool.MAX_VALUE_short ? (s = Tool.MAX_VALUE_short) : (s += t), s
-    )
+  export function getpowerValueAdd(powerValue1: number, ascensionStar: number, star: number, binded: boolean, ascension: boolean) {
+    if (!binded || !ascension)
+      return powerValue1
+    if (ascensionStar <= 0)
+      return powerValue1
+    if (star <= 0)
+      return powerValue1
+    const powerValue = powerValue1 < 0 ? -1 * powerValue1 : powerValue1
+    const ascensionStarValue = Math.floor((powerValue * ascensionStar * star + 50) / 100)
+    let result = GZIP.toShort(ascensionStarValue)
+    result + powerValue1 > Tool.MAX_VALUE_short ? (result = Tool.MAX_VALUE_short) : (result += powerValue1)
+    return result
   }
 
   export function fromMailBytes(byte: Protocol) {
@@ -937,7 +956,7 @@ export namespace ItemData {
     item.status = byte.getByte()
 
     if (item.isTimeItem()) {
-      if (item.slotPos == 17) {
+      if (item.slotPos === 17) {
         const n = byte.getInt()
         item.setExpireTime(n)
       }
@@ -1073,7 +1092,7 @@ export namespace ItemData {
         item.leafCount = byte.getShort()
         item.vipLevelReq = byte.getByte()
 
-        if (Define.POWER_ENCHANT_ITEM == item.power1) {
+        if (Define.POWER_ENCHANT_ITEM === item.power1) {
           item.power3 = byte.getUnsignedByte()
           item.powerValue3 = byte.getShort()
         }

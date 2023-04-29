@@ -5,53 +5,6 @@ import { GameText2 } from './gameText2'
 const xhd = true
 
 export namespace GameText {
-  export const getText = function (e) {
-    return GAME_TEXT == null
-      ? `T_${e}`
-      : e < 0 || e >= GAME_TEXT.length
-        ? `TX_${e}`
-        : GAME_TEXT[e]
-  }
-  export const getTips = function () {
-    return TIP_TEXT
-  }
-  export const setTip = function (e) {
-    TIP_TEXT = e
-  }
-  export const getMoneyText = function (e) {
-    switch (e) {
-      case Model.MONEY1:
-        return STR_MONEY1
-      case Model.MONEY2:
-        return STR_MONEY2
-      case Model.MONEY3:
-        return STR_MONEY3
-    }
-    return STR_MONEY
-  }
-  export const getMoneyResource = function (t) {
-    let e = ''
-    return (
-      t == Model.MONEY1
-        ? (e = 'gold_square')
-        : t == Model.MONEY2
-          ? (e = 'gold_leaf')
-          : t == Model.MONEY3 && (e = 'gold_coin'),
-      (e += xhd ? '_hd' : '_sd')
-    )
-  }
-  export const getMoneyResourceByItemMoneyType = function (t) {
-    let e = ''
-    return (
-      t == ItemData.ITEM_MONEY_TYPE_1
-        ? (e = 'gold_square')
-        : t == ItemData.ITEM_MONEY_TYPE_2
-          ? (e = 'gold_leaf')
-          : t == ItemData.ITEM_MONEY_TYPE_3 && (e = 'gold_coin'),
-      (e += xhd ? '_hd' : '_sd')
-    )
-  }
-
   export const TI_EQUIP = 0
   export const TI_GEM = 1
   export const TI_DROP = 2
@@ -2568,4 +2521,47 @@ export namespace GameText {
   export const SAVE_TO_DESKTOP = '保存桌面成功，获得'
   export const FOLLOW_GET_REWARD = '成功领取'
   export const ACTOR_BUY_INPUT_PROMPT = '请输入价格'
+
+  export function getText(index: number) {
+    return (index < 0 || index >= GAME_TEXT.length)
+      ? `TX_${index}`
+      : GAME_TEXT[index]
+  }
+  export function getTips() {
+    return TIP_TEXT
+  }
+  export function setTip(str: string) {
+    TIP_TEXT = str
+  }
+  export function getMoneyText(type: number) {
+    switch (type) {
+      case Model.MONEY1:
+        return STR_MONEY1
+      case Model.MONEY2:
+        return STR_MONEY2
+      case Model.MONEY3:
+        return STR_MONEY3
+    }
+    return STR_MONEY
+  }
+  export function getMoneyResource(type: number) {
+    let str = ''
+    type === Model.MONEY1
+      ? (str = 'gold_square')
+      : type === Model.MONEY2
+        ? (str = 'gold_leaf')
+        : (type === Model.MONEY3 && (str = 'gold_coin'))
+    return str += (xhd ? '_hd' : '_sd')
+  }
+
+  export function getMoneyResourceByItemMoneyType(type: number) {
+    let str = ''
+    type === ItemData.ITEM_MONEY_TYPE_1
+      ? (str = 'gold_square')
+      : type === ItemData.ITEM_MONEY_TYPE_2
+        ? (str = 'gold_leaf')
+        : (type === ItemData.ITEM_MONEY_TYPE_3 && (str = 'gold_coin'))
+    return str += xhd ? '_hd' : '_sd'
+  }
+
 }

@@ -79,17 +79,17 @@ export namespace Processor {
         skills.push(Skill.fromBytes(t))
 
       if (pet != null) {
-        pet.addValue(Model.LEVEL, upLevel),
-        pet.addValue(Model.SP, sp),
-        pet.addValue(Model.PET_GROW_LEVEL, growLevel),
-        pet.addValue(Model.STR, str),
-        pet.addValue(Model.CON, con),
-        pet.addValue(Model.AGI, agi),
-        pet.addValue(Model.ILT, ilt),
-        pet.addValue(Model.WIS, wsi),
-        pet.addValue(Model.SET_EXP, exp),
-        pet.addValue(Model.SET_EXPMAX, maxExp),
-        (pet.cp = cp)
+        pet.addValue(Model.LEVEL, upLevel)
+        pet.addValue(Model.SP, sp)
+        pet.addValue(Model.PET_GROW_LEVEL, growLevel)
+        pet.addValue(Model.STR, str)
+        pet.addValue(Model.CON, con)
+        pet.addValue(Model.AGI, agi)
+        pet.addValue(Model.ILT, ilt)
+        pet.addValue(Model.WIS, wsi)
+        pet.addValue(Model.SET_EXP, exp)
+        pet.addValue(Model.SET_EXPMAX, maxExp)
+        pet.cp = cp
 
         for (let g = 0; g < skills.length; g++) {
           const S = skills[g]
