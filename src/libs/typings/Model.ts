@@ -1,7 +1,7 @@
 import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { GameText } from 'libs/defined/gameText'
-import { Tool } from 'libs/shared/Tool'
+import { Tools } from 'libs/shared/Tool'
 import type { Mercenary } from './Mercenary'
 import type { Pet } from './PetInfo'
 
@@ -525,10 +525,10 @@ export class Model {
   addValue(type: number, value: number) {
     switch (type) {
       case Model.LEVEL:
-        value > 0 && (this.level = Tool.sumValue(this.level, value, 0, 120))
+        value > 0 && (this.level = Tools.sumValue(this.level, value, 0, 120))
         break
       case Model.LEVEL2:
-        value > 0 && (this.level2 = Tool.sumValue(this.level2, value, 0, 120))
+        value > 0 && (this.level2 = Tools.sumValue(this.level2, value, 0, 120))
         break
       case Model.ENCHANTVALUE:
         this.enchantValue += value
@@ -547,7 +547,7 @@ export class Model {
   setBattleIntValue(bit: number) {
     for (let i = 27; i <= 30; i++) {
       const n = 1 << i
-      Tool.isBit(n, bit) ? (this.intValue1 |= n) : (this.intValue1 &= ~n)
+      Tools.isBit(n, bit) ? (this.intValue1 |= n) : (this.intValue1 &= ~n)
     }
   }
 

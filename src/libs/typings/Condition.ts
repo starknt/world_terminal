@@ -1,5 +1,5 @@
 import { Define } from 'libs/defined/defined'
-import { Tool } from 'libs/shared/Tool'
+import { Tools } from 'libs/shared/Tool'
 import { Mission } from './Mission'
 import type { Player } from './Player'
 import { TaskTargetData } from './TaskTargetData'
@@ -269,8 +269,8 @@ export class Condition {
         if (mid !== id)
           return
         let h = okilled + killed
-        if (h > Tool.MAX_VALUE_byte)
-          _ = h = Tool.MAX_VALUE_byte
+        if (h > Tools.MAX_VALUE_byte)
+          _ = h = Tools.MAX_VALUE_byte
       }
       const u = new egret.ByteArray()
       u.writeShort(mid)

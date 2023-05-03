@@ -3,7 +3,7 @@ import { Define } from 'libs/defined/defined'
 import { Battle } from 'libs/service/Battle/battle'
 import type { Control } from 'libs/service/Battle/Control'
 import { GZIP } from 'libs/shared/GZIP'
-import { Tool } from 'libs/shared/Tool'
+import { Tools } from 'libs/shared/Tool'
 import { Mission } from './Mission'
 import { Model } from './Model'
 import { PlayerBag } from './PlayerBag'
@@ -134,10 +134,10 @@ export class Player extends Model {
         this.masterFlag = value
         break
       case Model.EXP:
-        this.exp = Tool.sumValue(this.exp, value, 0, this.expMax)
+        this.exp = Tools.sumValue(this.exp, value, 0, this.expMax)
         break
       case Model.EXP2:
-        this.exp2 = Tool.sumValue(this.exp2, value, 0, this.expMax2)
+        this.exp2 = Tools.sumValue(this.exp2, value, 0, this.expMax2)
         break
       case Model.SET_EXP:
         this.exp = value
@@ -146,7 +146,7 @@ export class Player extends Model {
         this.exp2 = value
         break
       case Model.EXPMAX:
-        this.expMax = Tool.sumValue(this.expMax, value, 0, Tool.MAX_VALUE_int)
+        this.expMax = Tools.sumValue(this.expMax, value, 0, Tools.MAX_VALUE_int)
         break
       case Model.SET_EXPMAX:
         this.expMax = value
@@ -155,10 +155,10 @@ export class Player extends Model {
         this.expMax2 = value
         break
       case Model.HP:
-        this.hp = Tool.sumValue(this.hp, value, 0, this.get(Model.HPMAX))
+        this.hp = Tools.sumValue(this.hp, value, 0, this.get(Model.HPMAX))
         break
       case Model.HP_DISPLAY:
-        this.hpDisplay = Tool.sumValue(
+        this.hpDisplay = Tools.sumValue(
           this.hpDisplay,
           value,
           0,
@@ -166,10 +166,10 @@ export class Player extends Model {
         )
         break
       case Model.MP:
-        this.mp = Tool.sumValue(this.mp, value, 0, this.get(Model.MPMAX))
+        this.mp = Tools.sumValue(this.mp, value, 0, this.get(Model.MPMAX))
         break
       case Model.MP_DISPLAY:
-        this.hpDisplay = Tool.sumValue(
+        this.hpDisplay = Tools.sumValue(
           this.hpDisplay,
           value,
           0,
@@ -177,13 +177,13 @@ export class Player extends Model {
         )
         break
       case Model.SP:
-        this.sp = Tool.sumValue(this.sp, value, 0, Tool.MAX_VALUE_int)
+        this.sp = Tools.sumValue(this.sp, value, 0, Tools.MAX_VALUE_int)
         break
       case Model.CP:
-        this.cp = Tool.sumValue(this.cp, value, 0, Tool.MAX_VALUE_short)
+        this.cp = Tools.sumValue(this.cp, value, 0, Tools.MAX_VALUE_short)
         break
       case Model.STR:
-        (this.str = Tool.sumValue(
+        (this.str = Tools.sumValue(
           this.str,
           value,
           0,
@@ -193,7 +193,7 @@ export class Player extends Model {
         this.hp > i && (this.hp = i)
         break
       case Model.CON:
-        (this.con = Tool.sumValue(
+        (this.con = Tools.sumValue(
           this.con,
           value,
           0,
@@ -203,7 +203,7 @@ export class Player extends Model {
         this.hp > i && (this.hp = i)
         break
       case Model.AGI:
-        this.agi = Tool.sumValue(
+        this.agi = Tools.sumValue(
           this.agi,
           value,
           0,
@@ -211,7 +211,7 @@ export class Player extends Model {
         )
         break
       case Model.ILT:
-        (this.ilt = Tool.sumValue(
+        (this.ilt = Tools.sumValue(
           this.ilt,
           value,
           0,
@@ -221,7 +221,7 @@ export class Player extends Model {
         this.mp > i && (this.mp = i)
         break
       case Model.WIS:
-        (this.wis = Tool.sumValue(
+        (this.wis = Tools.sumValue(
           this.wis,
           value,
           0,
@@ -231,18 +231,18 @@ export class Player extends Model {
         this.mp > i && (this.mp = i)
         break
       case Model.MONEY1:
-        this.money1 = Tool.sumValue(this.money1, value, 0, Tool.MAX_VALUE_int)
+        this.money1 = Tools.sumValue(this.money1, value, 0, Tools.MAX_VALUE_int)
         break
       case Model.MONEY2:
-        this.money2 = Tool.sumValue(this.money2, value, 0, Tool.MAX_VALUE_int)
+        this.money2 = Tools.sumValue(this.money2, value, 0, Tools.MAX_VALUE_int)
         break
       case Model.MONEY3:
         this.money3 > 0 && value > 0 && this.money3 + value < 0
-          ? (this.money3 = Tool.MAX_VALUE_int)
+          ? (this.money3 = Tools.MAX_VALUE_int)
           : ((this.money3 += value), this.money3 < 0 && (this.money3 = 0))
         break
       case Model.NUM_STROE:
-        this.numStroe = Tool.sumValue(
+        this.numStroe = Tools.sumValue(
           this.numStroe,
           value,
           0,
@@ -250,40 +250,40 @@ export class Player extends Model {
         )
         break
       case Model.COUNTRY_HONOR:
-        this.countryHonor = Tool.sumValue(
+        this.countryHonor = Tools.sumValue(
           this.countryHonor,
           value,
           0,
-          Tool.MAX_VALUE_int,
+          Tools.MAX_VALUE_int,
         )
         break
       case Model.KILL_COUNT:
-        this.killCount = Tool.sumValue(
+        this.killCount = Tools.sumValue(
           this.killCount,
           value,
           0,
-          Tool.MAX_VALUE_int,
+          Tools.MAX_VALUE_int,
         )
         break
       case Model.PK_WIN_COUNT:
-        this.Pkwincount = Tool.sumValue(
+        this.Pkwincount = Tools.sumValue(
           this.Pkwincount,
           value,
           0,
-          Tool.MAX_VALUE_int,
+          Tools.MAX_VALUE_int,
         )
         break
       case Model.PK_LOSE_COUNT:
-        this.Pklosecount = Tool.sumValue(
+        this.Pklosecount = Tools.sumValue(
           this.Pklosecount,
           value,
           0,
-          Tool.MAX_VALUE_int,
+          Tools.MAX_VALUE_int,
         )
         break
       case Model.SPEED:
         (o = this.speed),
-        (this.speed = Tool.sumValue(
+        (this.speed = Tools.sumValue(
           this.speed,
           value,
           0,
@@ -293,7 +293,7 @@ export class Player extends Model {
         break
       case Model.ATK_STR:
         (o = this.atk_str),
-        (this.atk_str = Tool.sumValue(
+        (this.atk_str = Tools.sumValue(
           this.atk_str,
           value,
           0,
@@ -303,7 +303,7 @@ export class Player extends Model {
         break
       case Model.ATK_TIME:
         (o = this.atk_time),
-        (this.atk_time = Tool.sumValue(
+        (this.atk_time = Tools.sumValue(
           this.atk_time,
           value,
           0,
@@ -313,7 +313,7 @@ export class Player extends Model {
         break
       case Model.ATK_AGI:
         (o = this.atk_agi),
-        (this.atk_agi = Tool.sumValue(
+        (this.atk_agi = Tools.sumValue(
           this.atk_agi,
           value,
           0,
@@ -323,7 +323,7 @@ export class Player extends Model {
         break
       case Model.ATK_MAGIC:
         (o = this.atk_magic),
-        (this.atk_magic = Tool.sumValue(
+        (this.atk_magic = Tools.sumValue(
           this.atk_magic,
           value,
           0,
@@ -333,7 +333,7 @@ export class Player extends Model {
         break
       case Model.DEF_STR:
         (o = this.def_str),
-        (this.def_str = Tool.sumValue(
+        (this.def_str = Tools.sumValue(
           this.def_str,
           value,
           0,
@@ -343,7 +343,7 @@ export class Player extends Model {
         break
       case Model.DEF_AGI:
         (o = this.def_agi),
-        (this.def_agi = Tool.sumValue(
+        (this.def_agi = Tools.sumValue(
           this.def_agi,
           value,
           0,
@@ -353,7 +353,7 @@ export class Player extends Model {
         break
       case Model.DEF_MAGIC:
         (o = this.def_magic),
-        (this.def_magic = Tool.sumValue(
+        (this.def_magic = Tools.sumValue(
           this.def_magic,
           value,
           0,
@@ -362,11 +362,11 @@ export class Player extends Model {
         (this.readAddValue = this.def_magic - o)
         break
       case Model.ARGO:
-        this.argo = Tool.sumValue(this.argo, value, -1e5, 1e5)
+        this.argo = Tools.sumValue(this.argo, value, -1e5, 1e5)
         break
       case Model.CRITICAL:
         (o = this.critical),
-        (this.critical = Tool.sumValue(
+        (this.critical = Tools.sumValue(
           this.critical,
           value,
           0,
@@ -376,7 +376,7 @@ export class Player extends Model {
         break
       case Model.HIT_MAGIC:
         (o = this.hitMagic),
-        (this.hitMagic = Tool.sumValue(
+        (this.hitMagic = Tools.sumValue(
           this.hitMagic,
           value,
           0,
@@ -386,7 +386,7 @@ export class Player extends Model {
         break
       case Model.HIT_RATE:
         (o = this.hitrate),
-        (this.hitrate = Tool.sumValue(
+        (this.hitrate = Tools.sumValue(
           this.hitrate,
           value,
           0,
@@ -396,7 +396,7 @@ export class Player extends Model {
         break
       case Model.FORCE_HIT:
         (o = this.forceHit),
-        (this.forceHit = Tool.sumValue(
+        (this.forceHit = Tools.sumValue(
           this.forceHit,
           value,
           0,
@@ -406,7 +406,7 @@ export class Player extends Model {
         break
       case Model.DODGE:
         (o = this.dodge),
-        (this.dodge = Tool.sumValue(
+        (this.dodge = Tools.sumValue(
           this.dodge,
           value,
           0,
@@ -416,7 +416,7 @@ export class Player extends Model {
         break
       case Model.WIL:
         (o = this.wil),
-        (this.wil = Tool.sumValue(
+        (this.wil = Tools.sumValue(
           this.wil,
           value,
           0,
@@ -426,7 +426,7 @@ export class Player extends Model {
         break
       case Model.TOUGH:
         (o = this.tough),
-        (this.tough = Tool.sumValue(
+        (this.tough = Tools.sumValue(
           this.tough,
           value,
           0,
@@ -436,7 +436,7 @@ export class Player extends Model {
         break
       case Model.BRK_ARMOR:
         (o = this.brkArmor),
-        (this.brkArmor = Tool.sumValue(
+        (this.brkArmor = Tools.sumValue(
           this.brkArmor,
           value,
           0,
@@ -446,7 +446,7 @@ export class Player extends Model {
         break
       case Model.MAGIC_PENETRATION:
         (o = this.magic_penetration),
-        (this.magic_penetration = Tool.sumValue(
+        (this.magic_penetration = Tools.sumValue(
           this.magic_penetration,
           value,
           0,
@@ -456,7 +456,7 @@ export class Player extends Model {
         break
       case Model.BLOCK:
         (o = this.block),
-        (this.block = Tool.sumValue(
+        (this.block = Tools.sumValue(
           this.block,
           value,
           0,
@@ -466,7 +466,7 @@ export class Player extends Model {
         break
       case Model.DEF_FIELD:
         (o = this.def_field),
-        (this.def_field = Tool.sumValue(
+        (this.def_field = Tools.sumValue(
           this.def_field,
           value,
           Model.MIN_DEF_FIELD,
@@ -476,7 +476,7 @@ export class Player extends Model {
         break
       case Model.INSIGHT:
         (o = this.insight),
-        (this.insight = Tool.sumValue(
+        (this.insight = Tools.sumValue(
           this.insight,
           value,
           0,
@@ -486,7 +486,7 @@ export class Player extends Model {
         break
       case Model.BACK:
         (o = this.back),
-        (this.back = Tool.sumValue(
+        (this.back = Tools.sumValue(
           this.back,
           value,
           0,
@@ -496,7 +496,7 @@ export class Player extends Model {
         break
       case Model.MAGIC_BACK:
         (o = this.magic_back),
-        (this.magic_back = Tool.sumValue(
+        (this.magic_back = Tools.sumValue(
           this.magic_back,
           value,
           0,
@@ -506,7 +506,7 @@ export class Player extends Model {
         break
       case Model.LIFE_ABSORPTION:
         (o = this.life_absorption),
-        (this.life_absorption = Tool.sumValue(
+        (this.life_absorption = Tools.sumValue(
           this.life_absorption,
           value,
           0,
@@ -516,7 +516,7 @@ export class Player extends Model {
         break
       case Model.MANA_ABSORPTION:
         (o = this.mana_absorption),
-        (this.mana_absorption = Tool.sumValue(
+        (this.mana_absorption = Tools.sumValue(
           this.mana_absorption,
           value,
           0,
@@ -526,7 +526,7 @@ export class Player extends Model {
         break
       case Model.HEAL_RECOVERY:
         (o = this.heal_recovery),
-        (this.heal_recovery = Tool.sumValue(
+        (this.heal_recovery = Tools.sumValue(
           this.heal_recovery,
           value,
           Model.MIN_HEAL_RECOVERY,
@@ -536,7 +536,7 @@ export class Player extends Model {
         break
       case Model.MANA_RECOVERY:
         (o = this.mana_recovery),
-        (this.mana_recovery = Tool.sumValue(
+        (this.mana_recovery = Tools.sumValue(
           this.mana_recovery,
           value,
           Model.MIN_MANA_RECOVERY,
@@ -546,7 +546,7 @@ export class Player extends Model {
         break
       case Model.KEEPOUT_ATK_TIME:
         (o = this.keepout_atk_time),
-        (this.keepout_atk_time = Tool.sumValue(
+        (this.keepout_atk_time = Tools.sumValue(
           this.keepout_atk_time,
           value,
           0,
@@ -556,7 +556,7 @@ export class Player extends Model {
         break
       case Model.WEAPON_DAMAGE_PERCENT:
         (o = this.weapon_damage_percent),
-        (this.weapon_damage_percent = Tool.sumValue(
+        (this.weapon_damage_percent = Tools.sumValue(
           this.weapon_damage_percent,
           value,
           -1e4,
@@ -574,18 +574,18 @@ export class Player extends Model {
     if (t <= 0)
       return ''
 
-    let e = t / Tool.MILLIS_IN_MINUTE
-    if (t % Tool.MILLIS_IN_MINUTE > 0)
+    let e = t / Tools.MILLIS_IN_MINUTE
+    if (t % Tools.MILLIS_IN_MINUTE > 0)
       e += 1
 
     e = Math.floor(e)
 
-    if (e < Tool.MINUTE_IN_HOUR)
-      return `${Math.floor(e / Tool.MINUTE_IN_HOUR)} 分钟`
+    if (e < Tools.MINUTE_IN_HOUR)
+      return `${Math.floor(e / Tools.MINUTE_IN_HOUR)} 分钟`
 
-    const days = Math.floor(e / Tool.MINUTE_IN_DAY)
-    const hours = Math.floor(e / Tool.MINUTE_IN_HOUR)
-    const minute = e % Tool.MINUTE_IN_HOUR
+    const days = Math.floor(e / Tools.MINUTE_IN_DAY)
+    const hours = Math.floor(e / Tools.MINUTE_IN_HOUR)
+    const minute = e % Tools.MINUTE_IN_HOUR
     if (days > 0)
       return `${days} 天 ${hours % (days * 24)} 小时`
 
@@ -902,7 +902,7 @@ export class Player extends Model {
       (s += this.playerTurnMonster.getPowerValue(str_percent))),
       (r += Math.floor((r * s) / 100)),
       (r += this.getBagEquipPowerValue(str)),
-      (r = Tool.sumValue(r, 0, contant, attr))
+      (r = Tools.sumValue(r, 0, contant, attr))
     )
   }
 
@@ -971,7 +971,7 @@ export class Player extends Model {
         Define.POWER_HAND_PERCENT,
       ))),
       (l += ((l * _) / 100) >> 0),
-      (l = Tool.sumValue(l, max_val, contant, player_max))
+      (l = Tools.sumValue(l, max_val, contant, player_max))
     )
   }
 
@@ -1162,7 +1162,7 @@ export class Player extends Model {
             n,
             PlayerBag.WEAPON_LEFT_POS,
           ))),
-          Tool.sumValue(n, 0, 0, Model.MAX_ATK)
+          Tools.sumValue(n, 0, 0, Model.MAX_ATK)
         )
       case Model.RIGHT_ATK_MIN:
         return (
@@ -1173,7 +1173,7 @@ export class Player extends Model {
             n,
             PlayerBag.WEAPON_RIGHT_POS,
           ))),
-          Tool.sumValue(n, 0, 0, Model.MAX_ATK)
+          Tools.sumValue(n, 0, 0, Model.MAX_ATK)
         )
       case Model.ATK_MIN:
       {
@@ -1192,7 +1192,7 @@ export class Player extends Model {
             n,
             PlayerBag.WEAPON_LEFT_POS,
           ))),
-          Tool.sumValue(n, 0, 0, Model.MAX_ATK)
+          Tools.sumValue(n, 0, 0, Model.MAX_ATK)
         )
       case Model.RIGHT_ATK_MAX:
         return (
@@ -1203,7 +1203,7 @@ export class Player extends Model {
             n,
             PlayerBag.WEAPON_RIGHT_POS,
           ))),
-          Tool.sumValue(n, 0, 0, Model.MAX_ATK)
+          Tools.sumValue(n, 0, 0, Model.MAX_ATK)
         )
       case Model.ATK_MAX:
       { const s = this.get(Model.LEFT_ATK_MAX)
@@ -1217,7 +1217,7 @@ export class Player extends Model {
           && ((n = this.bag.getAttributeByPos(7, PlayerBag.WEAPON_LEFT_POS)),
           n < 0)
           ? 0
-          : Tool.sumValue(
+          : Tools.sumValue(
             n + 1,
             0,
             Model.MIN_HIT_TIME,
@@ -1228,7 +1228,7 @@ export class Player extends Model {
           && ((n = this.bag.getAttributeByPos(7, PlayerBag.WEAPON_RIGHT_POS)),
           n < 0)
           ? 0
-          : Tool.sumValue(
+          : Tools.sumValue(
             n + 1,
             0,
             Model.MIN_HIT_TIME,
@@ -1251,7 +1251,7 @@ export class Player extends Model {
               = this.get(Model.LEFT_ATK_TIME)
               + this.get(Model.RIGHT_ATK_TIME)),
           (n = this.addWeaponSkillAtkTime(n, _)),
-          Tool.sumValue(
+          Tools.sumValue(
             n,
             this.atk_time,
             Model.MIN_HIT_TIME,

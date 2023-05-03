@@ -2,6 +2,8 @@ import type { Protocol } from 'libs/base/protocol'
 import type { Account } from 'libs/shared/Account'
 import type { Version } from 'libs/shared/version'
 
+export type Nullable<T> = T | undefined | null
+
 export interface GlobalSetting {
   debug: boolean
 }

@@ -115,9 +115,8 @@ export class PlayerBuffer {
     return false
   }
 
-  destroy(t) {
-    t != null
-      && (this.isPermanentBuffer() || t.addValue(this.attrID, -this.addValue))
+  destroy(player: Player) {
+    this.isPermanentBuffer() || player.addValue(this.attrID, -this.addValue)
   }
 }
 

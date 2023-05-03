@@ -1,7 +1,7 @@
 import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { Battle } from 'libs/service/Battle/battle'
-import { Tool } from 'libs/shared/Tool'
+import { Tools } from 'libs/shared/Tool'
 import { Model } from './Model'
 import type { Monster } from './Monster'
 import { Player } from './Player'
@@ -114,7 +114,7 @@ export class MonsterAI {
       return -1
     if (monster == null)
       return -1
-    if (Tool.isArrayIndexOutOfBounds(index, this.targetType))
+    if (Tools.isArrayIndexOutOfBounds(index, this.targetType))
       return -1
     const type = this.targetType[index]
     switch (type) {
@@ -164,7 +164,7 @@ export namespace MonsterAI {
       const s = battle.getPlayerByPos(i)
       if (battle.isValidBattlePlayer(s)
         && s!.position !== monster.position) {
-        if (!Tool.isArrayIndexOutOfBounds(a, o)) {
+        if (!Tools.isArrayIndexOutOfBounds(a, o)) {
           o[a] = s!.position
           a++
         }
@@ -193,7 +193,7 @@ export namespace MonsterAI {
       if (s !== null) {
         s.isBattleStatus(Player.BSTATUS_ESCAPE)
         if (s.isDead()) {
-          if (!Tool.isArrayIndexOutOfBounds(a, o)) {
+          if (!Tools.isArrayIndexOutOfBounds(a, o)) {
             o[a] = s.position
             a++
           }
@@ -227,7 +227,7 @@ export namespace MonsterAI {
 
     for (let s = i; o > s; s++) {
       const l = battle.getPlayerByPos(s)
-      if (battle.isValidBattlePlayer(l) && !Tool.isArrayIndexOutOfBounds(r, a)) {
+      if (battle.isValidBattlePlayer(l) && !Tools.isArrayIndexOutOfBounds(r, a)) {
         a[r] = l!.position
         r++
       }

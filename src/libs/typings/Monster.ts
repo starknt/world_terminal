@@ -1,7 +1,7 @@
 import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import type { Battle } from 'libs/service/Battle/battle'
-import { Tool } from 'libs/shared/Tool'
+import { Tools } from 'libs/shared/Tool'
 import { Model } from './Model'
 import { MonsterAI } from './MonsterAI'
 import { Player } from './Player'
@@ -89,16 +89,16 @@ export class Monster extends Player {
       case Model.DODGE:
         return this.dodge
       case Model.LEFT_ATK_MIN:
-        return Tool.sumValue(this.atkMin, 0, 0, Model.MAX_ATK)
+        return Tools.sumValue(this.atkMin, 0, 0, Model.MAX_ATK)
       case Model.LEFT_ATK_MAX:
-        return Tool.sumValue(this.atkMax, 0, 0, Model.MAX_ATK)
+        return Tools.sumValue(this.atkMax, 0, 0, Model.MAX_ATK)
       case Model.RIGHT_ATK_MIN:
         return 0
       case Model.RIGHT_ATK_MAX:
         return 0
       case Model.LEFT_ATK_TIME:
       case Model.ATK_TIME:
-        return Tool.sumValue(
+        return Tools.sumValue(
           this.atk_time + 1,
           0,
           Model.MIN_HIT_TIME,

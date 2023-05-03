@@ -1,6 +1,6 @@
 import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
-import { Tool } from 'libs/shared/Tool'
+import { Tools } from 'libs/shared/Tool'
 import { Model } from './Model'
 import { Player } from './Player'
 import { Skill } from './Skill'
@@ -56,7 +56,7 @@ export class Pet extends Player {
   addValue(type: number, val: number) {
     switch (type) {
       case Model.PET_GROW_LEVEL:
-        this.growLevel = Tool.sumValue(this.growLevel, val, 0, 120)
+        this.growLevel = Tools.sumValue(this.growLevel, val, 0, 120)
         break
       default:
         super.addValue.call(this, type, val)
@@ -106,7 +106,7 @@ export class Pet extends Player {
       case Model.ATK_TIME:
         return (
           (n = this.petAtkTime),
-          (n = Tool.sumValue(
+          (n = Tools.sumValue(
             n + 1,
             this.atk_time,
             Model.MIN_HIT_TIME,
@@ -132,7 +132,7 @@ export class Pet extends Player {
             Model.MAX_OTHER_ATTRIBUTE,
             Define.POWER_PET_DAMAGE,
           )),
-          Tool.sumValue(n, 0, 0, Model.MAX_ATK)
+          Tools.sumValue(n, 0, 0, Model.MAX_ATK)
         )
       case Model.LEFT_ATK_MAX:
         return (
@@ -147,7 +147,7 @@ export class Pet extends Player {
             Model.MAX_OTHER_ATTRIBUTE,
             Define.POWER_PET_DAMAGE,
           )),
-          Tool.sumValue(n, 0, 0, Model.MAX_ATK)
+          Tools.sumValue(n, 0, 0, Model.MAX_ATK)
         )
       case Model.RIGHT_ATK_MIN:
         return 0
@@ -277,7 +277,7 @@ export class Pet extends Player {
       && ((s += this.owner.formationSkill.getPowerValue(e)),
       (l += this.owner.formationSkill.getPowerValue(n))),
       l > 0 && (s += Math.floor((s * l) / 100)),
-      (s = Tool.sumValue(s, 0, o, a))
+      (s = Tools.sumValue(s, 0, o, a))
     )
   }
 
@@ -296,12 +296,12 @@ export class Pet extends Player {
       && ((l += this.owner.formationSkill.getPowerValue(n)),
       (_ += this.owner.formationSkill.getPowerValue(i))),
       _ > 0 && (l += Math.floor((l * _) / 100)),
-      (l = Tool.sumValue(l, e, a, r))
+      (l = Tools.sumValue(l, e, a, r))
     )
   }
 
   getPetAge() {
-    let t = Math.floor((this.ageTime - Date.now()) / Tool.MILLIS_IN_DAY)
+    let t = Math.floor((this.ageTime - Date.now()) / Tools.MILLIS_IN_DAY)
     return t < 0 && (t = 0), t
   }
 

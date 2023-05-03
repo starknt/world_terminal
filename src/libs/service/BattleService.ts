@@ -3,7 +3,7 @@ import { Protocol, ProtocolCmd } from 'libs/base/protocol'
 import { Processor } from 'libs/base/processor'
 import type { SocketClient } from 'libs/base/socket'
 import { Define } from 'libs/defined/defined'
-import { Tool } from 'libs/shared/Tool'
+import { Tools } from 'libs/shared/Tool'
 import type { GameMap } from 'libs/typings/GameMap'
 import { MonsterGroup } from 'libs/typings/MonsterGroup'
 import type { Player } from 'libs/typings/Player'
@@ -51,7 +51,7 @@ export class BattleService {
   }
 
   private nextSeed() {
-    this.battleSeed = (this.battleSeed + 1) % Tool.MAX_SEED_VALUE
+    this.battleSeed = (this.battleSeed + 1) % Tools.MAX_SEED_VALUE
 
     return this.battleSeed
   }

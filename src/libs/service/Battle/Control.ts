@@ -1,4 +1,4 @@
-import { Tool } from 'libs/shared/Tool'
+import { Tools } from 'libs/shared/Tool'
 import { Battle } from './battle'
 
 export class Control {
@@ -89,16 +89,16 @@ export namespace Control {
     h.writeByte(n)
     let u = 0
     return (
-      i >= 0 && (u = Tool.setBit(true, BCONTROL_HAS_AREA_LIST, u)),
-      s > 0 && (u = Tool.setBit(true, BCONTROL_HAS_ANIME2, u)),
-      l != null && (u = Tool.setBit(true, BCONTROL_HAS_NAME, u)),
+      i >= 0 && (u = Tools.setBit(true, BCONTROL_HAS_AREA_LIST, u)),
+      s > 0 && (u = Tools.setBit(true, BCONTROL_HAS_ANIME2, u)),
+      l != null && (u = Tools.setBit(true, BCONTROL_HAS_NAME, u)),
       h.writeByte(u),
-      Tool.isBit(BCONTROL_HAS_AREA_LIST, u) && h.writeByte(i),
+      Tools.isBit(BCONTROL_HAS_AREA_LIST, u) && h.writeByte(i),
       h.writeByte(o),
       h.writeByte(a),
       h.writeShort(r),
-      Tool.isBit(BCONTROL_HAS_ANIME2, u) && h.writeShort(s),
-      Tool.isBit(BCONTROL_HAS_NAME, u) && h.writeUTF(l),
+      Tools.isBit(BCONTROL_HAS_ANIME2, u) && h.writeShort(s),
+      Tools.isBit(BCONTROL_HAS_NAME, u) && h.writeUTF(l),
       (_.datas = h),
       _
     )

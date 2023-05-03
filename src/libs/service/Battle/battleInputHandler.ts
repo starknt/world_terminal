@@ -1,5 +1,5 @@
 import { Define } from 'libs/defined/defined'
-import { Tool } from 'libs/shared/Tool'
+import { Tools } from 'libs/shared/Tool'
 import { Skill } from 'libs/typings/Skill'
 import { Battle } from './battle'
 import type { BattleView } from './battleView'
@@ -84,7 +84,7 @@ export class BattleInputHandler {
   }
 
   getPlanData(t) {
-    return Tool.isArrayIndexOutOfBounds(t, this.planVector)
+    return Tools.isArrayIndexOutOfBounds(t, this.planVector)
       ? null
       : this.planVector[t]
   }

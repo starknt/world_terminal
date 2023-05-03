@@ -3,42 +3,44 @@ export class GZIP {
   gzipByte = 0
   gzipIndex = 0
 
-  constructor(readonly e: number[]) {
-
-  }
+  constructor(readonly e: number[]) { }
 
   readBits(n: number) {
-    for (
-      var i
-            = this.gzipBit == 0
-              ? (this.gzipByte = 255 & this.e[this.gzipIndex++])
-              : this.gzipByte >> this.gzipBit,
-        o = 8 - this.gzipBit;
-      n > o;
-      o += 8
-    )
-      (this.gzipByte = 255 & this.e[this.gzipIndex++]), (i |= this.gzipByte << o)
-    return (this.gzipBit = (this.gzipBit + n) & 7), i & ((1 << n) - 1)
+    let i = this.gzipBit === 0
+      ? (this.gzipByte = 255 & this.e[this.gzipIndex++])
+      : this.gzipByte >> this.gzipBit
+    for (let o = 8 - this.gzipBit; n > o; o += 8) {
+      this.gzipByte = 255 & this.e[this.gzipIndex++]
+      i |= this.gzipByte << o
+    }
+    this.gzipBit = (this.gzipBit + n) & 7
+    return i & ((1 << n) - 1)
   }
 
   readCode(n: number[]) {
-    for (var i = n[0]; i >= 0;) {
-      this.gzipBit == 0 && (this.gzipByte = 255 & this.e[this.gzipIndex++]),
-      (i
-          = (this.gzipByte & (1 << this.gzipBit)) == 0 ? n[i >> 16] : n[65535 & i]),
-      (this.gzipBit = (this.gzipBit + 1) & 7)
+    let i = n[0]
+    for (; i >= 0;) {
+      if (this.gzipBit === 0)
+        this.gzipByte = 255 & this.e[this.gzipIndex++]
+      i = (this.gzipByte & (1 << this.gzipBit)) === 0 ? n[i >> 16] : n[65535 & i]
+      this.gzipBit = (this.gzipBit + 1) & 7
     }
     return 65535 & i
   }
 
   decodeCodeLengths(n: number[], i: number) {
-    for (var o = new Array(i), a = 0, r = 0, s = 0; i > a;) {
-      if (((r = this.readCode(n)), r >= 16)) {
+    const o = new Array(i)
+    let a = 0
+    let r = 0
+    let s = 0
+    for (; i > a;) {
+      r = this.readCode(n)
+      if (r >= 16) {
         let l = 0
         for (
-          r == 16
+          r === 16
             ? ((l = 3 + this.readBits(2)), (r = s))
-            : ((l = r == 17 ? 3 + this.readBits(3) : 11 + this.readBits(7)),
+            : ((l = r === 17 ? 3 + this.readBits(3) : 11 + this.readBits(7)),
               (r = 0));
           l-- > 0;
 
@@ -57,22 +59,22 @@ export namespace GZIP {
   export function inflate(e: number[]) {
     const gzip = new GZIP(e)
 
-    if (gzip.readBits(16) != 35615 || gzip.readBits(8) != 8)
+    if (gzip.readBits(16) !== 35615 || gzip.readBits(8) !== 8)
       throw new Error('invalid gzip header')
 
     const n = gzip.readBits(8)
     gzip.gzipIndex += 6
 
-    if ((n & GZIP.FEXTRA_MASK) != 0)
+    if ((n & GZIP.FEXTRA_MASK) !== 0)
       gzip.gzipIndex += gzip.readBits(16)
 
-    if ((n & GZIP.FNAME_MASK) != 0)
-      for (; gzip.e[gzip.gzipIndex++] != 0;) {}
+    if ((n & GZIP.FNAME_MASK) !== 0)
+      for (; gzip.e[gzip.gzipIndex++] !== 0;);
 
-    if ((n & GZIP.FCOMMENT_MASK) != 0)
-      for (; gzip.e[gzip.gzipIndex++] != 0;) {}
+    if ((n & GZIP.FCOMMENT_MASK) !== 0)
+      for (; gzip.e[gzip.gzipIndex++] !== 0;);
 
-    if ((n & GZIP.FHCRC_MASK) != 0)
+    if ((n & GZIP.FHCRC_MASK) !== 0)
       gzip.gzipIndex += 2
 
     const i = gzip.gzipIndex
@@ -86,11 +88,12 @@ export namespace GZIP {
 
     let _ = 0
     gzip.gzipIndex = i
-    let h = 0; let u = 0
+    let h = 0
+    let u = 0
     do {
       h = gzip.readBits(1)
       u = gzip.readBits(2)
-      if (u == GZIP.BTYPE_NONE) {
+      if (u === GZIP.BTYPE_NONE) {
         gzip.gzipBit = 0
         const c = gzip.readBits(16)
         gzip.readBits(16)
@@ -146,7 +149,8 @@ export namespace GZIP {
         let P = 0
         let C = 0
         let v = 0
-        for (;(P = gzip.readCode(T)) != GZIP.EOB_CODE;) {
+        // eslint-disable-next-line no-cond-assign
+        for (;(P = gzip.readCode(T)) !== GZIP.EOB_CODE;) {
           if (P > GZIP.EOB_CODE) {
             P -= 257
             let M = GZIP.LENGTH_VALUES[P]
@@ -175,7 +179,7 @@ export namespace GZIP {
           }
         }
       }
-    } while (h == 0)
+    } while (h === 0)
 
     const N = new egret.ByteArray()
     for (let l = 0; l < s.length; l++)
@@ -201,23 +205,37 @@ export namespace GZIP {
     for (let o = 1; o <= GZIP.MAX_BITS; o++)
       s[o] = r = (r + i[o - 1]) << 1
 
-    const l = (n << 1) + GZIP.MAX_BITS; const _ = new Array(l)
+    const l = (n << 1) + GZIP.MAX_BITS
+    const _ = new Array(l)
 
     for (let o = 0; l > o; o++)
       _[o] = 0
     for (let h = 1, o = 0; n >= o; o++) {
       const a = e[o]
-      if (a != 0) {
+      if (a !== 0) {
         r = s[a]++
-        for (var u = 0, c = a - 1; c >= 0; c--) {
+        let u = 0
+        for (let c = a - 1; c >= 0; c--) {
           const T = r & (1 << c)
-          if (T == 0) {
+          if (T === 0) {
             const p = _[u] >> 16
-            p == 0 ? ((_[u] |= h << 16), (u = h++)) : (u = p)
+            if (p === 0) {
+              _[u] |= h << 16
+              u = h++
+            }
+            else {
+              u = p
+            }
           }
           else {
             const d = 65535 & _[u]
-            d == 0 ? ((_[u] |= h), (u = h++)) : (u = d)
+            if (d === 0) {
+              _[u] |= h
+              u = h++
+            }
+            else {
+              u = d
+            }
           }
         }
         _[u] = 2147483648 | o
@@ -226,7 +244,7 @@ export namespace GZIP {
     return _
   }
 
-  function arraycopy(t, e, n, i, o) {
+  function arraycopy<T>(t: T[], e: number, n: T[], i: number, o: number) {
     for (let a = 0; o > a; a++)
       n[i + a] = t[e + a]
   }

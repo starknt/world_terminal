@@ -1,7 +1,7 @@
 import { Emitter } from '@livemoe/utils'
 import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
-import { Tool } from 'libs/shared/Tool'
+import { Tools } from 'libs/shared/Tool'
 import { ItemData } from 'libs/typings/ItemData'
 import { Model } from 'libs/typings/Model'
 import { Monster } from 'libs/typings/Monster'
@@ -11,10 +11,12 @@ import { Pet } from 'libs/typings/PetInfo'
 import { Player } from 'libs/typings/Player'
 import type { PlayerBuffer } from 'libs/typings/PlayerBuffer'
 import { Skill } from 'libs/typings/Skill'
+import { isUndefinedOrNull } from 'libs/shared/types'
 import { BattleInputHandler } from './battleInputHandler'
 import { BattleView } from './battleView'
 import { Control } from './Control'
 import { Random } from './random'
+import type { Nullable } from '~/types'
 
 export class DamageData {
   damageValue = 0
@@ -24,8 +26,8 @@ export class DamageData {
   damageMpGet = 0
   magicDefDamageValue = 0
 
-  static isEffectStatus(t, e) {
-    return (t & e) != 0
+  static isEffectStatus(t: number, e: number) {
+    return (t & e) !== 0
   }
 }
 
@@ -39,7 +41,7 @@ export class Battle {
   isLeftHavePlayer = false
   isRightHavePlayer = false
   guardHash = {}
-  playerPlanData = {}
+  playerPlanData: Record<number, egret.ByteArray> = {}
   resultControlList: any[] = []
   totalHitTime = 1
   block = 0
@@ -82,7 +84,7 @@ export class Battle {
     return this._isRemoteWaiting
   }
 
-  setRemoteWaiting(t) {
+  setRemoteWaiting(t: boolean) {
     this._isRemoteWaiting = t
   }
 
@@ -90,44 +92,48 @@ export class Battle {
     return 0
   }
 
-  setPlan(e, n) {
-    n != null && (e < 0 || e >= Battle.MAX_POS || (this.playerPlanData[e] = n))
+  setPlan(e: number, n: egret.ByteArray) {
+    isDefined(n) && (e < 0 || e >= Battle.MAX_POS || (this.playerPlanData[e] = n))
   }
 
-  clearPlan(e) {
-    this.playerPlanData != null
-            && (e < 0 || e >= Battle.MAX_POS || (this.playerPlanData[e] = null))
+  clearPlan(e: number) {
+    isDefined(this.playerPlanData)
+            && (e < 0 || e >= Battle.MAX_POS || (delete this.playerPlanData[e]))
   }
 
   initBattleRowNum() {
-    (this.rowLeft = 5), (this.rowRight = 5)
-    for (var e, n, i = 0; i < Battle.MAX_POS; i++) {
+    this.rowLeft = 5
+    this.rowRight = 5
+    for (let i = 0; i < Battle.MAX_POS; i++) {
       const o = this.getPlayerByPos(i)
-      o != null
-                && (Battle.isLeftSide(i)
-                  ? ((e = i / 2 + 1), e > this.rowLeft && (this.rowLeft = e))
-                  : ((n = (i - Battle.LEFT_MAX_POS) / 2 + 1),
-                    n > this.rowRight && (this.rowRight = n)))
+      if (isDefined(o) && Battle.isLeftSide(i)) {
+        const e = i / 2 + 1
+        if (e > this.rowLeft)
+          this.rowLeft = e
+      }
+      else {
+        const n = (i - Battle.LEFT_MAX_POS) / 2 + 1
+        if (n > this.rowRight)
+          this.rowRight = n
+      }
     }
-    this.rowLeft >= Battle.MAX_ROW_NUM && (this.rowLeft = Battle.MAX_ROW_NUM),
-    this.rowRight >= Battle.MAX_ROW_NUM && (this.rowRight = Battle.MAX_ROW_NUM)
+    if (this.rowLeft >= Battle.MAX_ROW_NUM)
+      this.rowLeft = Battle.MAX_ROW_NUM
+    if (this.rowRight >= Battle.MAX_ROW_NUM)
+      this.rowRight = Battle.MAX_ROW_NUM
   }
 
-  checkDie1Hp(t, e) {
-    if (t != null && t.isDead() != 0) {
-      const n = []
-      if (
-        t.isTabStatus(Model.BUFFER_DIE_1HP_CHECK) == 0
-                && t.isBattleStatus(
-                  Define.getBufferBitValue(Define.BUFFER_RESIST_DIE_1HP),
-                )
-      ) {
-        const i = t.isHaveCanNotReliveBuffer()
-        i == 0
-                    && (t.setTabStatus(true, Model.BUFFER_DIE_1HP_CHECK),
-                    e != null
-                      ? Define.processBattleReborn(t, 1, 0, Define.SPRITE_USE_ITEM, e)
-                      : Define.processBattleReborn(t, 1, 0, Define.SPRITE_USE_ITEM, n))
+  checkDie1Hp(player: Player, e?: Nullable<Control[]>) {
+    if (!player.isDead()) {
+      const n: Control[] = []
+      if (!player.isTabStatus(Model.BUFFER_DIE_1HP_CHECK) && player.isBattleStatus(Define.getBufferBitValue(Define.BUFFER_RESIST_DIE_1HP))) {
+        const i = player.isHaveCanNotReliveBuffer()
+        if (!i) {
+          player.setTabStatus(true, Model.BUFFER_DIE_1HP_CHECK)
+          isDefined(e)
+            ? Define.processBattleReborn(player, 1, 0, Define.SPRITE_USE_ITEM, e)
+            : Define.processBattleReborn(player, 1, 0, Define.SPRITE_USE_ITEM, n)
+        }
       }
       if (e == null) {
         for (let o = 0; o < n.length; o++) {
@@ -150,31 +156,32 @@ export class Battle {
     this.cleanGuardData()
     this.cleanAniControlList()
     this.doRoundBuffer()
-    let t
-    t = this.sortModelListBySpeed()
+    let t = this.sortModelListBySpeed()
 
-    for (var e = 0; e < t.length; e++) {
-      var n = t[e]
-      n != null && this.doRoundHpMp(n)
+    for (let e = 0; e < t.length; e++) {
+      const n = t[e]
+      isDefined(n) && this.doRoundHpMp(n)
     }
-    for (var e = 0; e < t.length; e++) {
-      var n = t[e]
-      n != null && this.doAutoSkill(n)
+    for (let e = 0; e < t.length; e++) {
+      const n = t[e]
+      isDefined(n) && this.doAutoSkill(n)
     }
     t = this.sortModelListBySpeed()
 
     for (let i = 0, o = t; i < o.length; i++) {
       const a = o[i]
-      var n = a
+      const n = a
       if (n != null) {
         const r = this.getPlanData(n.position)
         let s = false
-        r && (s = this.doPlayerPlan(n, r)),
-        s != true
-                    && (n.getType() == 3
-                        || (n.getType() == 4
-                          ? this.doPetAI(n)
-                          : n instanceof Monster && this.doMonsterAI(n)))
+        if (r)
+          s = this.doPlayerPlan(n, r)
+        if (s !== true) {
+          if (n.getType() === 3 || n.getType() === 4)
+            this.doPetAI(n)
+          else if (n instanceof Monster)
+            this.doMonsterAI(n)
+        }
       }
     }
 
@@ -183,19 +190,20 @@ export class Battle {
     this.updateBattleResult()
   }
 
-  getActivePlayerNum(t, e, n, i?: any, o?: any) {
-    void 0 === i && (i = false), void 0 === o && (o = false)
-    for (var a = 0, r = t; e > r; r++) {
+  getActivePlayerNum(t: number, e: number, n: boolean, i = false, o = false) {
+    let a = 0
+    for (let r = t; e > r; r++) {
       const s = this.getPlayerByPos(r)
-      s != null
-                && ((n && s.getType() != 3)
-                    || (this.isValidBattlePlayer(s, i, o) && a++))
+      if (isDefined(s)) {
+        if ((n && s.getType() !== 3) || this.isValidBattlePlayer(s, i, o))
+          a++
+      }
     }
     return a
   }
 
   isBattleFinish() {
-    return this.result != 0
+    return this.result !== 0
   }
 
   setBattleResult(t: number) {
@@ -216,14 +224,14 @@ export class Battle {
       Battle.LEFT_MAX_POS,
       Battle.MAX_POS,
       this.isRightHavePlayer,
-    )
-    e <= 0 && n <= 0
+    );
+    (e <= 0 && n <= 0)
       ? (this.result = 4)
       : e <= 0
         ? (this.result = 2)
         : n <= 0
           ? (this.result = 1)
-          : this.round >= Battle.MAX_ROUND && (this.result = 3)
+          : (this.round >= Battle.MAX_ROUND && (this.result = 3))
   }
 
   mergeControlList(e, n) {
@@ -270,19 +278,16 @@ export class Battle {
   }
 
   doEndRoundCheckBuffer() {
-    for (var t = [], e = 0; e < this.playerList.length; e++) {
+    const t = []
+
+    for (let e = 0; e < this.playerList.length; e++) {
       const n = this.playerList[e]
       if (n != null) {
         const i = n.isHaveCanNotReliveBuffer()
         if (n.isDead()) {
-          if (
-            n.isTabStatus(Model.BUFFER_DIE_FULLHP_CHECK) == false
-                        && n.isBattleStatus(
-                          Define.getBufferBitValue(Define.BUFFER_RESIST_DIE_FULLHP),
-                        )
-          ) {
-            if (i == false) {
-              n.setTabStatus(true, Model.BUFFER_DIE_FULLHP_CHECK),
+          if (!n.isTabStatus(Model.BUFFER_DIE_FULLHP_CHECK) && n.isBattleStatus(Define.getBufferBitValue(Define.BUFFER_RESIST_DIE_FULLHP))) {
+            if (!i) {
+              n.setTabStatus(true, Model.BUFFER_DIE_FULLHP_CHECK)
               Define.processBattleReborn(
                 n,
                 n.get(Model.HPMAX),
@@ -295,13 +300,19 @@ export class Battle {
           }
           else if (n.isDeadDelay()) {
             n.setTabStatus(true, Model.BUFFER_DIE_DELAY_CHECK)
-            n.clearBufferList(false), i && n.runBufferList(false)
+            n.clearBufferList(false)
+            i && n.runBufferList(false)
             continue
           }
         }
-        n.isDead() || n.isBattleStatus(Player.BSTATUS_ESCAPE)
-          ? (n.clearBufferList(false), i && n.runBufferList(false))
-          : (n.runBufferList(false), this.doCheckWilBufferRemove(n))
+        if (n.isDead() || n.isBattleStatus(Player.BSTATUS_ESCAPE)) {
+          n.clearBufferList(false)
+          i && n.runBufferList(false)
+        }
+        else {
+          n.runBufferList(false)
+          this.doCheckWilBufferRemove(n)
+        }
       }
     }
     for (let a = 0; a < t.length; a++) {
@@ -310,35 +321,33 @@ export class Battle {
     }
   }
 
-  doCheckWilBufferRemove(t) {
-    if (t != null) {
-      const e = t.battleBufferList
-      if (!(e == null || e.length <= 0)) {
-        for (var n: PlayerBuffer[] = [], i = 0; i < e.length; i++) {
-          const o = e[i]
-          o != null
-                        && o.getStatus() != Define.BUFFER_NONE
-                        && Define.getBufferType(o.getStatus())
-                        == Define.BUFFER_TYPE_DEBUFF
-                        && n.push(o)
-        }
-        if (!(n.length <= 0)) {
-          const a = this.isWilSuccess(t, null, null)
-          if (a != false) {
-            const r = this.randRange(0, n.length - 1)
-            if (!(r < 0 || r >= n.length)) {
-              const s = n[r]
-              if (s != null) {
-                s.destroy(t)
-                let l = e.indexOf(s)
-                e.splice(l, 1), (l = n.indexOf(s)), n.splice(l, 1)
-                for (var i = 0; i < n.length; i++) {
-                  const _ = n[i]
-                  if (_ != null && _.getStatus() == s.getStatus())
-                    return
-                }
-                t.clearBattleStatus(Define.getBufferBitValue(s.getStatus()))
+  doCheckWilBufferRemove(player: Player) {
+    const e = player.battleBufferList
+    if (!(e.length <= 0)) {
+      const n: PlayerBuffer[] = []
+      for (let i = 0; i < e.length; i++) {
+        const o = e[i]
+        if (isDefined(o) && o.getStatus() !== Define.BUFFER_NONE && Define.getBufferType(o.getStatus()) === Define.BUFFER_TYPE_DEBUFF)
+          n.push(o)
+      }
+      if (!(n.length <= 0)) {
+        const a = this.isWilSuccess(player, null, null)
+        if (a) {
+          const r = this.randRange(0, n.length - 1)
+          if (!(r < 0 || r >= n.length)) {
+            const s = n[r]
+            if (s != null) {
+              s.destroy(player)
+              let l = e.indexOf(s)
+              e.splice(l, 1)
+              l = n.indexOf(s)
+              n.splice(l, 1)
+              for (let i = 0; i < n.length; i++) {
+                const buffer = n[i]
+                if (buffer != null && buffer.getStatus() === s.getStatus())
+                  return
               }
+              player.clearBattleStatus(Define.getBufferBitValue(s.getStatus()))
             }
           }
         }
@@ -346,21 +355,25 @@ export class Battle {
     }
   }
 
-  doPetAI(t) {
+  doPetAI(t: Monster | Player) {
     if (this.isValidBattlePlayer(t)) {
-      const e = MonsterAI.selectValueTarget(this, t, Define.AI_HATE_MAX, true)
+      const e = MonsterAI.selectValueTarget(this, t as any, Define.AI_HATE_MAX, true)
       this.doAttack(t, e)
     }
   }
 
-  doMonsterAI(t) {
+  doMonsterAI(t: Monster) {
     if (this.isValidBattlePlayer(t)) {
       const e = t.getSkillByAI(this, false)
-      if (t.getAITargetPos() == MonsterAI.TARGET_ESCAPE)
-        return void this.doEscape(t, true)
+      if (t.getAITargetPos() === MonsterAI.TARGET_ESCAPE)
+        return this.doEscape(t, true)
       const n = t.getAttackTarget(this)
-      this.isValidPos(n)
-                && (e == null ? this.doAttack(t, n) : this.doUseSkill(t, e, n))
+      if (this.isValidPos(n)) {
+        if (isDefined(e))
+          this.doAttack(t, n)
+        else
+          this.doUseSkill(t, e, n)
+      }
     }
   }
 
@@ -531,19 +544,22 @@ export class Battle {
     }
   }
 
-  doAutoSkill(t) {
+  doAutoSkill(t: Monster | Player) {
     if (t != null) {
-      let e: any = null
+      let e: Skill | null = null
       if (t instanceof Monster) {
         const n = t
-        if (((e = n.getSkillByAI(this, true)), e == null))
+        e = n.getSkillByAI(this, true)
+        if ((e == null))
           return
-        return void this.doUseSkill(t, e, this.searchAICursor(t, e.area))
+        return this.doUseSkill(t, e, this.searchAICursor(t, e.area))
       }
       const i = this.getAutoSkillIDByRound(t)
-      if (!(i < 0) && ((e = t.getSkillByID(i)), e != null)) {
-        let o = -1;
-        (o = this.searchAICursor(t, e.area)), this.doUseSkillByID(t, i, o)
+      e = t.getSkillByID(i)
+      if (!(i < 0) && e != null) {
+        let o = -1
+        o = this.searchAICursor(t, e.area)
+        this.doUseSkillByID(t, i, o)
       }
     }
   }
@@ -796,8 +812,8 @@ export class Battle {
 
   addGuardData(e, n, i, o) {
     if (!(e < 0 || e >= Battle.MAX_POS)) {
-      const a = Tool.setKeyXY(e, n)
-      const r = Tool.setKeyXY(i, o)
+      const a = Tools.setKeyXY(e, n)
+      const r = Tools.setKeyXY(i, o)
       this.guardHash[a] = r
     }
   }
@@ -867,7 +883,7 @@ export class Battle {
     if (n == Define.ATKTYPE_BLESS)
       return -1
     let i = 0
-    const o = Tool.setKeyXY(e, Define.POWER_GUARD_ALL_ATTACK)
+    const o = Tools.setKeyXY(e, Define.POWER_GUARD_ALL_ATTACK)
     const a = this.guardHash[o]
     a != null && (i = a)
     let r = 0
@@ -875,25 +891,25 @@ export class Battle {
     switch (n) {
       case Define.ATKTYPE_STR:
       case Define.ATKTYPE_RANGE_STR:
-        s = this.guardHash[Tool.setKeyXY(e, Define.POWER_GUARD_STR_ATTACK)]
+        s = this.guardHash[Tools.setKeyXY(e, Define.POWER_GUARD_STR_ATTACK)]
         break
       case Define.ATKTYPE_AGI:
       case Define.ATKTYPE_RANGE_AGI:
-        s = this.guardHash[Tool.setKeyXY(e, Define.POWER_GUARD_AGI_ATTACK)]
+        s = this.guardHash[Tools.setKeyXY(e, Define.POWER_GUARD_AGI_ATTACK)]
         break
       case Define.ATKTYPE_MAGIC:
-        s = this.guardHash[Tool.setKeyXY(e, Define.POWER_GUARD_MAGIC_ATTACK)]
+        s = this.guardHash[Tools.setKeyXY(e, Define.POWER_GUARD_MAGIC_ATTACK)]
         break
       case Define.ATKTYPE_CURSE:
-        s = this.guardHash[Tool.setKeyXY(e, Define.POWER_GUARD_CURSE_ATTACK)]
+        s = this.guardHash[Tools.setKeyXY(e, Define.POWER_GUARD_CURSE_ATTACK)]
     }
     if (a == null && s == -1)
       return -1
     s != null && (r = s)
-    const l = Tool.getXKey(i)
-    const _ = Tool.getYKey(i)
-    let h = Tool.getXKey(r)
-    let u = Tool.getYKey(r)
+    const l = Tools.getXKey(i)
+    const _ = Tools.getYKey(i)
+    let h = Tools.getXKey(r)
+    let u = Tools.getYKey(r)
     return (
       _ > u && ((u = _), (h = l)), u > 0 && this.randInt(100) < u ? h : -1
     )
@@ -1092,7 +1108,7 @@ export class Battle {
       if (E > 0) {
         var p = h[l]
         if (p && p.length > 0) {
-          const S = Tool.randByRange(p.length)
+          const S = Tools.randByRange(p.length)
           const m = p[S]
           return m
         }
@@ -1101,10 +1117,10 @@ export class Battle {
     return s
   }
 
-  isSameSide(e, n) {
+  isSameSide(e: number, n: number) {
     const i = Battle.getPositionSide(e)
     const o = Battle.getPositionSide(n)
-    return i == o
+    return i === o
   }
 
   isValidPosByCursor(e, n) {
@@ -1116,51 +1132,54 @@ export class Battle {
     )
   }
 
-  isValidBattlePlayer(t, e?: any, n?: any) {
-    if ((void 0 === e && (e = false), void 0 === n && (n = false), t == null))
+  isValidBattlePlayer(t: Nullable<Player>, e = false, n = false) {
+    if (isUndefinedOrNull(t))
       return false
     if (t.isBattleStatus(Player.BSTATUS_ESCAPE)) {
-      if (n) {
-        var i = t.battleSprite && t.battleSprite.isSpriteVisible()
-        if (i)
-          return true
-      }
+      if (n)
+        return true
       return false
     }
     if (t.isDeadNoWithDelay()) {
       if (e) {
-        var i = t.battleSprite && t.battleSprite.isSpriteVisible()
-        const o = t.dieSprite && !t.dieSprite.isAllAniStop
-        if (i || o)
-          return true
+        // const i = t.battleSprite && t.battleSprite.isSpriteVisible()
+        // const o = t.dieSprite && !t.dieSprite.isAllAniStop
+        return true
       }
       return false
     }
     return true
   }
 
-  countNotNullPlayerPos(t) {
-    if (t == null || t.length <= 0)
+  countNotNullPlayerPos(t: Nullable<Player[]>) {
+    if (isUndefinedOrNull(t) || t.length <= 0)
       return 0
-    for (var e = 0, n = 0; n < t.length; n++) {
+    let e = 0
+    for (let n = 0; n < t.length; n++) {
       const i = this.getPlayerByPos(t[n])
-      this.isValidBattlePlayer(i) != false && e++
+      if (!this.isValidBattlePlayer(i))
+        e++
     }
     return e
   }
 
-  getColumnTypeTarget(e, n, i) {
-    for (var o: any[] = [], a = 0; n > a; a++) {
+  getColumnTypeTarget(e, n: number, i = false) {
+    const o: any[] = []
+
+    for (let a = 0; n > a; a++) {
       let r = 0
-      if (a % 2 == 0) {
-        if (i == 1 && a == 0) {
+      if (a % 2 === 0) {
+        if (i === 1 && a === 0) {
           Battle.getLeftRightTypeTarget(o, e)
           continue
         }
         r = e - 2 * Math.floor(a / 2)
       }
-      else { r = e + 2 * (Math.floor(a / 2) + 1) }
-      this.isValidPosByCursor(e, r) != false && o.push(r)
+      else {
+        r = e + 2 * (Math.floor(a / 2) + 1)
+      }
+      if (!this.isValidPosByCursor(e, r))
+        o.push(r)
     }
     return o
   }
@@ -1205,24 +1224,24 @@ export class Battle {
     if (_ > r)
       return null
     const u = new Array(_)
-    return Tool.arraycopy(s, 0, u, 0, _), u
+    return Tools.arraycopy(s, 0, u, 0, _), u
   }
 
-  getSelectArea(e, n, i) {
+  getSelectArea(e: number, n: number, i: number) {
     const o = Define.getSearchTypeByArea(i)
     switch (o) {
       case Define.SKILL_AREA_SEARCH_ALL:
         break
       case Define.SKILL_AREA_SEARCH_ENEMY:
-        if (this.isSameSide(e, n) == true)
+        if (this.isSameSide(e, n))
           return null
         break
       case Define.SKILL_AREA_SEARCH_FRIEND:
-        if (this.isSameSide(e, n) == false)
+        if (!this.isSameSide(e, n))
           return null
         break
       case Define.SKILL_AREA_SEARCH_MY_SELF:
-        return e != n ? null : [n]
+        return e !== n ? null : [n]
       case Define.SKILL_AREA_SEARCH_MY_OWNER:
         return [n]
     }
@@ -1280,10 +1299,12 @@ export class Battle {
       case Define.SKILL_AREA_ME_ALL:
       case Define.SKILL_AREA_ME_ALL_NO_SELF:
       case Define.SKILL_AREA_ALL_NO_SELF:
-        var s = Battle.getPositionSide(n);
-        (i == Define.SKILL_AREA_ALL || i == Define.SKILL_AREA_ALL_NO_SELF)
-                    && (s = -1),
-        (a = this.getAllTypeTarget(s, e, i))
+        {
+          let s = Battle.getPositionSide(n)
+          if (i === Define.SKILL_AREA_ALL || i === Define.SKILL_AREA_ALL_NO_SELF)
+            s = -1
+          a = this.getAllTypeTarget(s, e, i)
+        }
         break
       case Define.SKILL_AREA_ENEMY_HP_LEAST:
       case Define.SKILL_AREA_ENEMY_HP_MOST:
@@ -1346,13 +1367,12 @@ export class Battle {
   }
 
   sortModelListBySpeed() {
-    const t: any[] = []
-    if (this.playerList == null)
-      return t
+    const t: Player[] = []
     for (let e = 0; e < this.playerList.length; e++) {
       const n = this.playerList[e]
       if (n != null) {
-        for (var i = 0; ;) {
+        let i = 0
+        for (i = 0; ;) {
           if (i >= t.length)
             break
           const o = t[i]
@@ -1362,7 +1382,7 @@ export class Battle {
           }
           i++
         }
-        i == t.length && t.push(n)
+        i === t.length && t.push(n)
       }
     }
     return t
@@ -1479,7 +1499,7 @@ export class Battle {
     (this.block = 0),
     (this.totalHitTime = e.get(Model.ATK_TIME)),
     i && (this.totalHitTime += i.atk_time),
-    (this.totalHitTime = Tool.sumValue(
+    (this.totalHitTime = Tools.sumValue(
       this.totalHitTime,
       0,
       Model.MIN_HIT_TIME,
@@ -1510,8 +1530,9 @@ export class Battle {
     i != null
             && Define.getSkillAreaPlayerNum(i.area) > Define.SKILL_AREA_CURSOR_2
             && (d = Battle.MAX_SHOW_HIT)
-    c.length >= d && (c = this.mergeControlList(c, false)),
-    (T = this.mergeControlList(T, false))
+    if (c.length >= d)
+      c = this.mergeControlList(c, false)
+    T = this.mergeControlList(T, false)
     for (let E = 0, g = c; E < g.length; E++) {
       const S = g[E]
       o.push(S)
@@ -1523,7 +1544,7 @@ export class Battle {
     return u
   }
 
-  calcDirectDamage(t, e, n, i) {
+  calcDirectDamage(t: Player, e: Player, n, i) {
     const o = new DamageData()
     if (t == null)
       return o
@@ -1536,55 +1557,65 @@ export class Battle {
     let l = this.calc(Battle.BATTLE_DAMAGE, t, e, n)
     let _ = 0
     e.isBattleStatus(Define.getBufferBitValue(Define.BUFFER_WEAK))
-            && (_ += 20),
+            && (_ += 20)
     e.isBattleStatus(Define.getBufferBitValue(Define.BUFFER_BLOOD))
-            && (_ += 10),
-    _ > 0 && (l += ((l * _) / 100) >> 0)
+            && (_ += 10)
+    if (_ > 0)
+      l += ((l * _) / 100) >> 0
     const h = this.calc(Battle.BATTLE_CRI_RATE, t, e, n)
     a = this.randInt(100)
     const u = h > a
-    if (
-      (u
-                && ((l = ((15 * l) / 10) >> 0),
-                (o.damageEffect |= Battle.EFFECT_CRITICAL)),
-      s
-                && this.block > 0
-                && ((a = this.randInt(100)),
-                a < this.block && (s = false),
-                (o.damageEffect |= Battle.EFFECT_BLOCK)),
-      s)
-    ) {
-      l > 0
-                && e.keepout_atk_time > 0
-                && (e.isTabStatus(Model.TAG_IS_KEEP_OUT) == 0
-                    && (o.damageEffect |= Battle.EFFECT_KEEPOUT),
-                e.setTabStatus(true, Model.TAG_IS_KEEP_OUT),
-                (l = 0)),
-      (o.damageBackValue = this.calBackValue(t, e, n, l))
-      let c = l;
-      (l = this.calTouchDmg(e, t, n, l)),
-      c != l && (o.damageEffect |= Battle.EFFECT_TOUCH),
-      (c = l),
-      (l = this.calDefFieldDmg(e, l)),
-      c != l
-                && ((o.damageEffect |= Battle.EFFECT_DEF_FIELD),
-                (o.magicDefDamageValue = c - l))
+    if (u) {
+      l = ((15 * l) / 10) >> 0
+      o.damageEffect |= Battle.EFFECT_CRITICAL
     }
-    return (
-      (o.damageValue = l),
-      s
-            && ((o.damageEffect |= Battle.EFFECT_HIT),
-            (o.damageHpGet = this.calHPMPGetValue(t, n, l, true, i)),
-            (o.damageMpGet = this.calHPMPGetValue(t, n, l, false, i))),
-      o
-    )
+    if (s) {
+      if (this.block > 0) {
+        a = this.randInt(100)
+        a < this.block && (s = false)
+        o.damageEffect |= Battle.EFFECT_BLOCK
+      }
+    }
+    if (s) {
+      if (l > 0 && e.keepout_atk_time > 0) {
+        if (e.isTabStatus(Model.TAG_IS_KEEP_OUT))
+          o.damageEffect |= Battle.EFFECT_KEEPOUT
+
+        e.setTabStatus(true, Model.TAG_IS_KEEP_OUT)
+        l = 0
+      }
+
+      o.damageBackValue = this.calBackValue(t, e, n, l)
+      let c = l
+      l = this.calTouchDmg(e, t, n, l)
+      if (c !== l)
+        o.damageEffect |= Battle.EFFECT_TOUCH
+      c = l
+      l = this.calDefFieldDmg(e, l)
+      if (c !== l) {
+        o.damageEffect |= Battle.EFFECT_DEF_FIELD
+        o.magicDefDamageValue = c - l
+      }
+    }
+    o.damageValue = l
+    if (s) {
+      o.damageEffect |= Battle.EFFECT_HIT
+      o.damageHpGet = this.calHPMPGetValue(t, n, l, true, i)
+      o.damageMpGet = this.calHPMPGetValue(t, n, l, false, i)
+    }
+    return o
   }
 
-  dealDamageEffect(t, e, n, i, o, a) {
+  dealDamageEffect(t: DamageData, e: Player, n, i, o, a) {
     const r = DamageData.isEffectStatus(t.damageEffect, Battle.EFFECT_HIT)
     const s = -t.damageValue
-    r && (n.addValue(Model.HP, s), e.addValue(Model.ARGO, -s)),
-    n.isDeadNoWithDelay() && (t.damageEffect |= Battle.EFFECT_DIE)
+    if (r) {
+      n.addValue(Model.HP, s)
+      e.addValue(Model.ARGO, -s)
+    }
+    if (n.isDeadNoWithDelay())
+      t.damageEffect |= Battle.EFFECT_DIE
+
     let l = Control.createBattleTargetEffect(
       false,
       n.position,
@@ -1593,34 +1624,40 @@ export class Battle {
       0,
       t.magicDefDamageValue,
     )
-    if ((o.push(l), r)) {
+    o.push(l)
+    if (r) {
       const _ = t.damageHpGet
-      _ > 0
-                && (e.addValue(Model.HP, _),
-                (l = Control.createBattleTargetEffectOther(
-                  e.position,
-                  _,
-                  Battle.EFFECT_HIT,
-                  0,
-                )),
-                a.push(l))
+      if (_ > 0) {
+        e.addValue(Model.HP, _)
+        l = Control.createBattleTargetEffectOther(
+          e.position,
+          _,
+          Battle.EFFECT_HIT,
+          0,
+        )
+        a.push(l)
+      }
       const h = t.damageMpGet
-      h > 0
-                && (e.addValue(Model.MP, h),
-                (l = Control.createBattleTargetEffectOther(
-                  e.position,
-                  h,
-                  Battle.EFFECT_HIT | Battle.EFFECT_MP_CHANGE,
-                  0,
-                )),
-                a.push(l))
+      if (h > 0) {
+        e.addValue(Model.MP, h)
+        l = Control.createBattleTargetEffectOther(
+          e.position,
+          h,
+          Battle.EFFECT_HIT | Battle.EFFECT_MP_CHANGE,
+          0,
+        )
+        a.push(l)
+      }
       const u = -t.damageBackValue
-      if (u != 0) {
-        e.addValue(Model.HP, u), n.addValue(Model.ARGO, -u)
+      if (u !== 0) {
+        e.addValue(Model.HP, u)
+        n.addValue(Model.ARGO, -u)
         let c = Battle.EFFECT_HIT
-        e.isDeadNoWithDelay()
-                    && ((c |= Battle.EFFECT_DIE), this.checkDie1Hp(e, null)),
-        (l = Control.createBattleTargetEffectOther(e.position, u, c, 0)),
+        if (e.isDeadNoWithDelay()) {
+          c |= Battle.EFFECT_DIE
+          this.checkDie1Hp(e, null)
+        }
+        l = Control.createBattleTargetEffectOther(e.position, u, c, 0)
         a.push(l)
       }
     }
@@ -1742,8 +1779,8 @@ export class Battle {
     return r
   }
 
-  calcWithType(t, e, n, i, o) {
-    switch (t) {
+  calcWithType(battle_type: number, e: number, n, i, o) {
+    switch (battle_type) {
       case Battle.BATTLE_DAMAGE:
         switch (e) {
           case Define.ATKTYPE_STR:
@@ -1847,7 +1884,7 @@ export class Battle {
         )
         var T = (100 - h) * u * c
         return (
-          u > 0 && c > 0 && 100 - h > 0 && T < 0 && (T = Tool.MAX_VALUE_int),
+          u > 0 && c > 0 && 100 - h > 0 && T < 0 && (T = Tools.MAX_VALUE_int),
           (o = (T / 1e4) >> 0),
           o <= 0 && (o = 1),
           o
@@ -1885,7 +1922,7 @@ export class Battle {
         )
         var S = (100 - d) * E * g
         return (
-          100 - d > 0 && E > 0 && g > 0 && S < 0 && (S = Tool.MAX_VALUE_int),
+          100 - d > 0 && E > 0 && g > 0 && S < 0 && (S = Tools.MAX_VALUE_int),
           (o = (S / 1e4) >> 0),
           o <= 0 && (o = 1),
           o
@@ -1923,7 +1960,7 @@ export class Battle {
         )
         var A = ((100 - m) * f * I) & 4294967295
         return (
-          100 - m > 0 && f > 0 && I > 0 && A < 0 && (A = Tool.MAX_VALUE_int),
+          100 - m > 0 && f > 0 && I > 0 && A < 0 && (A = Tools.MAX_VALUE_int),
           (o = (A / 1e4) >> 0),
           o <= 0 && (o = 1),
           o
@@ -2022,188 +2059,13 @@ export class Battle {
     return 0
   }
 
-  getLevelIncludeLevel2(t: Player) {
-    let e = t.get(Model.LEVEL)
-    return (e += t.get(Model.LEVEL2))
+  getLevelIncludeLevel2(player: Player) {
+    let e = player.get(Model.LEVEL)
+    return (e += player.get(Model.LEVEL2))
   }
 }
 
 export namespace Battle {
-  /**
-     * local battle 发送给服务器进入战斗状态消息后, Battle是在本地战斗完毕后, 再将战斗过程和结果发送给服务器
-     * @param seed
-     * @param playerList
-     * @param monsterGroup
-     */
-  export function createLocalBattle(seed: number, playerList: Player[], monsterGroup: MonsterGroup, player: Player) {
-    return new Battle(seed, playerList, LOCAL, monsterGroup, player)
-  }
-
-  export function createRemoteBattle(e: Protocol, player: Player) {
-    const n = e.getInt()
-    const i = e.getByte()
-    const o = e.getByte()
-    const a = e.getByte()
-    const r = e.getInt()
-    const s = e.getInt()
-    const l = e.getInt()
-    const _ = e.getBoolean()
-
-    const h: Model[] = new Array(MAX_POS)
-    for (let u = e.getByte(), c = 0; u > c; c++) {
-      const model = parseBattleModel(e, player)
-      if (model)
-        h[model.position] = model
-    }
-
-    const battle = new Battle(0, h as Player[], REMOTE, null, player)
-
-    battle.type = i
-    battle.setBattleResult(o)
-    battle.round = a
-    battle.roundEndTime = Date.now() + r
-    battle.waitStatus = s
-    battle.nextBattleGroupID = l
-    battle.inOneKeyDaily = _
-    battle.battleSeq = n
-    battle.setRemoteWaiting(false)
-
-    return battle
-  }
-
-  function parseBattleModel(e: Protocol, player: Player) {
-    const n = e.getInt()
-    const i = e.getByte()
-    const o = e.getString()
-    const a = e.getByte()
-    const r = e.getInt()
-    const s = e.getInt()
-    const l = e.getInt()
-    const _ = e.getInt()
-    const h = e.getInt()
-    let u = 0
-    let c = 0
-    let T = 0
-
-    switch (i) {
-      case 2:
-      case 1:
-      case 4:
-        u = e.getInt()
-        break
-      default:
-        (u = e.getInt()), (c = e.getInt()), (T = e.getInt())
-    }
-
-    let p = -1
-    let d = false
-    i == 5 && ((p = e.getShort()), (d = e.getBoolean()))
-    const E = e.getInt()
-    const g = e.getInt()
-    let S: Skill | null = null
-    const m = e.getBoolean()
-    m && (S = Skill.fromByteFormationSkill(e))
-    const f = e.getShort()
-    if (player.getId() == n) {
-      if (i == 4) {
-        const A = player.getPet()
-        return A == null
-          ? null
-          : (
-              (A.position = a),
-              (A.bStatus = h),
-              (A.hp = r),
-              (A.mp = l),
-              A)
-      }
-
-      if (i == 5) {
-        let y: any = player.getMercenaryById(p)
-        if (y == null)
-          return null
-        if (d == false && ((y = y.getPet()), y == null))
-          return null
-        const R = y.clone()
-        return (
-          (R.worldMer = y),
-          (R.position = a),
-          (R.bStatus = h),
-          (R.hp = r),
-          (R.mp = l),
-          R
-        )
-      }
-
-      return (
-        (player.position = a),
-        (player.bStatus = h),
-        (player.hp = r),
-        (player.mp = l),
-        player
-      )
-    }
-
-    const P = new Monster()
-    return (
-      P.setType(i),
-      P.setId(n),
-      P.setName(o),
-      (P.position = a),
-      (P.hp = r),
-      (P.hpMax = s),
-      (P.mp = l),
-      (P.mpMax = _),
-      (P.bStatus = h),
-      (P.bornStatus = E),
-      (P.keepout_atk_time = g),
-      (P.formationSkill = S),
-      P
-    )
-  }
-
-  export function isEffectStatus(t: number, e: number) {
-    return (t & e) !== 0
-  }
-
-  export function getPositionSide(e: number) {
-    return e < LEFT_MAX_POS ? LEFT_SIDE : RIGHT_SIDE
-  }
-
-  export function isLeftSide(e: number) {
-    return getPositionSide(e) == LEFT_SIDE
-  }
-
-  export function getLeftRightTypeTarget(t, e) {
-    t.push(e)
-    const n = e % 2 == 0 ? e + 1 : e - 1
-    t.push(n)
-  }
-
-  export function getTarget(t) {
-    if (t == null)
-      return null
-    if (t.length <= 0)
-      return null
-    for (var e = new Array(t.length), n = 0; n < t.length; n++) {
-      const i = t[n]
-      i != null && (e[n] = i)
-    }
-    return e
-  }
-
-  export function calTouch(t: Player) {
-    if (t == null)
-      return 0
-    let e = t.get(Model.TOUGH)
-    return (
-      t.isBattleStatus(Define.getBufferBitValue(Define.BUFFER_BLOOD))
-            && (e = (e / 2) >> 0),
-      t.isBattleStatus(Define.getBufferBitValue(Define.BUFFER_WEAK))
-            && (e = (e / 2) >> 0),
-      e <= 0 ? 0 : e
-    )
-  }
-
   export const BATTLE_STATUS_NOTSTART = 1
   export const BATTLE_STATUS_NOTREADY = 2
   export const BATTLE_STATUS_READY = 3
@@ -2314,4 +2176,174 @@ export namespace Battle {
   export const MAX_BLOCK_TOUCH = 70
   export const BLOCK_HIT_REDUCE = 10
   export const MAX_INSIGHT_TOUCH = 100
+
+  /**
+     * local battle 发送给服务器进入战斗状态消息后, Battle是在本地战斗完毕后, 再将战斗过程和结果发送给服务器
+     * @param seed
+     * @param playerList
+     * @param monsterGroup
+     */
+  export function createLocalBattle(seed: number, playerList: Player[], monsterGroup: MonsterGroup, player: Player) {
+    return new Battle(seed, playerList, LOCAL, monsterGroup, player)
+  }
+
+  export function createRemoteBattle(e: Protocol, player: Player) {
+    const n = e.getInt()
+    const i = e.getByte()
+    const o = e.getByte()
+    const a = e.getByte()
+    const r = e.getInt()
+    const s = e.getInt()
+    const l = e.getInt()
+    const _ = e.getBoolean()
+
+    const h: Model[] = new Array(MAX_POS)
+    for (let u = e.getByte(), c = 0; u > c; c++) {
+      const model = parseBattleModel(e, player)
+      if (model)
+        h[model.position] = model
+    }
+
+    const battle = new Battle(0, h as Player[], REMOTE, null, player)
+
+    battle.type = i
+    battle.setBattleResult(o)
+    battle.round = a
+    battle.roundEndTime = Date.now() + r
+    battle.waitStatus = s
+    battle.nextBattleGroupID = l
+    battle.inOneKeyDaily = _
+    battle.battleSeq = n
+    battle.setRemoteWaiting(false)
+
+    return battle
+  }
+
+  function parseBattleModel(e: Protocol, player: Player) {
+    const n = e.getInt()
+    const i = e.getByte()
+    const o = e.getString()
+    const a = e.getByte()
+    const r = e.getInt()
+    const s = e.getInt()
+    const l = e.getInt()
+    const _ = e.getInt()
+    const h = e.getInt()
+    let u = 0
+    let c = 0
+    let T = 0
+
+    switch (i) {
+      case 2:
+      case 1:
+      case 4:
+        u = e.getInt()
+        break
+      default:
+        u = e.getInt()
+        c = e.getInt()
+        T = e.getInt()
+    }
+
+    let p = -1
+    let d = false
+    if (i === 5) {
+      p = e.getShort()
+      d = e.getBoolean()
+    }
+    const E = e.getInt()
+    const g = e.getInt()
+    let S: Skill | null = null
+    const m = e.getBoolean()
+    m && (S = Skill.fromByteFormationSkill(e))
+    const f = e.getShort()
+    if (player.getId() === n) {
+      if (i === 4) {
+        const A = player.getPet()
+        return A == null
+          ? null
+          : (
+              (A.position = a),
+              (A.bStatus = h),
+              (A.hp = r),
+              (A.mp = l),
+              A)
+      }
+
+      if (i === 5) {
+        let y: any = player.getMercenaryById(p)
+        if (y == null)
+          return null
+        y = y.getPet()
+        if (!d && y === null)
+          return null
+        const R = y.clone()
+        R.worldMer = y
+        R.position = a
+        R.bStatus = h
+        R.hp = r
+        R.mp = l
+        return R
+      }
+
+      player.position = a
+      player.bStatus = h
+      player.hp = r
+      player.mp = l
+
+      return player
+    }
+
+    const P = new Monster()
+    P.setType(i)
+    P.setId(n)
+    P.setName(o)
+    P.position = a
+    P.hp = r
+    P.hpMax = s
+    P.mp = l
+    P.mpMax = _
+    P.bStatus = h
+    P.bornStatus = E
+    P.keepout_atk_time = g
+    P.formationSkill = S
+    return P
+  }
+
+  export function isEffectStatus(t: number, e: number) {
+    return (t & e) !== 0
+  }
+
+  export function getPositionSide(e: number) {
+    return e < LEFT_MAX_POS ? LEFT_SIDE : RIGHT_SIDE
+  }
+
+  export function isLeftSide(e: number) {
+    return getPositionSide(e) === LEFT_SIDE
+  }
+
+  export function getLeftRightTypeTarget(t, e: number) {
+    t.push(e)
+    const n = e % 2 === 0 ? e + 1 : e - 1
+    t.push(n)
+  }
+
+  export function getTarget(t: number[]) {
+    const e = new Array(t.length)
+    for (let n = 0; n < t.length; n++) {
+      const i = t[n]
+      i != null && (e[n] = i)
+    }
+    return e
+  }
+
+  export function calTouch(player: Player) {
+    let e = player.get(Model.TOUGH)
+    player.isBattleStatus(Define.getBufferBitValue(Define.BUFFER_BLOOD))
+            && (e = (e / 2) >> 0)
+    player.isBattleStatus(Define.getBufferBitValue(Define.BUFFER_WEAK))
+            && (e = (e / 2) >> 0)
+
+    return e <= 0 ? 0 : e
+  }
 }

@@ -2,7 +2,7 @@ import type { Protocol } from 'libs/base/protocol'
 import { Define } from 'libs/defined/defined'
 import { GameText } from 'libs/defined/gameText'
 import { GZIP } from 'libs/shared/GZIP'
-import { Tool } from 'libs/shared/Tool'
+import { Tools } from 'libs/shared/Tool'
 import { Model } from './Model'
 import type { Player } from './Player'
 import { PlayerBag } from './PlayerBag'
@@ -753,7 +753,7 @@ export class ItemData {
       ? false
       : this.expireTime <= 0
         ? false
-        : !(this.expireTime - Tool.getTime() > 0)
+        : !(this.expireTime - Tools.getTime() > 0)
   }
 
   isChangeSexItem() {
@@ -841,7 +841,7 @@ export namespace ItemData {
     let info = ''
     let val = player.get(Model.LEVEL)
     if (val < item.reqLv) {
-      info += Tool.manageStringU(
+      info += Tools.manageStringU(
         GameText.STR_ITEM_REQ_LEVEL,
         `${item.reqLv - val}`,
       )
@@ -852,12 +852,12 @@ export namespace ItemData {
       if (flag)
         return Define.OK
       else
-        info = Tool.convertLastLinefeed(info)
+        info = Tools.convertLastLinefeed(info)
     }
 
     val = player.get(Model.STR)
     if (val < item.reqStr) {
-      info += Tool.manageStringU(
+      info += Tools.manageStringU(
         GameText.STR_ITEM_REQ_STR,
         `${item.reqStr - val}`,
       )
@@ -867,7 +867,7 @@ export namespace ItemData {
 
     val = player.get(Model.CON)
     if (val < item.reqCon) {
-      info += Tool.manageStringU(
+      info += Tools.manageStringU(
         GameText.STR_ITEM_REQ_CON,
         `${item.reqCon - val}`,
       )
@@ -877,7 +877,7 @@ export namespace ItemData {
 
     val = player.get(Model.AGI)
     if (val < item.reqAgi) {
-      info += Tool.manageStringU(
+      info += Tools.manageStringU(
         GameText.STR_ITEM_REQ_AGI,
         `${item.reqAgi - val}`,
       )
@@ -887,7 +887,7 @@ export namespace ItemData {
 
     val = player.get(Model.ILT)
     if (val < item.reqIlt) {
-      info += Tool.manageStringU(
+      info += Tools.manageStringU(
         GameText.STR_ITEM_REQ_ILT,
         `${item.reqIlt - val}`,
       )
@@ -897,7 +897,7 @@ export namespace ItemData {
 
     val = player.get(Model.WIS)
     if (val < item.reqWis) {
-      info += Tool.manageStringU(
+      info += Tools.manageStringU(
         GameText.STR_ITEM_REQ_WIS,
         `${item.reqWis - val}`,
       )
@@ -918,7 +918,7 @@ export namespace ItemData {
     const powerValue = powerValue1 < 0 ? -1 * powerValue1 : powerValue1
     const ascensionStarValue = Math.floor((powerValue * ascensionStar * star + 50) / 100)
     let result = GZIP.toShort(ascensionStarValue)
-    result + powerValue1 > Tool.MAX_VALUE_short ? (result = Tool.MAX_VALUE_short) : (result += powerValue1)
+    result + powerValue1 > Tools.MAX_VALUE_short ? (result = Tools.MAX_VALUE_short) : (result += powerValue1)
     return result
   }
 
