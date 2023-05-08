@@ -1,0 +1,11 @@
+{
+  "name": "@terminal/ui-kit",
+  "private": true,
+  "files": [
+    "dist",
+    "*.d.ts"
+  ],
+  "dependencies": {
+    "@iconify-json/carbon": "^1.1.16"
+  }
+}

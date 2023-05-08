@@ -1,0 +1,13 @@
+{
+  "name": "@terminal/ws",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "dependencies": {
+    "@terminal/kit": "workspace:*"
+  }
+}
