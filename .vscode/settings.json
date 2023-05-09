@@ -1,0 +1,16 @@
+{
+  "cSpell.words": [
+    "antfu",
+    "Attributify",
+    "iconify",
+    "nuxt",
+    "nuxtjs",
+    "pinia",
+    "tauri",
+    "unocss",
+    "unplugin",
+    "vueuse",
+    "Xytes"
+  ],
+  "typescript.tsdk": "node_modules\\typescript\\lib"
+}

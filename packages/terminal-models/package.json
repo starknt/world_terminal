@@ -1,5 +1,5 @@
 {
-  "name": "@terminal/ws",
+  "name": "@terminal/models",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -7,12 +7,13 @@
       "import": "./dist/index.mjs"
     }
   },
+  "files": [
+    "dist",
+    "*.d.ts"
+  ],
   "scripts": {
     "build": "unbuild",
     "stub": "unbuild --stub"
   },
-  "dependencies": {
-    "@livemoe/utils": "^0.1.0",
-    "@terminal/kit": "workspace:*"
-  }
+  "dependencies": {}
 }

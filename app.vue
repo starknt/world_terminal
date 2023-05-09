@@ -1,3 +1,15 @@
+<script lang="ts" setup>
+useHead({
+  title: 'Terminal',
+  meta: [
+    {
+      name: 'viewport',
+      content: 'width=device-width, initial-scale=1',
+    },
+  ],
+})
+</script>
+
 <template>
   <main class="py-20 px-12 text-center">
     <span text="blue 5xl hover:red" cursor="default">Hello Nuxt 3</span>
