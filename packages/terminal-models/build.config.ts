@@ -2,7 +2,8 @@ import { defineBuildConfig } from 'unbuild'
 
 export default defineBuildConfig({
   entries: [
-    './src/index.ts',
+    './src/index',
+    './src/parser',
   ],
   clean: true,
   declaration: true,
