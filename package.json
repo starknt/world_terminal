@@ -1,6 +1,7 @@
 {
-  "name": "world-terminal",
-  "version": "0.0.1",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@8.4.0",
   "description": "An terminal for World H5",
   "author": "starknt",
   "license": "MIT",
@@ -12,17 +13,20 @@
   "bugs": "https://github.com/starknt/world-terminal/issues",
   "keywords": [],
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "postinstall": "nuxt prepare",
+    "build": "pnpm -r --filter=\"./packages/**/*\" run build && nuxi build",
+    "cleanup": "nuxi cleanup",
+    "dev": "pnpm run stub && nuxi dev",
+    "docs": "nuxi dev docs",
     "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "tauri": "tauri",
-    "tauri:dev": "pnpm tauri dev",
-    "tauri:android:dev": "tauri android dev",
-    "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "release": "tauri build"
+    "postinstall": "npx simple-git-hooks",
+    "preview": "nuxt preview",
+    "release": "tauri build",
+    "stub": "pnpm -r run stub",
+    "tauri": "tauri",
+    "tauri:android:dev": "tauri android dev",
+    "tauri:dev": "pnpm tauri dev",
+    "typecheck": "nuxi typecheck"
   },
   "dependencies": {
     "@tauri-apps/api": "2.0.0-alpha.3"
@@ -33,22 +37,33 @@
     "@nuxt/module-builder": "^0.3.1",
     "@pinia/nuxt": "^0.4.10",
     "@tauri-apps/cli": "2.0.0-alpha.8",
+    "@terminal/ui-kit": "workspace:*",
+    "@unocss/eslint-config": "^0.51.12",
     "@unocss/nuxt": "^0.51.12",
     "@unocss/reset": "^0.51.12",
     "@vueuse/core": "^10.1.2",
     "@vueuse/nuxt": "^10.1.2",
     "eslint": "^8.39.0",
     "internal-ip": "^7.0.0",
+    "lint-staged": "^13.2.2",
     "nuxt": "^3.4.3",
     "pinia": "^2.0.36",
+    "simple-git-hooks": "^2.8.1",
     "typescript": "^5.0.4",
     "unbuild": "^1.2.1",
-    "unocss": "^0.51.12"
+    "unocss": "^0.51.12",
+    "vue-tsc": "^1.6.4"
   },
   "pnpm": {
     "overrides": {
       "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@latest",
       "@npmcli/move-file": "npm:@npmcli/fs@latest"
     }
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }

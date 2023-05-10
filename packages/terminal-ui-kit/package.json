@@ -23,7 +23,9 @@
   ],
   "scripts": {
     "build": "nuxt-build-module",
-    "stub": "nuxt-build-module --stub"
+    "stub": "nuxt-build-module --stub",
+    "dev": "nuxi dev playground",
+    "playground:build": "nuxi generate playground"
   },
   "dependencies": {
     "@iconify-json/carbon": "^1.1.16",
@@ -39,6 +41,10 @@
     "@vueuse/integrations": "^10.1.2",
     "@vueuse/nuxt": "^10.1.2",
     "defu": "^6.1.2",
-    "unocss": "^0.51.12"
+    "unocss": "^0.51.12",
+    "v-lazy-show": "^0.2.3"
+  },
+  "devDependencies": {
+    "nuxt": "^3.4.3"
   }
 }

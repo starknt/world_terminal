@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@vueuse/nuxt',
     '@nuxt/devtools',
+    '@terminal/ui-kit',
   ],
   css: [
     '@unocss/reset/tailwind.css',
