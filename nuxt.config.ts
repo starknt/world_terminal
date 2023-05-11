@@ -15,9 +15,6 @@ export default defineNuxtConfig({
   unocss: {
     preflight: true,
   },
-  css: [
-    '/packages/terminal-ui-kit/src/assets/styles.css',
-  ],
   vite: {
     server: {
       hmr: mobile

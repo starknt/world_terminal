@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { createResolver, defineNuxtModule, installModule } from '@nuxt/kit'
+import { addComponentsDir, createResolver, defineNuxtModule, installModule } from '@nuxt/kit'
 import { defu } from 'defu'
 import { extendUnocssOptions } from './unocss'
 
@@ -29,7 +29,7 @@ export default defineNuxtModule<ModuleOptions>({
     // Standard components
     addComponentsDir({ path: rPath('./components') })
 
-    nuxt.options.css.unshift(rPath('assets/styles.css'))
+    nuxt.options.css.unshift(rPath('assets/style.css'))
 
     if (!options.dev)
       nuxt.options.unocss = extendUnocssOptions(nuxt.options.unocss)
