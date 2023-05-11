@@ -1,4 +1,4 @@
-import { internalIpV4 } from 'internal-ip'
+import { internalIpV4Sync } from 'internal-ip'
 
 const mobile = process.env.TAURI_PLATFORM === 'android' || process.env.TAURI_PLATFORM === 'ios'
 
@@ -20,7 +20,7 @@ export default defineNuxtConfig({
       hmr: mobile
         ? {
             protocol: 'ws',
-            host: await internalIpV4(),
+            host: internalIpV4Sync(),
             port: 1421,
           }
         : undefined,
