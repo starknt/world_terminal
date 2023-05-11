@@ -23,7 +23,7 @@
   ],
   "scripts": {
     "build": "nuxt-build-module",
-    "stub": "nuxt-build-module --stub",
+    "stub": "nuxt-build-module",
     "dev": "nuxi dev playground",
     "playground:build": "nuxi generate playground"
   },

@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
-import { addComponentsDir, createResolver, defineNuxtModule, installModule } from '@nuxt/kit'
-import defu from 'defu'
+import { createResolver, defineNuxtModule, installModule } from '@nuxt/kit'
+import { defu } from 'defu'
 import { extendUnocssOptions } from './unocss'
 
 export { unocssPreset } from './unocss'
@@ -17,13 +17,15 @@ export interface ModuleOptions {
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'terminal-ui-kit',
-    configKey: 'UIKit',
+    configKey: '@terminal/ui',
   },
   defaults: {
     preset: rPath('./preset'),
     dev: false,
   },
   async setup(options, nuxt) {
+    const { resolvePath } = createResolver(import.meta.url)
+
     // Standard components
     addComponentsDir({ path: rPath('./components') })
 
@@ -36,10 +38,9 @@ export default defineNuxtModule<ModuleOptions>({
     // @ts-expect-error - module options
     nuxt.options.colorMode = defu(nuxt.options.colorMode, { classSuffix: '' })
 
-    const resolver = createResolver(import.meta.url)
-    await installModule(await resolver.resolvePath('@unocss/nuxt'))
-    await installModule(await resolver.resolvePath('@vueuse/nuxt'))
-    await installModule(await resolver.resolvePath('@nuxtjs/color-mode'))
-    // await installModule(await resolver.resolvePath('v-lazy-show/nuxt'))
+    await installModule(await resolvePath('@unocss/nuxt'))
+    await installModule(await resolvePath('@vueuse/nuxt'))
+    await installModule(await resolvePath('@nuxtjs/color-mode'))
+    await installModule(await resolvePath('v-lazy-show/nuxt'))
   },
 })

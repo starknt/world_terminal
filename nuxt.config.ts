@@ -12,18 +12,12 @@ export default defineNuxtConfig({
     '@nuxt/devtools',
     '@terminal/ui-kit',
   ],
-  css: [
-    '@unocss/reset/tailwind.css',
-  ],
-  build: {
-    transpile: process.env.NODE_ENV === 'production'
-      ? [
-          'naive-ui',
-          'vueuc',
-          '@juggle/resize-observer',
-        ]
-      : ['@juggle/resize-observer'],
+  unocss: {
+    preflight: true,
   },
+  css: [
+    '/packages/terminal-ui-kit/src/assets/styles.css',
+  ],
   vite: {
     server: {
       hmr: mobile
@@ -34,12 +28,6 @@ export default defineNuxtConfig({
           }
         : undefined,
       strictPort: true,
-    },
-    optimizeDeps: {
-      include:
-        process.env.NODE_ENV === 'development'
-          ? ['naive-ui', 'vueuc', 'date-fns-tz/esm/formatInTimeZone']
-          : [],
     },
     build: {
       chunkSizeWarningLimit: 600,
@@ -56,6 +44,6 @@ export default defineNuxtConfig({
     host: mobile ? '0.0.0.0' : undefined,
   },
   devtools: {
-    enabled: true,
+    enabled: false,
   },
 })

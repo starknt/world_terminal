@@ -11,17 +11,16 @@ useHead({
 </script>
 
 <template>
-  <main class="py-20 px-12 text-center">
+  <main class="px-12 py-20 text-center">
     <span text="blue 5xl hover:red" cursor="default">Hello Nuxt 3</span>
     <br>
-    <div i-carbon-car text-4xl inline-block />
+    <div i-carbon-car inline-block text-4xl />
     <br>
     <button btn>
       Button
     </button>
+    <NButton n="orange6 dark:orange5 sm dashed">
+      S Orange Dashed
+    </NButton>
   </main>
 </template>
-
-<style>
-  @import '@unocss/reset/tailwind.css';
-</style>

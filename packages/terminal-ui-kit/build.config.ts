@@ -5,6 +5,7 @@ export default defineBuildConfig({
   entries: [
     { input: 'src/module', format: 'esm' },
     { input: 'src/unocss', format: 'esm' },
+    { input: 'src/runtime/', outDir: 'dist/runtime' },
     { input: 'src/components/', outDir: 'dist/components' },
     { input: 'src/assets/', outDir: 'dist/assets' },
   ],
