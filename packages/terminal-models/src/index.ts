@@ -1,2 +1,1 @@
-export * from './contant/text'
-export * from './contant/define'
+export * from './contants'

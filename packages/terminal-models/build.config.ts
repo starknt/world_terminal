@@ -1,13 +1,9 @@
 import { defineBuildConfig } from 'unbuild'
 
 export default defineBuildConfig({
+  declaration: true,
   entries: [
     './src/index',
     './src/parser',
   ],
-  clean: true,
-  declaration: true,
-  rollup: {
-    emitCJS: true,
-  },
 })
