@@ -1,0 +1,27 @@
+{
+  "name": "@terminal/models",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    },
+    "./parser": {
+      "types": "./dist/parser.d.ts",
+      "require": "./dist/parser.cjs",
+      "import": "./dist/parser.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "*.d.ts"
+  ],
+  "scripts": {
+    "build": "unbuild",
+    "stub": "unbuild --stub"
+  },
+  "dependencies": {
+    "@terminal/kit": "workspace:*",
+    "@terminal/ws": "workspace:*"
+  }
+}

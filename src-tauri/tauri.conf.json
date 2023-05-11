@@ -1,9 +1,9 @@
 {
   "build": {
-    "beforeDevCommand": "pnpm dev",
-    "beforeBuildCommand": "pnpm build",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run generate",
     "devPath": "http://localhost:1420",
-    "distDir": "../dist",
+    "distDir": "../.output/public",
     "withGlobalTauri": false
   },
   "package": {

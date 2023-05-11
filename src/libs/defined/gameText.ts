@@ -2563,5 +2563,4 @@ export namespace GameText {
         : (type === ItemData.ITEM_MONEY_TYPE_3 && (str = 'gold_coin'))
     return str += xhd ? '_hd' : '_sd'
   }
-
 }

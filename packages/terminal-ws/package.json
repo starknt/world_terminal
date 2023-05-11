@@ -1,0 +1,22 @@
+{
+  "name": "@terminal/ws",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "*.d.ts"
+  ],
+  "scripts": {
+    "build": "unbuild",
+    "stub": "unbuild --stub"
+  },
+  "dependencies": {
+    "@livemoe/utils": "^0.1.0",
+    "@terminal/kit": "workspace:*"
+  }
+}

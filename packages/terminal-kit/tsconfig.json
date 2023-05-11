@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "moduleResolution": "nodenext",
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
+    "allowJs": true
+  }
+}

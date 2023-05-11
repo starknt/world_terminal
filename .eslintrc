@@ -1,10 +1,9 @@
 {
-  "extends": "@antfu",
+  "extends": [
+    "@antfu",
+    "@unocss"
+  ],
   "rules": {
-    "no-console": "off",
-    "no-lone-blocks": "off",
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/no-namespace": "off"
+    "vue/no-v-text-v-html-on-component": "off"
   }
 }
