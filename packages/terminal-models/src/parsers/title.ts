@@ -1,4 +1,5 @@
-import type { Protocol } from '@terminal/ws'
+import type { MaybeProtocol } from '@terminal/core'
+import { Protocol } from '@terminal/core'
 
 export class Title {
   id = 0
@@ -8,7 +9,8 @@ export class Title {
   power2 = 0
   power2Value = 0
 
-  static from(p: Protocol) {
+  static from(p: MaybeProtocol) {
+    p = Protocol.from(p)
     const title = new Title()
     title.id = p.getShort()
     title.name = p.getString()
@@ -19,7 +21,8 @@ export class Title {
     return title
   }
 
-  static fromArray(p: Protocol) {
+  static fromArray(p: MaybeProtocol) {
+    p = Protocol.from(p)
     return Array.from({ length: p.getByte() }, () => Title.from(p))
   }
 }

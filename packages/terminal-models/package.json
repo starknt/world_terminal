@@ -3,12 +3,10 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
     },
     "./parser": {
       "types": "./dist/parser.d.ts",
-      "require": "./dist/parser.cjs",
       "import": "./dist/parser.mjs"
     }
   },
@@ -21,7 +19,7 @@
     "stub": "unbuild --stub"
   },
   "dependencies": {
-    "@terminal/kit": "workspace:*",
-    "@terminal/ws": "workspace:*"
+    "@terminal/core": "workspace:*",
+    "@terminal/kit": "workspace:*"
   }
 }

@@ -1,9 +1,8 @@
 {
-  "name": "@terminal/ws",
+  "name": "@terminal/core",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
     }
   },
@@ -16,8 +15,6 @@
     "stub": "unbuild --stub"
   },
   "dependencies": {
-    "@livemoe/utils": "^0.1.0",
-    "@terminal/core": "workspace:*",
     "@terminal/kit": "workspace:*"
   }
 }

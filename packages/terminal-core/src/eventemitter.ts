@@ -1,4 +1,4 @@
-import { clone } from './object'
+import { clone } from '../../terminal-kit/src/base/object'
 
 export class EventEmitter<CallBackData> {
   private map: Map<string | number | symbol, ((data: CallBackData) => void | Promise<void>)[]> = new Map()

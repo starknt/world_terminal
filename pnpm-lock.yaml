@@ -76,10 +76,19 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4(typescript@5.0.4)
 
+  packages/terminal-core:
+    dependencies:
+      '@terminal/kit':
+        specifier: workspace:*
+        version: link:../terminal-kit
+
   packages/terminal-kit: {}
 
   packages/terminal-models:
     dependencies:
+      '@terminal/core':
+        specifier: workspace:*
+        version: link:../terminal-core
       '@terminal/kit':
         specifier: workspace:*
         version: link:../terminal-kit
@@ -144,6 +153,9 @@ importers:
       '@livemoe/utils':
         specifier: ^0.1.0
         version: 0.1.0
+      '@terminal/core':
+        specifier: workspace:*
+        version: link:../terminal-core
       '@terminal/kit':
         specifier: workspace:*
         version: link:../terminal-kit

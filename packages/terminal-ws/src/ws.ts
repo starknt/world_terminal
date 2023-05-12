@@ -1,8 +1,8 @@
-import { ByteArray, EventEmitter, clone, skip } from '@terminal/kit'
+import { ByteArray, EventEmitter, Protocol } from '@terminal/core'
+import { clone, skip } from '@terminal/kit'
 import { Emitter } from '@livemoe/utils'
-import { Protocol } from '.'
 
-export class WebSocketClient {
+export class WebSocket {
   private host!: string
   private port!: number
   private socket!: globalThis.WebSocket
@@ -17,10 +17,10 @@ export class WebSocketClient {
   readonly onSocketCloseEvent = this._onSocketClose.event
   readonly onSocketErrorEvent = this._onSocketError.event
 
-  static form(host: string, port: number, ssl?: boolean): WebSocketClient
-  static form(url: string): WebSocketClient
+  static form(host: string, port: number, ssl?: boolean): WebSocket
+  static form(url: string): WebSocket
   static form(hostOrUrl: string, port?: number, ssl = false) {
-    const client = new WebSocketClient()
+    const client = new WebSocket()
     if (!port)
       client.connect(hostOrUrl)
     else
@@ -78,7 +78,7 @@ export class WebSocketClient {
       const type = buffer.readShort()
 
       buffer.position = 0
-      const protocol = Protocol.form(buffer)
+      const protocol = Protocol.from(buffer)
       this.emitter.emit(type, protocol)
       this._onSocketData.fire(clone(protocol))
     })
