@@ -4,19 +4,11 @@ import type { Theme } from '@unocss/preset-uno'
 import { parseColor } from '@unocss/preset-mini/utils'
 import { theme as unoTheme } from '@unocss/preset-mini'
 import { fonts } from '@unocss/preset-mini/rules'
-import {
-  mergeDeep,
-  presetAttributify,
-  presetIcons,
-  presetTypography,
-  presetUno,
-  transformerDirectives,
-  transformerVariantGroup,
-} from 'unocss'
+import { mergeDeep, presetAttributify, presetIcons, presetTypography, presetUno, transformerDirectives, transformerVariantGroup } from 'unocss'
 
 // @unocss-include
 
-export function unocssPreset(): Preset {
+export function presetTerminal(): Preset {
   return {
     name: '@terminal/ui-kit',
     theme: mergeDeep<Theme>(unoTheme, {
@@ -168,7 +160,7 @@ export function extendUnocssOptions(user: UnocssNuxtOptions = {}): UnocssNuxtOpt
         },
         // ...(user?.icons || {})
       }),
-      unocssPreset(),
+      presetTerminal(),
       ...(user.presets || []),
     ],
     transformers: [

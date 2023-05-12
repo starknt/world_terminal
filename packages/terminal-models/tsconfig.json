@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "strict": true,
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "target": "ES2020"
   }
 }

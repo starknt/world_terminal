@@ -3,7 +3,7 @@ import { addComponentsDir, createResolver, defineNuxtModule, installModule } fro
 import { defu } from 'defu'
 import { extendUnocssOptions } from './unocss'
 
-export { unocssPreset } from './unocss'
+export { presetTerminal as unocssPreset } from './unocss'
 
 function rPath(p: string) {
   return fileURLToPath(new URL(p, import.meta.url).toString())
@@ -21,7 +21,6 @@ export default defineNuxtModule<ModuleOptions>({
   },
   defaults: {
     preset: rPath('./preset'),
-    dev: false,
   },
   async setup(options, nuxt) {
     const { resolvePath } = createResolver(import.meta.url)
@@ -31,9 +30,9 @@ export default defineNuxtModule<ModuleOptions>({
 
     nuxt.options.css.unshift(rPath('assets/style.css'))
 
-    if (!options.dev)
-      nuxt.options.unocss = extendUnocssOptions(nuxt.options.unocss)
+    nuxt.options.unocss = extendUnocssOptions(nuxt.options.unocss)
 
+    // @ts-expect-error - vueuse options
     nuxt.options.vueuse = nuxt.options.vueuse || {}
     // @ts-expect-error - module options
     nuxt.options.colorMode = defu(nuxt.options.colorMode, { classSuffix: '' })

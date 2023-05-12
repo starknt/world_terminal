@@ -5,12 +5,6 @@
   "description": "An terminal for World H5",
   "author": "starknt",
   "license": "MIT",
-  "homepage": "https://github.com/starknt/world-terminal#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/starknt/world-terminal"
-  },
-  "bugs": "https://github.com/starknt/world-terminal/issues",
   "keywords": [],
   "scripts": {
     "build": "pnpm -r --filter=\"./packages/**/*\" run build && nuxi build",

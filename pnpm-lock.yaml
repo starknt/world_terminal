@@ -92,9 +92,6 @@ importers:
       '@terminal/kit':
         specifier: workspace:*
         version: link:../terminal-kit
-      '@terminal/ws':
-        specifier: workspace:*
-        version: link:../terminal-ws
 
   packages/terminal-ui-kit:
     dependencies:
