@@ -20,7 +20,7 @@ export class Long {
     return this.sign * (4294967296 * this.high + this.low)
   }
 
-  static formStr(value: string): Long {
+  static from(value: string): Long {
     const e = value.split('-')
     const high = parseInt(e[0])
     const low = parseInt(e[1])

@@ -17,9 +17,9 @@ export class WebSocket {
   readonly onSocketCloseEvent = this._onSocketClose.event
   readonly onSocketErrorEvent = this._onSocketError.event
 
-  static form(host: string, port: number, ssl?: boolean): WebSocket
-  static form(url: string): WebSocket
-  static form(hostOrUrl: string, port?: number, ssl = false) {
+  static from(host: string, port: number, ssl?: boolean): WebSocket
+  static from(url: string): WebSocket
+  static from(hostOrUrl: string, port?: number, ssl = false) {
     const client = new WebSocket()
     if (!port)
       client.connect(hostOrUrl)
@@ -84,9 +84,11 @@ export class WebSocket {
     })
     this.socket.addEventListener('close', (e) => {
       this.emitter.emit('close', e as any)
+      this._onSocketClose.fire(e.code)
     })
     this.socket.addEventListener('error', (e) => {
       this.emitter.emit('error', e as any)
+      this._onSocketError.fire(e)
     })
   }
 
