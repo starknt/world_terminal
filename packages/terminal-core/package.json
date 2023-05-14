@@ -15,6 +15,5 @@
     "stub": "unbuild --stub"
   },
   "dependencies": {
-    "@terminal/kit": "workspace:*"
   }
 }

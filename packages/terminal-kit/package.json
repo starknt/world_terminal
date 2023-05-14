@@ -15,5 +15,8 @@
   "scripts": {
     "build": "unbuild",
     "stub": "unbuild --stub"
+  },
+  "dependencies": {
+    "@terminal/core": "workspace:*"
   }
 }
