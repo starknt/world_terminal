@@ -171,6 +171,9 @@ importers:
       '@terminal/kit':
         specifier: workspace:*
         version: link:../terminal-kit
+      '@terminal/models':
+        specifier: workspace:*
+        version: link:../terminal-models
 
 packages:
 

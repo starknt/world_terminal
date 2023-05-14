@@ -1,12 +1,21 @@
 import { ByteArray, EventEmitter, Protocol } from '@terminal/core'
 import { clone, skip } from '@terminal/kit'
 import { Emitter } from '@livemoe/utils'
+import type { ProtocolType } from '@terminal/models'
 
-export class WebSocket {
+export type WebSocketEvents = {
+  [key in ProtocolType]: Protocol
+} & {
+  open: void
+  close: Event
+  error: Event
+  data: Protocol
+}
+
+export class WebSocket extends EventEmitter<WebSocketEvents> {
   private host!: string
   private port!: number
   private socket!: globalThis.WebSocket
-  private emitter = new EventEmitter<Protocol>()
   private buffer = new ByteArray()
 
   private _onSocketData = new Emitter<Protocol>()
@@ -52,7 +61,7 @@ export class WebSocket {
     this.socket = new window.WebSocket(url)
     this.socket.binaryType = 'arraybuffer'
     this.socket.addEventListener('open', (e) => {
-      this.emitter.emit('open', e as any)
+      this.emit('open', e as any)
     })
     this.socket.addEventListener('message', (e: MessageEvent<ArrayBuffer>) => {
       const buffer = new ByteArray()
@@ -79,15 +88,15 @@ export class WebSocket {
 
       buffer.position = 0
       const protocol = Protocol.from(buffer)
-      this.emitter.emit(type, protocol)
+      this.emit(type, protocol)
       this._onSocketData.fire(clone(protocol))
     })
     this.socket.addEventListener('close', (e) => {
-      this.emitter.emit('close', e as any)
+      this.emit('close', e as any)
       this._onSocketClose.fire(e.code)
     })
     this.socket.addEventListener('error', (e) => {
-      this.emitter.emit('error', e as any)
+      this.emit('error', e as any)
       this._onSocketError.fire(e)
     })
   }
@@ -110,11 +119,11 @@ export class WebSocket {
     return this.pickSocketDataEvent(type)
   }
 
-  addProtocolListener(type: number): Promise<Protocol>
-  addProtocolListener(type: number, callback: (protocol: Protocol) => void): void
-  addProtocolListener(type: number, callback?: (protocol: Protocol) => void) {
+  addProtocolListener(type: ProtocolType): Promise<Protocol>
+  addProtocolListener(type: ProtocolType, callback: (protocol: Protocol) => void): void
+  addProtocolListener(type: ProtocolType, callback?: (protocol: Protocol) => void) {
     if (callback)
-      this.emitter.on(type, callback)
+      this.on(type, callback)
     return new Promise<Protocol>((resolve) => {
       const result = this.onSocketDataEvent((protocol) => {
         if (protocol.getType() === type) {
@@ -125,11 +134,7 @@ export class WebSocket {
     })
   }
 
-  removeProtocolListener(type: number, callback?: (protocol: Protocol) => void) {
-    this.emitter.remove(type, callback)
-  }
-
-  private pickSocketDataEvent(type: number) {
+  private pickSocketDataEvent(type: ProtocolType) {
     return new Promise<Protocol>((resolve) => {
       const disposable = this.onSocketDataEvent((e) => {
         if (e.getType() === type) {
