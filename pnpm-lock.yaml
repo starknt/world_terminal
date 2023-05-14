@@ -76,7 +76,20 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4(typescript@5.0.4)
 
-  packages/terminal-client: {}
+  packages/terminal-client:
+    dependencies:
+      '@terminal/core':
+        specifier: workspace:*
+        version: link:../terminal-core
+      '@terminal/kit':
+        specifier: workspace:*
+        version: link:../terminal-kit
+      '@terminal/models':
+        specifier: workspace:*
+        version: link:../terminal-models
+      '@terminal/ui-kit':
+        specifier: workspace:*
+        version: link:../terminal-ui-kit
 
   packages/terminal-core: {}
 

@@ -1,0 +1,22 @@
+{
+  "name": "@terminal/client",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "*.d.ts"
+  ],
+  "dependencies": {
+    "@terminal/core": "workspace:*",
+    "@terminal/kit": "workspace:*",
+    "@terminal/models": "workspace:*",
+    "@terminal/ui-kit": "workspace:*"
+  }
+}
