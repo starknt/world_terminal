@@ -3,3 +3,4 @@
 dist
 node_modules
 **/*.js
+src-tauri/icons
