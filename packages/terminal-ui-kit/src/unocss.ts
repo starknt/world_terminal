@@ -2,23 +2,34 @@ import type { Preset, RuleContext } from '@unocss/core'
 import type { UnocssNuxtOptions } from '@unocss/nuxt'
 import type { Theme } from '@unocss/preset-uno'
 import { parseColor } from '@unocss/preset-mini/utils'
-import { theme as unoTheme } from '@unocss/preset-mini'
 import { fonts } from '@unocss/preset-mini/rules'
-import { mergeDeep, presetAttributify, presetIcons, presetTypography, presetWind, transformerDirectives, transformerVariantGroup } from 'unocss'
+import presetTheme from 'unocss-preset-theme'
+import { presetAttributify, presetIcons, presetTypography, presetWind, transformerDirectives, transformerVariantGroup } from 'unocss'
 
 // @unocss-include
 
 export function presetTerminal(): Preset {
   return {
     name: '@terminal/ui-kit',
-    theme: mergeDeep<Theme>(unoTheme, {
+    presets: [
+      presetTheme<Theme>({
+        theme: {
+          dark: {
+            colors: {
+              context: '#f9fafb',
+            },
+          },
+        },
+      }),
+    ],
+    theme: {
       colors: {
-
+        context: '#3c3a3a',
       },
       fontFamily: {
         sans: 'Avenir, Helvetica, Arial, sans-serif',
       },
-    }),
+    },
     rules: [
       [/^n-(.*)$/, ([, body]: string[], { theme }: RuleContext<Theme>) => {
         const color = parseColor(body, theme)
@@ -90,7 +101,7 @@ export function presetTerminal(): Preset {
 
       // link
       'n-link-base': 'underline underline-offset-2 underline-black/20 dark:underline-white/40',
-      'n-link-hover': 'decoration-dotted text-context underline-context! op100!',
+      'n-link-hover': 'decoration-dotted text-context underline-content! op100!',
 
       // card
       'n-card-base': 'border n-border-base rounded n-bg-base shadow-sm',
@@ -100,7 +111,7 @@ export function presetTerminal(): Preset {
 
       // button
       'n-button-base': 'border n-border-base rounded shadow-sm px-1em py-0.25em inline-flex items-center gap-1 op80 !outline-none touch-manipulation',
-      'n-button-hover': 'op100 !border-context text-context',
+      'n-button-hover': 'op100 !border-context text-context dark:text-context',
       'n-button-active': 'n-active-base bg-context/5',
       'n-button-icon': '-ml-0.2em mr-0.2em text-1.1em',
 

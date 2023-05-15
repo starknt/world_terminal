@@ -30,3 +30,8 @@
   --scrollbar-bg: rgb(255 253 253 / 57%);
   --content-title-color: --theme-color;
  }
+
+ html.dark {
+  background-color: rgb(16 18 27);
+  color-scheme: dark;
+ }

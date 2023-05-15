@@ -14,13 +14,14 @@ useHead({
   <main class="px-12 py-20 text-center">
     <span text="blue 5xl hover:red" cursor="default">Hello Nuxt 3</span>
     <br>
-    <div i-carbon-car inline-block text-4xl />
-    <br>
-    <button btn>
-      Button
-    </button>
-    <NButton n="orange6 dark:orange5 sm dashed">
-      S Orange Dashed
+    <NButton icon="i-carbon-car" mt-4 n="orange6 dark:orange5 sm dashed">
+      Orange Dashed
     </NButton>
+
+    <NDarkToggle v-slot="{ toggle, isDark }">
+      <NButton n="sm primary" @click="toggle">
+        <div carbon-sun dark:carbon-moon translate-y--1px /> {{ isDark.value ? 'Dark' : 'Light' }}
+      </NButton>
+    </NDarkToggle>
   </main>
 </template>

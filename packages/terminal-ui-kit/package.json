@@ -43,6 +43,7 @@
     "@vueuse/nuxt": "^10.1.2",
     "defu": "^6.1.2",
     "unocss": "^0.51.12",
+    "unocss-preset-theme": "^0.6.0",
     "v-lazy-show": "^0.2.3"
   },
   "devDependencies": {
