@@ -24,7 +24,12 @@
     "prepare": "pnpm -r run dev:prepare"
   },
   "dependencies": {
-    "@tauri-apps/api": "2.0.0-alpha.3"
+    "@tauri-apps/api": "2.0.0-alpha.3",
+    "@terminal/client": "workspace:*",
+    "@terminal/core": "workspace:*",
+    "@terminal/kit": "workspace:*",
+    "@terminal/models": "workspace:*",
+    "@terminal/ws": "workspace:*"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.38.5",

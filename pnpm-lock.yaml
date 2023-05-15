@@ -11,6 +11,21 @@ importers:
       '@tauri-apps/api':
         specifier: 2.0.0-alpha.3
         version: 2.0.0-alpha.3
+      '@terminal/client':
+        specifier: workspace:*
+        version: link:packages/terminal-client
+      '@terminal/core':
+        specifier: workspace:*
+        version: link:packages/terminal-core
+      '@terminal/kit':
+        specifier: workspace:*
+        version: link:packages/terminal-kit
+      '@terminal/models':
+        specifier: workspace:*
+        version: link:packages/terminal-models
+      '@terminal/ws':
+        specifier: workspace:*
+        version: link:packages/terminal-ws
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^0.38.5

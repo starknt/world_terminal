@@ -6,4 +6,7 @@ export default defineBuildConfig({
     './src/index',
     './src/parser',
   ],
+  rollup: {
+    emitCJS: true,
+  },
 })

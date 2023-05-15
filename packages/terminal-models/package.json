@@ -10,6 +10,8 @@
       "import": "./dist/parser.mjs"
     }
   },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "*.d.ts"

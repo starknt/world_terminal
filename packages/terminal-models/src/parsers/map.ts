@@ -1,6 +1,6 @@
 import type { MaybeProtocol } from '@terminal/core'
 import { compatByteArray } from '@terminal/core'
-import { Npc } from './models/npc'
+import { Npc } from './npc'
 
 export class MapData {
   mapId = 0
