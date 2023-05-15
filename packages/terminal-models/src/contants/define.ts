@@ -1403,3 +1403,64 @@ export const CHANNEL_JIUYAO = 10700
 export const CHANNEL_MANBA = 10800
 export const CHANNEL_XIAOMI = 10900
 export const CHANNEL_QUANQUAN = 11e3
+
+export function isAllocateMirrorMap(e: number): boolean {
+  return e >= MAP_ID_START_MIRROR_ALLOCATE && e <= MAP_ID_END_MIRROR_ALLOCATE
+}
+
+export function isAllocateCityMap(e: number): boolean {
+  return e >= MAP_ID_START_CITY_ALLOCATE && e <= MAP_ID_END_CITY_ALLOCATE
+}
+
+export function isAllocateCountryMap(e: number): boolean {
+  return !!(e >= MAP_ID_START_COUNTRY_ALLOCATE
+    && e <= MAP_ID_END_COUNTRY_ALLOCATE)
+}
+
+export function isCountrySkillShop(id: number): boolean {
+  return (id >= SKILL_SHOP_COUNTRY_START_PLAYER
+    && id <= SKILL_SHOP_COUNTRY_END_PLAYER)
+    ? true
+    : !!(id >= SKILL_SHOP_COUNTRY_START_PET
+      && id <= SKILL_SHOP_COUNTRY_END_PET)
+}
+
+export function isCountryShop(id: number): boolean {
+  return id >= SHOP_COUNTRY_START && id <= SHOP_COUNTRY_END
+}
+
+export function isCommonMap(id: number): boolean {
+  return !!(id >= MAP_ID_START_COMMON && id <= MAP_ID_END_COMMON)
+}
+
+export function getTypeBySkillShopID(id: number): number {
+  return (id >= SKILL_SHOP_START_PLAYER && id < SKILL_SHOP_END_PLAYER)
+    ? SKILL_TYPE_PLAYER
+    : (id >= SKILL_SHOP_START_PET && id < SKILL_SHOP_END_PET)
+        ? SKILL_TYPE_PET
+        : SKILL_TYPE_OTHER
+}
+
+export function getRankString(rank: number) {
+  return (rank < 0 || rank >= rankText.length) ? '' : rankText[rank]
+}
+
+export function isNetBattleID(id: number) {
+  return id >= BATTLE_NET_START && id <= BATTLE_NET_END
+}
+
+export function getSexString(sex: number) {
+  return (sex < 0 || sex >= sexTEXT.length) ? `sex_${sex}` : sexTEXT[sex]
+}
+
+export function getRaceString(race: number) {
+  return (race < 0 || race >= raceText.length) ? `race_${race}` : raceText[race]
+}
+
+export function getJobString(job: number) {
+  return (job < 0 || job >= jobText.length) ? `job_${job}` : jobText[job]
+}
+
+export function getBufferBitValue(bit: number) {
+  return bit === BUFFER_NONE ? 0 : 1 << bit
+}

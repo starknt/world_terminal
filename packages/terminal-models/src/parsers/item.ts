@@ -2,6 +2,7 @@ import type { MaybeProtocol } from '@terminal/core'
 import { Long, Protocol, compatByteArray } from '@terminal/core'
 import { calcExpireTime } from '@terminal/kit'
 import { ITEM_ID_PET, ITEM_TYPE_ARMOR_FASHION, ITEM_TYPE_BATTLE_USE, ITEM_TYPE_BUILD_MATERIAL, ITEM_TYPE_GEM, ITEM_TYPE_NOT_BATTLE_USE, ITEM_TYPE_PET, ITEM_TYPE_SKILL_BOOK, ITEM_TYPE_SPECEAIL, ITEM_TYPE_TASK, ITEM_TYPE_WEAPON_BALL, ITEM_TYPE_WEAPON_ONEHAND_HAND, ITEM_TYPE_WEAPON_ONEHAND_SWORD, ITEM_TYPE_WEAPON_TWOHAND_GUN, POWER_ENCHANT_ITEM } from '../contants/define'
+import { Define } from '../contants'
 
 export class Item {
   quantity = 0
@@ -104,6 +105,112 @@ export class Item {
 
   isShopLocked() {
     return (4 & this.status) > 0
+  }
+
+  isPetEgg() {
+    return this.power1 === Define.POWER_PET_EGG
+  }
+
+  isOpenStoreItem() {
+    return this.power1 === Define.POWER_OPEN_STORE
+  }
+
+  isCountryBook() {
+    return this.id === Define.ITEM_ID_COMMAND_BOOK
+  }
+
+  isChangeNameItem() {
+    return this.id === Define.ITEM_ID_CHANGE_NAME
+  }
+
+  isRepairItem() {
+    return this.id === Define.ITEM_ID_REPAIR
+  }
+
+  isPetAgeItem() {
+    return this.id === Define.ITEM_ID_PET_AGE
+  }
+
+  isPetResetItem() {
+    return (
+      this.id === Define.ITEM_ID_PET_RESET
+      || this.id === Define.ITEM_ID_PET_RESET2
+    )
+  }
+
+  isIdentifyScrollItem() {
+    return (
+      this.id === Define.ITEM_ID_IDENTIFY_SCROLL
+      || this.id === Define.ITEM_ID_IDENTIFY_SCROLL_BIND
+    )
+  }
+
+  isHighIdentifyScrollItem() {
+    return (
+      this.id === Define.ITEM_ID_HIGH_IDENTIFY_SCROLL
+      || this.id === Define.ITEM_ID_HIGH_IDENTIFY_SCROLL_BIND
+    )
+  }
+
+  isUpgradeIdentifyScrollItem() {
+    return (
+      this.id === Define.ITEM_ID_UPGRADE_INTENSIFY_SCROLL
+      || this.id === Define.ITEM_ID_UPGRAND_INTENSIFY_SCROLL_BIND
+    )
+  }
+
+  isStarScroll() {
+    return this.id === Define.ITEM_ID_STAR_SCROLL
+  }
+
+  isPetExpItem() {
+    return this.power1 === Define.POWER_PET_ADD_EXP
+  }
+
+  isTitleItem() {
+    return this.power1 === Define.POWER_POWER_TITLE
+  }
+
+  isPlayerExpItem() {
+    return this.power1 === Define.POWER_ADD_EXP
+  }
+
+  isSkillBook() {
+    return this.type === Define.ITEM_TYPE_SKILL_BOOK
+  }
+
+  isPetSkillBook() {
+    return (
+      this.type === Define.ITEM_TYPE_SKILL_BOOK
+      && this.power1 === Define.POWER_SKILL_SCROLL_PET
+    )
+  }
+
+  isPetAddSkill() {
+    return this.id === Define.ITEM_ID_PET_ADD_SKILL
+  }
+
+  isSkillPetItem() {
+    return (
+      this.id === Define.ITEM_ID_SKILL_PET
+      || Define.ITEM_ID_SKILL_PET_2 === this.id
+    )
+  }
+
+  isPetSealSkillBook() {
+    return this.power1 === Define.POWER_SKILL_BOOK_PET
+  }
+
+  isPetCanUseItem() {
+    return (
+      this.isPetAgeItem()
+      || this.isPetResetItem()
+      || this.isPetExpItem()
+      || this.isPetAddSkill()
+      || this.isPetSkillBook()
+      || this.isSkillPetItem()
+      || this.isPetSealSkillBook()
+    )
   }
 
   getItemClass(): number {

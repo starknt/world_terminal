@@ -3,6 +3,14 @@ import { Protocol } from '@terminal/core'
 import { MODE_SHOP } from '../contants/model'
 import { Skill } from './skill'
 
+export const enum ModelType {
+  Normal = 0,
+  Monster = 2,
+  Player = 3,
+  Pet = 4,
+  Mercenary = 5,
+}
+
 export class Model {
   id!: number
   name!: string
