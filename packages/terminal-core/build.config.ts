@@ -3,6 +3,12 @@ import { defineBuildConfig } from 'unbuild'
 export default defineBuildConfig({
   declaration: true,
   entries: [
-    { input: './src/index', format: 'esm' },
+    './src/index',
   ],
+  rollup: {
+    emitCJS: true,
+    esbuild: {
+      minify: false,
+    },
+  },
 })

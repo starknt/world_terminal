@@ -9,7 +9,7 @@
   "scripts": {
     "build": "pnpm -r --filter=\"./packages/**/*\" run build && nuxi build",
     "cleanup": "nuxi cleanup",
-    "dev": "pnpm run stub && nuxi dev",
+    "dev": "pnpm run build && nuxi dev",
     "docs": "nuxi dev docs",
     "generate": "nuxt generate",
     "lint:fix": "eslint . --fix",
@@ -49,6 +49,7 @@
     "nuxt": "^3.4.3",
     "pinia": "^2.0.36",
     "simple-git-hooks": "^2.8.1",
+    "tsup": "^6.7.0",
     "typescript": "^5.0.4",
     "unbuild": "^1.2.1",
     "unocss": "^0.51.12",

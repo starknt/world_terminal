@@ -1,4 +1,4 @@
-import { bigInt as BigInt } from '@terminal/core'
+import { BBigInt as BigInt } from '@terminal/core'
 
 const RANDOM_SEED_MASTER = new BigInt(25214903917)
 const ADDEND = 11

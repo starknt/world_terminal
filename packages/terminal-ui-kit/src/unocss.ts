@@ -4,7 +4,7 @@ import type { Theme } from '@unocss/preset-uno'
 import { parseColor } from '@unocss/preset-mini/utils'
 import { theme as unoTheme } from '@unocss/preset-mini'
 import { fonts } from '@unocss/preset-mini/rules'
-import { mergeDeep, presetAttributify, presetIcons, presetTypography, presetUno, transformerDirectives, transformerVariantGroup } from 'unocss'
+import { mergeDeep, presetAttributify, presetIcons, presetTypography, presetWind, transformerDirectives, transformerVariantGroup } from 'unocss'
 
 // @unocss-include
 
@@ -13,7 +13,7 @@ export function presetTerminal(): Preset {
     name: '@terminal/ui-kit',
     theme: mergeDeep<Theme>(unoTheme, {
       colors: {
-        context: 'rgba(var(--nui-c-context),%alpha)',
+
       },
       fontFamily: {
         sans: 'Avenir, Helvetica, Arial, sans-serif',
@@ -148,7 +148,7 @@ export function extendUnocssOptions(user: UnocssNuxtOptions = {}): UnocssNuxtOpt
     ...user,
     preflight: true,
     presets: [
-      presetUno(),
+      presetWind(),
       presetAttributify(),
       presetTypography(),
       presetIcons({

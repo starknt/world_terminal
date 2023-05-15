@@ -18,6 +18,8 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
   private socket!: globalThis.WebSocket
   private buffer = new ByteArray()
 
+  private pendingProtocols: Array<ArrayBuffer | string> = []
+
   private _onSocketData = new Emitter<Protocol>()
   private _onSocketClose = new Emitter<number>()
   private _onSocketError = new Emitter<Event>()
@@ -42,13 +44,13 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
   private connect(hostOrUrl: string, port?: number, ssl = false) {
     let url!: string
     if (!port) {
-      const e = /(wss?):\/\/(.*):(\d*)/.exec(hostOrUrl)
+      const e = hostOrUrl.match(/^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/)
       if (!e)
         throw new Error(`Invalid websocket url: ${hostOrUrl}`)
-      const [protocol, host, port] = skip(e, 1)
-      if (!protocol || !host || !port)
+      const [protocol, _, host, port, pathname, query, hash] = skip(e, 1)
+      if (!protocol || !host)
         throw new Error(`Invalid websocket url: ${hostOrUrl}`)
-      url = `${protocol}://${host}:${port}`
+      url = `${protocol}://${host}${port ? `:${+port}` : ''}${pathname ? `/${pathname}` : ''}${query ? `?${query}` : ''}${hash ? `#${hash}` : ''}`
       this.host = hostOrUrl
       this.port = +port
     }
@@ -61,6 +63,9 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
     this.socket = new window.WebSocket(url)
     this.socket.binaryType = 'arraybuffer'
     this.socket.addEventListener('open', (e) => {
+      for (const p of this.pendingProtocols)
+        this.rawSocketSend(p)
+
       this.emit('open', e as any)
     })
     this.socket.addEventListener('message', (e: MessageEvent<ArrayBuffer>) => {
@@ -146,6 +151,11 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
   }
 
   private rawSocketSend(data: string | ArrayBuffer) {
+    if (this.socket.readyState < this.socket.OPEN) {
+      this.pendingProtocols.push(data)
+      return
+    }
+
     if (this.socket.readyState === this.socket.OPEN)
       this.socket.send(data)
   }
