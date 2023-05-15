@@ -32,7 +32,6 @@ export default defineNuxtModule<ModuleOptions>({
 
     nuxt.options.unocss = extendUnocssOptions(nuxt.options.unocss)
 
-    // @ts-expect-error - vueuse options
     nuxt.options.vueuse = nuxt.options.vueuse || {}
     // @ts-expect-error - module options
     nuxt.options.colorMode = defu(nuxt.options.colorMode, { classSuffix: '' })
