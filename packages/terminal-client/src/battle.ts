@@ -1,6 +1,7 @@
 import { EventEmitter } from '@terminal/core'
 import { Battle } from '@terminal/models'
 import type { Player } from '@terminal/models/parser'
+import type { Nullable } from './types'
 
 function getPositionSide(pos: number) {
   return pos < Battle.LEFT_MAX_POS ? Battle.LEFT_SIDE : Battle.RIGHT_SIDE
@@ -27,8 +28,11 @@ export abstract class BattleStage extends EventEmitter<BattleStageEvent> {
   private _round = 0
   private rowLeft = 5
   private rowRight = 5
+  protected readonly layout: Array<Nullable<BattlePlayer>>
   /**
-   * m: Monster e: Pet p: Player m: Mercenary
+   * @param layout {Array<Nullable<BattlePlayer>>}
+   * **m: Monster e: Pet p: Player m: Mercenary**
+   * ```
    *        1  2        21  22
    *         m  m        e  p
    *        3  4        23  24
@@ -49,8 +53,9 @@ export abstract class BattleStage extends EventEmitter<BattleStageEvent> {
    *         m  m       e m
    *        19 20
    *         m  m       e m
-   *
-   * In the Local Battle Stage
+   *```
+   * **In the Local Battle Stage**
+   * ```
    *        1  2       20 21
    *         m  m       e  m  third
    *        3  4        22 23
@@ -71,21 +76,31 @@ export abstract class BattleStage extends EventEmitter<BattleStageEvent> {
    *         m  m
    *        19 20
    *         m  m
+   * ```
    */
-  private playerList = new Array<BattlePlayer | undefined>(Battle.MAX_POS).fill(undefined)
-
   constructor() {
     super()
+
+    this.layout = this.createLayout()
   }
 
   get round() { return this._round }
 
   protected abstract runRound(round: number): Promise<void> | void
+  protected abstract createLayout(): Array<Nullable<BattlePlayer>>
   protected abstract createBattle(): Promise<void> | void
 }
 
 export class LocalBattleStage extends BattleStage {
+  constructor(readonly) {
+    super()
+  }
+
   protected runRound(round: number): void {
+
+  }
+
+  protected createLayout(): Nullable<BattlePlayer>[] {
 
   }
 
@@ -95,7 +110,15 @@ export class LocalBattleStage extends BattleStage {
 }
 
 export class RemoteBattleStage extends BattleStage {
+  constructor() {
+    super()
+  }
+
   protected runRound(round: number): void {
+
+  }
+
+  protected createLayout(): Nullable<BattlePlayer>[] {
 
   }
 

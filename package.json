@@ -32,28 +32,28 @@
     "@terminal/ws": "workspace:*"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.38.5",
+    "@antfu/eslint-config": "^0.38.6",
     "@nuxt/devtools": "^0.4.6",
     "@nuxt/module-builder": "^0.3.1",
     "@pinia/nuxt": "^0.4.10",
     "@tauri-apps/cli": "2.0.0-alpha.8",
     "@terminal/ui-kit": "workspace:*",
-    "@unocss/eslint-config": "^0.51.12",
-    "@unocss/nuxt": "^0.51.12",
-    "@unocss/reset": "^0.51.12",
+    "@unocss/eslint-config": "^0.51.13",
+    "@unocss/nuxt": "^0.51.13",
+    "@unocss/reset": "^0.51.13",
     "@vueuse/core": "^10.1.2",
     "@vueuse/nuxt": "^10.1.2",
     "eslint": "^8.39.0",
     "internal-ip": "^7.0.0",
     "lint-staged": "^13.2.2",
-    "nuxt": "^3.4.3",
+    "nuxt": "^3.5.0",
     "pinia": "^2.0.36",
     "simple-git-hooks": "^2.8.1",
     "tsup": "^6.7.0",
     "typescript": "^5.0.4",
     "unbuild": "^1.2.1",
-    "unocss": "^0.51.12",
-    "vue-tsc": "^1.6.4"
+    "unocss": "^0.51.13",
+    "vue-tsc": "^1.6.5"
   },
   "pnpm": {
     "overrides": {

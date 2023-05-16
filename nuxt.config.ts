@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@nuxt/devtools',
     '@terminal/ui-kit',
+    '@terminal/client/nuxt',
   ],
   unocss: {
     preflight: true,

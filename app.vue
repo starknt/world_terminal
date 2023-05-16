@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+import { WebSocket } from '@terminal/ws'
+
 useHead({
-  title: 'Terminal',
+  title: 'World Terminal',
   meta: [
     {
       name: 'viewport',
@@ -8,6 +10,8 @@ useHead({
     },
   ],
 })
+
+const ws = WebSocket.from('wss://wanba.worldh5.com/websocket')
 </script>
 
 <template>
@@ -23,5 +27,8 @@ useHead({
         <div carbon-sun dark:carbon-moon translate-y--1px /> {{ isDark.value ? 'Dark' : 'Light' }}
       </NButton>
     </NDarkToggle>
+    <terminal-client-provider :ws="ws">
+      <Test />
+    </terminal-client-provider>
   </main>
 </template>

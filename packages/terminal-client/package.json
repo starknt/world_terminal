@@ -5,18 +5,36 @@
       "types": "./dist/index.d.ts",
       "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
+    },
+    "./nuxt": {
+      "require": "./module.cjs",
+      "import": "./dist/module.mjs"
     }
   },
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "*.d.ts"
+    "*.d.ts",
+    "*.cjs",
+    "*.mjs"
   ],
+  "scripts": {
+    "build": "nuxt-build-module",
+    "stub": "nuxt-build-module --stub"
+  },
+  "peerDependencies": {
+    "@vueuse/core": "*",
+    "vue": ">=3.0.0"
+  },
   "dependencies": {
+    "@nuxt/kit": "^3.5.0",
     "@terminal/core": "workspace:*",
     "@terminal/kit": "workspace:*",
     "@terminal/models": "workspace:*",
     "@terminal/ui-kit": "workspace:*"
+  },
+  "devDependencies": {
+    "nuxt": "^3.5.0"
   }
 }
