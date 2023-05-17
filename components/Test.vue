@@ -1,10 +1,19 @@
 <script setup lang="ts">
-import { createAreaLineListMsg, createCheckEditionMsg, createUserLoginMsg, parseAreaServer } from '@terminal/client'
+import { createAreaLineListMsg, createCheckEditionMsg, createUserLoginMsg, parseAreaServer, parseAuthenticationPayload } from '@terminal/client'
 
 const { ws } = useTerminalClient()!
 
-await ws.send(createCheckEditionMsg(1100, 1000))
-await ws.send(createUserLoginMsg('rr1234', 'rr1234'))
+ws.send(createCheckEditionMsg(1100, 1000))
+ws.send(createUserLoginMsg('rr1234', 'rr1234'), (p) => {
+  const code = p.getByte()
+
+  if (code < 0)
+    console.error('login failed: ', p.getString())
+
+  const payload = parseAuthenticationPayload(p)
+
+  console.error(payload)
+})
 ws.send(createAreaLineListMsg(), (p) => {
   console.error(parseAreaServer(p))
 })

@@ -153,19 +153,19 @@ export function createJumpMapMessage(mapId: number, x: number, y: number, flag: 
     .setInt(flag)
 }
 
-export function createPlayerBagMessage(cmd: ProtocolType, item: ProtocolType, n: Item, i: number, o = false, a = false) {
+export function createPlayerBagMessage(cmd: ProtocolType, type: ProtocolType, item: Item, num: number, o = false, a = false) {
   const protocol = new Protocol(ProtocolType.CG_ACTOR_PLAYERBAG)
   protocol.setByte(cmd)
-  protocol.setByte(item)
-  protocol.setShort(n.slotPos)
+  protocol.setByte(type)
+  protocol.setShort(item.slotPos)
 
-  item === ProtocolType.PLAYERBAG_EQUIP
-    ? protocol.setByte(i)
-    : item === ProtocolType.PLAYERBAG_LOSE
-      ? protocol.setInt(n.id)
-      : item === ProtocolType.PLAYERBAG_ENCHASE
-        ? protocol.setShort(i)
-        : (n.isPetCanUseItem() && protocol.setShort(i))
+  type === ProtocolType.PLAYERBAG_EQUIP
+    ? protocol.setByte(num)
+    : type === ProtocolType.PLAYERBAG_LOSE
+      ? protocol.setInt(item.id)
+      : type === ProtocolType.PLAYERBAG_ENCHASE
+        ? protocol.setShort(num)
+        : (item.isPetCanUseItem() && protocol.setShort(num))
 
   protocol.setBoolean(o)
   protocol.setBoolean(a)

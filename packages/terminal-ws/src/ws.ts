@@ -6,7 +6,7 @@ import type { ProtocolType } from '@terminal/models'
 export type WebSocketEvents = {
   [key in ProtocolType]: Protocol
 } & {
-  open: void
+  open: Event
   close: Event
   error: Event
   data: Protocol
@@ -20,10 +20,12 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
 
   private pendingProtocols: Array<ArrayBuffer | string> = []
 
+  private _onSocketOpen = new Emitter<void>()
   private _onSocketData = new Emitter<Protocol>()
   private _onSocketClose = new Emitter<number>()
   private _onSocketError = new Emitter<Event>()
 
+  readonly onSocketOpenEvent = this._onSocketOpen.event
   readonly onSocketDataEvent = this._onSocketData.event
   readonly onSocketCloseEvent = this._onSocketClose.event
   readonly onSocketErrorEvent = this._onSocketError.event
@@ -63,10 +65,10 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
     this.socket = new window.WebSocket(url)
     this.socket.binaryType = 'arraybuffer'
     this.socket.addEventListener('open', (e) => {
-      for (const p of this.pendingProtocols)
-        this.rawSocketSend(p)
+      this.flush()
 
-      this.emit('open', e as any)
+      this.emit('open', e)
+      this._onSocketOpen.fire()
     })
     this.socket.addEventListener('message', (e: MessageEvent<ArrayBuffer>) => {
       const buffer = new ByteArray()
@@ -161,13 +163,19 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
   }
 
   private rawSocketSend(data: string | ArrayBuffer) {
-    if (this.socket.readyState < this.socket.OPEN) {
-      this.pendingProtocols.push(data)
-      return
-    }
+    this.pendingProtocols.push(data)
 
-    if (this.socket.readyState === this.socket.OPEN)
-      this.socket.send(data)
+    // nicktick, bulk request
+    setTimeout(() => this.flush(), 0)
+  }
+
+  private flush() {
+    if (this.socket.readyState === this.socket.OPEN) {
+      for (const p of this.pendingProtocols)
+        this.socket.send(p)
+      // clear array
+      this.pendingProtocols.length = 0
+    }
   }
 
   close(code?: number | undefined, reason?: string | undefined) {

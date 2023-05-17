@@ -1,16 +1,25 @@
 import type { Protocol } from '@terminal/core'
 import { ServerAreaInfo, ServerLineInfo } from '@terminal/models/parser'
+import type { AuthenticationPayload } from './types'
 
-export function parseAreaServer(p: Protocol) {
-  const areaList: ServerAreaInfo[] = []
-  for (let i = p.getByte(), n = 0; i > n; n++) {
+export function parseAreaServer(p: Protocol): Array<ServerAreaInfo> {
+  return Array.from({ length: p.getByte() }, () => {
     const info = ServerAreaInfo.from(p)
-    const len = p.getByte()
-    for (let j = 0; j < len; j++) {
-      const line = ServerLineInfo.from(p)
-      info.lines.push(line)
-      areaList.push(info)
-    }
+    info.lines = Array.from({ length: p.getByte() }, () => ServerLineInfo.from(p))
+    return info
+  })
+}
+
+export function parseAuthenticationPayload(p: Protocol): AuthenticationPayload {
+  const key = p.getLong()
+  const session = p.getUnsignedInt()
+  const ip = p.getString()
+  const setting = p.getInt()
+
+  return {
+    key,
+    ip,
+    session,
+    setting,
   }
-  return areaList
 }
