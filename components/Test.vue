@@ -1,7 +1,13 @@
 <script setup lang="ts">
-const client = useTerminalClient()
+import { createAreaLineListMsg, createCheckEditionMsg, createUserLoginMsg, parseAreaServer } from '@terminal/client'
 
-console.error(client)
+const { ws } = useTerminalClient()!
+
+await ws.send(createCheckEditionMsg(1100, 1000))
+await ws.send(createUserLoginMsg('rr1234', 'rr1234'))
+ws.send(createAreaLineListMsg(), (p) => {
+  console.error(parseAreaServer(p))
+})
 </script>
 
 <template>

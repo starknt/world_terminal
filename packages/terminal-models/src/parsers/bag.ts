@@ -78,11 +78,9 @@ export class Bag {
     return pos >= 0 && pos <= this.store.length
   }
 
-  setItem(item: Item, slot: number) {
-    if (this.isValidPos(slot)) {
-      item.slotPos = slot
-      this.store[slot] = item
-    }
+  setItem(item: Item) {
+    if (this.isValidPos(item.slotPos))
+      this.store[item.slotPos] = item
   }
 
   getItemById(id: number) {
@@ -105,6 +103,6 @@ export class Bag {
     bag.countOfTimeOpen = p.getInt()
     const items = Array.from({ length: p.getShort() }, () => Item.from(p))
     for (const item of items)
-      bag.setItem(item, item.slotPos)
+      bag.setItem(item)
   }
 }

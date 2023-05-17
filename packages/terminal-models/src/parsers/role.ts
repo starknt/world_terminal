@@ -24,7 +24,10 @@ export class Role {
   }
 
   setTabStatus(t: boolean, status: number) {
-    t ? (this.intValue1 |= status) : (this.intValue1 &= ~status)
+    if (t)
+      this.intValue1 |= status
+    else
+      this.intValue1 &= ~status
   }
 
   static from(p: MaybeProtocol) {

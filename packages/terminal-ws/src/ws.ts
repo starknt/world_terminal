@@ -97,11 +97,11 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
       this._onSocketData.fire(clone(protocol))
     })
     this.socket.addEventListener('close', (e) => {
-      this.emit('close', e as any)
+      this.emit('close', e)
       this._onSocketClose.fire(e.code)
     })
     this.socket.addEventListener('error', (e) => {
-      this.emit('error', e as any)
+      this.emit('error', e)
       this._onSocketError.fire(e)
     })
   }

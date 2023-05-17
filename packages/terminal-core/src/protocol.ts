@@ -67,7 +67,7 @@ export interface IProtocol {
 
 export class Protocol implements IProtocol {
   constructor(private _type: number, private _data: ByteArray = new ByteArray(), position?: number) {
-    _data.position = position || 0
+    _data.position = position ?? 0
   }
 
   setUnsignedByte(value: number) {
