@@ -28,20 +28,20 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
   readonly onSocketCloseEvent = this._onSocketClose.event
   readonly onSocketErrorEvent = this._onSocketError.event
 
-  static from(host: string, port: number, ssl?: boolean): WebSocket
+  static from(host: string, port: number, pathname?: string, query?: string, hash?: string, ssl?: boolean): WebSocket
   static from(url: string): WebSocket
-  static from(hostOrUrl: string, port?: number, ssl = false) {
+  static from(hostOrUrl: string, port?: number, pathname?: string, query?: string, hash?: string, ssl = false) {
     const client = new WebSocket()
     if (!port)
       client.connect(hostOrUrl)
     else
-      client.connect(hostOrUrl, port!, ssl)
+      client.connect(hostOrUrl, port!, pathname, query, hash, ssl)
     return client
   }
 
-  private connect(host: string, port: number, ssl?: boolean): void
+  private connect(host: string, port: number, pathname?: string, query?: string, hash?: string, ssl?: boolean): void
   private connect(url: string): void
-  private connect(hostOrUrl: string, port?: number, ssl = false) {
+  private connect(hostOrUrl: string, port?: number, pathname?: string, query?: string, hash?: string, ssl = false) {
     let url!: string
     if (!port) {
       const e = hostOrUrl.match(/^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/)
@@ -55,7 +55,7 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
       this.port = +port
     }
     else {
-      url = `ws${ssl ? 's' : ''}://${this.host}:${this.port}`
+      url = `ws${ssl ? 's' : ''}://${this.host}:${this.port}${pathname ? `/${pathname}` : ''}${query ? `?${query}` : ''}${hash ? `#${hash}` : ''}`
       this.host = hostOrUrl
       this.port = port
     }
@@ -137,6 +137,16 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
         }
       })
     })
+  }
+
+  // alias removeListener
+  removeProtocolListener(type: ProtocolType, callback: (protocol: Protocol) => void) {
+    this.removeListener(type, callback)
+  }
+
+  // alias removeAllListeners
+  removeProtocolAllListener(type: ProtocolType) {
+    this.removeAllListeners(type)
   }
 
   private pickSocketDataEvent(type: ProtocolType) {
