@@ -42,6 +42,6 @@ export default defineNuxtConfig({
     host: mobile ? '0.0.0.0' : undefined,
   },
   devtools: {
-    enabled: false,
+    enabled: true,
   },
 })

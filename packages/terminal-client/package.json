@@ -31,8 +31,7 @@
     "@nuxt/kit": "^3.5.0",
     "@terminal/core": "workspace:*",
     "@terminal/kit": "workspace:*",
-    "@terminal/models": "workspace:*",
-    "@terminal/ui-kit": "workspace:*"
+    "@terminal/models": "workspace:*"
   },
   "devDependencies": {
     "nuxt": "^3.5.0"

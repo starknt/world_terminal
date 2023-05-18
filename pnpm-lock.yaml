@@ -105,9 +105,6 @@ importers:
       '@terminal/models':
         specifier: workspace:*
         version: link:../terminal-models
-      '@terminal/ui-kit':
-        specifier: workspace:*
-        version: link:../terminal-ui-kit
       '@vueuse/core':
         specifier: '*'
         version: 10.1.2(vue@3.3.2)

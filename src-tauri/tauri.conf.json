@@ -28,7 +28,10 @@
         "icons/icon.ico"
       ],
       "identifier": "com.personal.starknt",
-      "targets": "all"
+      "targets": "all",
+      "iOS": {
+        "developmentTeam": "starknt"
+      }
     },
     "security": {
       "csp": null
