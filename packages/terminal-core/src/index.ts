@@ -7,5 +7,6 @@ export * from './gzip'
 export * from './bigint'
 export * from './protocol'
 export * from './eventemitter'
+export * from './types'
 
 export type MaybeProtocol = Protocol | ByteArray
