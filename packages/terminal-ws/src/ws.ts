@@ -1,16 +1,19 @@
+import type { Merge } from '@terminal/core'
 import { ByteArray, EventEmitter, Protocol } from '@terminal/core'
 import { clone, skip } from '@terminal/kit'
 import { Emitter } from '@livemoe/utils'
 import type { ProtocolType } from '@terminal/models'
 
-export type WebSocketEvents = {
-  [key in ProtocolType]: Protocol
-} & {
+export type ProtocolEvent = { [key in ProtocolType]: Protocol }
+
+export interface WebSocketEvent {
   open: Event
   close: Event
   error: Event
   data: Protocol
 }
+
+export type WebSocketEvents = Merge<ProtocolEvent, WebSocketEvent>
 
 export class WebSocket extends EventEmitter<WebSocketEvents> {
   private host!: string
