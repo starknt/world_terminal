@@ -292,3 +292,8 @@ export const STATUS_IS_TEACHER = 1 << 18
 export const STATUS_VIP_TX_CQ = 1 << 19
 export const STATUS_IS_TOURIST = 1 << 20
 export const STATUS_IS_ROBOT = 1 << 21
+
+export const FLAG_MONSTER_20 = 1
+export const FLAG_HAVE_NPC = 2
+export const MONSTERGROUP_MONSTERS = 20
+export const MONSTERGROUP_NPCS = 4

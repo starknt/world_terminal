@@ -1,6 +1,6 @@
 import type { MaybeProtocol } from '@terminal/core'
 import { Protocol } from '@terminal/core'
-import { MODE_SHOP } from '../contants/model'
+import { FLAG_HAVE_NPC, FLAG_MONSTER_20, MODE_SHOP, MONSTERGROUP_MONSTERS, MONSTERGROUP_NPCS } from '../contants/model'
 import { Skill } from './skill'
 
 export const enum ModelType {
@@ -327,6 +327,39 @@ export class MonsterAI {
     }
 
     return monsterAI
+  }
+}
+
+export class MonsterGroup {
+  groupId!: number
+  type!: number
+  nextBattleGroupID!: number
+  flag!: number
+  monsters!: Array<number>
+  npc!: Array<number>
+
+  isFlag(flag: number) {
+    return (this.flag & flag) !== 0
+  }
+
+  static from(p: MaybeProtocol) {
+    p = Protocol.from(p)
+    const monsterGroup = new MonsterGroup()
+    monsterGroup.groupId = 65535 & p.getShort()
+    monsterGroup.type = p.getByte()
+    monsterGroup.nextBattleGroupID = 65535 & p.getShort()
+    monsterGroup.flag = p.getByte()
+
+    if (monsterGroup.isFlag(FLAG_MONSTER_20))
+      monsterGroup.monsters = Array.from({ length: MONSTERGROUP_MONSTERS }, () => (p as Protocol).getShort())
+    if (monsterGroup.isFlag(FLAG_HAVE_NPC))
+      monsterGroup.npc = Array.from({ length: MONSTERGROUP_NPCS }, () => (p as Protocol).getShort())
+    return monsterGroup
+  }
+
+  static fromArray(p: MaybeProtocol) {
+    p = Protocol.from(p)
+    return Array.from({ length: p.getByte() }, () => MonsterGroup.from(p))
   }
 }
 

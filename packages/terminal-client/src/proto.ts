@@ -4,9 +4,7 @@ import { Define, ProtocolType } from '@terminal/models'
 import type { Item, ShopItem } from '@terminal/models/parser'
 
 export function createSystemHeartMsg(mapId: number) {
-  const protocol = new Protocol(ProtocolType.CG_SYSTEM_HEART)
-  protocol.setShort(mapId)
-  return protocol
+  return new Protocol(ProtocolType.CG_SYSTEM_HEART).setShort(mapId)
 }
 
 export function createCheckEditionMsg(channel: number, id: number) {
@@ -55,13 +53,13 @@ export function createDeleteRoleByProtectCodeMsg(t: number, e: string) {
   return new Protocol(ProtocolType.CG_LOGIN_DELETEACTOR_PASSWD).setInt(t).setString(e)
 }
 
-export function createCancelDelPlayerMsg(t: number) {
-  return new Protocol(ProtocolType.CG_LOGIN_RECOVERACTOR).setInt(t)
+export function createCancelDelPlayerMsg(id: number) {
+  return new Protocol(ProtocolType.CG_LOGIN_RECOVERACTOR).setInt(id)
 }
 
-export function createPlayerEnterMsg(t: number, _ = '') {
+export function createPlayerEnterMsg(id: number) {
   return new Protocol(ProtocolType.CG_LOGIN_ACTORENTER)
-    .setInt(t)
+    .setInt(id)
     .setInt(Define.LOGIN_DATA_FLAG)
     .setInt(0)
     .setString('')
@@ -125,18 +123,14 @@ export function createFightSeeQuitMsg() {
   return new Protocol(ProtocolType.CG_FIGHT_SEE_OUT)
 }
 
-export function createBattlePlan(t: number, e: ByteArray, plans?: ByteArray) {
+export function createBattlePlan(round: number, playerPlan: ByteArray, petPlan?: ByteArray) {
   const protocol = new Protocol(ProtocolType.CG_FIGHT_BATTLE_DOPLAN)
-    .setByte(t)
-    .setBytes(e)
+    .setByte(round)
+    .setBytes(playerPlan)
+    .setBoolean(!!petPlan)
 
-  if (!plans) {
-    protocol.setBoolean(false)
-  }
-  else {
-    protocol.setBoolean(true)
-      .setBytes(plans)
-  }
+  if (petPlan)
+    protocol.setBytes(petPlan)
 
   return protocol
 }

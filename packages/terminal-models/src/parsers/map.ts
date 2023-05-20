@@ -6,18 +6,18 @@ export class MapData {
   mapId = 0
   orgMapId = 0
 
-  npcList: Npc[] = []
+  npc: Npc[] = []
 
   getNpcByID(id: number): Npc | undefined {
-    return this.npcList.find(npc => npc.id === id)
+    return this.npc.find(npc => npc.id === id)
   }
 
   parseNPCData(p: MaybeProtocol) {
     p = compatByteArray(p)
-    this.npcList = Array.from({ length: p.readUnsignedByte() }, () => Npc.from(p))
+    this.npc = Array.from({ length: p.readUnsignedByte() }, () => Npc.from(p))
   }
 
   clearNPC() {
-    this.npcList.length = 0
+    this.npc.length = 0
   }
 }
