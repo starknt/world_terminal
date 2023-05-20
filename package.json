@@ -21,7 +21,7 @@
     "tauri:android:dev": "tauri android dev",
     "tauri:dev": "pnpm tauri dev",
     "typecheck": "nuxi typecheck",
-    "prepare": "pnpm -r run dev:prepare"
+    "prepare": "nuxi prepare"
   },
   "dependencies": {
     "@tauri-apps/api": "2.0.0-alpha.3",
