@@ -3,5 +3,6 @@
   "upgrade": true,
   "reject": ["eslint"],
   "workspaces": true,
-  "interactive": true
+  "interactive": true,
+  "root": true
 }
