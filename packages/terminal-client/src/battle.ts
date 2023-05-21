@@ -1,7 +1,7 @@
+import type { Nullable } from '@terminal/core'
 import { EventEmitter } from '@terminal/core'
 import { Battle } from '@terminal/models'
 import type { Player } from '@terminal/models/parser'
-import type { Nullable } from './types'
 
 function getPositionSide(pos: number) {
   return pos < Battle.LEFT_MAX_POS ? Battle.LEFT_SIDE : Battle.RIGHT_SIDE

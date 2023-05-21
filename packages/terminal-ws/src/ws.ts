@@ -1,4 +1,4 @@
-import type { Merge } from '@terminal/core'
+import type { Merge, Nullable } from '@terminal/core'
 import { ByteArray, EventEmitter, Protocol } from '@terminal/core'
 import { clone, skip } from '@terminal/kit'
 import { Emitter } from '@livemoe/utils'
@@ -22,6 +22,7 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
   private buffer = new ByteArray()
 
   private pendingProtocols: Array<ArrayBuffer | string> = []
+  private timeout: Nullable<any> = null
 
   private _onSocketOpen = new Emitter<void>()
   private _onSocketData = new Emitter<Protocol>()
@@ -117,8 +118,7 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
     const type = protocol.getType()
 
     const buffer = protocol.reposition().protocol
-    // nexttick
-    setTimeout(() => this.rawSocketSend(buffer.buffer))
+    this.rawSocketSend(buffer.buffer)
 
     if (callback) {
       return this.pickSocketDataEvent(protocol.type)
@@ -133,7 +133,7 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
   addProtocolListener(type: ProtocolType, callback: (protocol: Protocol) => void): void
   addProtocolListener(type: ProtocolType, callback?: (protocol: Protocol) => void) {
     if (callback)
-      this.on(type, callback)
+      return this.on(type, callback)
     return new Promise<Protocol>((resolve) => {
       const result = this.onSocketDataEvent((protocol) => {
         if (protocol.getType() === type) {
@@ -169,7 +169,8 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
     this.pendingProtocols.push(data)
 
     // nicktick, bulk request
-    setTimeout(() => this.flush(), 0)
+    if (!this.timeout)
+      this.timeout = setTimeout(() => this.flush(), 0)
   }
 
   private flush() {
@@ -178,6 +179,7 @@ export class WebSocket extends EventEmitter<WebSocketEvents> {
         this.socket.send(p)
       // clear array
       this.pendingProtocols.length = 0
+      this.timeout = null
     }
   }
 

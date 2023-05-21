@@ -1,6 +1,5 @@
 import type { Long } from '@terminal/core'
 
-export type Nullable<T> = T | undefined
 export interface Account {
   username: string
   password: string

@@ -8,3 +8,5 @@ export type Merge<A, B> = {
         ? A[K]
         : never
 }
+
+export type Nullable<T> = null | undefined | T
