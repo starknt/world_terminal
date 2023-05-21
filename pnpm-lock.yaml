@@ -133,6 +133,12 @@ importers:
         specifier: workspace:*
         version: link:../terminal-kit
 
+  packages/terminal-types:
+    dependencies:
+      '@terminal/kit':
+        specifier: workspace:*
+        version: link:../terminal-kit
+
   packages/terminal-ui-kit:
     dependencies:
       '@iconify-json/carbon':

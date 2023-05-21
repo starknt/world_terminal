@@ -1,11 +1,9 @@
  html {
-  font-size: 14px;
   -webkit-font-smoothing: antialiased;
  }
 
  html {
   background-color: #f9fafb;
-  color-scheme: light;
  }
 
  html.dark {

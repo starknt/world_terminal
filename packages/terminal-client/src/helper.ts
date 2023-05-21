@@ -1,5 +1,5 @@
 import type { Protocol } from '@terminal/core'
-import { ServerAreaInfo, ServerLineInfo } from '@terminal/models/parser'
+import { Role, ServerAreaInfo, ServerLineInfo } from '@terminal/models/parser'
 import type { AuthenticationPayload } from './types'
 
 export function parseAreaServer(p: Protocol): Array<ServerAreaInfo> {
@@ -22,4 +22,8 @@ export function parseAuthenticationPayload(p: Protocol): AuthenticationPayload {
     session,
     setting,
   }
+}
+
+export function parseRoleInfo(p: Protocol): Array<Role> {
+  return Array.from({ length: p.getByte() }, () => Role.from(p))
 }

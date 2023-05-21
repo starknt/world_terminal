@@ -11,6 +11,14 @@ import { presetAttributify, presetIcons, presetTypography, presetWind, transform
 export function presetTerminal(): Preset {
   return {
     name: '@terminal/ui-kit',
+    theme: {
+      colors: {
+        context: '#3c3a3a',
+      },
+      fontFamily: {
+        sans: 'Avenir, Helvetica, Arial, sans-serif',
+      },
+    },
     presets: [
       presetTheme<Theme>({
         theme: {
@@ -22,14 +30,6 @@ export function presetTerminal(): Preset {
         },
       }),
     ],
-    theme: {
-      colors: {
-        context: '#3c3a3a',
-      },
-      fontFamily: {
-        sans: 'Avenir, Helvetica, Arial, sans-serif',
-      },
-    },
     rules: [
       [/^n-(.*)$/, ([, body]: string[], { theme }: RuleContext<Theme>) => {
         const color = parseColor(body, theme)
@@ -89,7 +89,7 @@ export function presetTerminal(): Preset {
     ],
     shortcuts: {
       // general
-      'n-bg-base': 'bg-white dark:bg-[#151515]',
+      'n-bg-base': 'bg-context dark:bg-context',
       'n-bg-active': 'bg-gray:5',
       'n-bg-hover': 'bg-gray:3',
       'n-border-base': 'border-gray/20',
@@ -137,11 +137,11 @@ export function presetTerminal(): Preset {
       // tip
       'n-tip-base': 'bg-context/4 text-context px-1em py-0.4em rounded flex gap-2 items-center dark:bg-context/12',
 
+      // tap
+      'n-tap-base': 'flex',
+
       // icon
       'n-icon': 'flex-none',
-
-      // code
-      'n-code-block': 'dark:bg-[#121212] bg-white',
 
       // icon-button
       'n-icon-button': 'aspect-1/1 w-1.6em h-1.6em flex items-center justify-center rounded op50 hover:op100 hover:n-bg-active',

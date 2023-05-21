@@ -6,5 +6,8 @@
       "import": "./dist/index.mjs"
     }
   },
-  "module": "./dist/index.mjs"
+  "module": "./dist/index.mjs",
+  "dependencies": {
+    "@terminal/kit": "workspace:*"
+  }
 }

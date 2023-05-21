@@ -11,7 +11,7 @@ useHead({
 </script>
 
 <template>
-  <main class="px-12 py-20 text-center">
+  <main>
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
