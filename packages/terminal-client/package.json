@@ -28,12 +28,12 @@
     "vue": ">=3.0.0"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.5.0",
+    "@nuxt/kit": "^3.5.3",
     "@terminal/core": "workspace:*",
     "@terminal/kit": "workspace:*",
     "@terminal/models": "workspace:*"
   },
   "devDependencies": {
-    "nuxt": "^3.5.0"
+    "nuxt": "^3.5.3"
   }
 }

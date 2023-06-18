@@ -1,8 +1,8 @@
-import { BBigInt as BigInt } from '@terminal/core'
+import { BBigInt } from '@terminal/core'
 
-const RANDOM_SEED_MASTER = new BigInt(25214903917)
+const RANDOM_SEED_MASTER = new BBigInt(25214903917)
 const ADDEND = 11
-const RANDOM_SEED_MASK = BigInt.one.shiftLeft(48).subtract(1)
+const RANDOM_SEED_MASK = BBigInt.one.shiftLeft(48).subtract(1)
 
 function unsignedInt2int(t: number) {
   const e = 4294967295 & t
@@ -10,10 +10,10 @@ function unsignedInt2int(t: number) {
 }
 
 export class Random {
-  seed: typeof BigInt
+  seed: typeof BBigInt
 
   constructor(e: number) {
-    this.seed = new BigInt(e).xor(RANDOM_SEED_MASTER).and(RANDOM_SEED_MASK)
+    this.seed = new BBigInt(e).xor(RANDOM_SEED_MASTER).and(RANDOM_SEED_MASK)
   }
 
   next(e: number) {

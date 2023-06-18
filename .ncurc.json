@@ -4,5 +4,6 @@
   "reject": ["eslint"],
   "workspaces": true,
   "interactive": true,
+  "packageManager": "pnpm",
   "root": true
 }

@@ -2,7 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck ok bigint
 
-const bigInt = (function () {
+const _bigInt = (function () {
   function t(t, e) { this.value = t, this.sign = e, this.isSmall = !1 } function e(t) { this.value = t, this.sign = t < 0, this.isSmall = !0 } function r(t) { return t > -T && T > t } function n(t) { return t < 1e7 ? [t] : t < 1e14 ? [t % 1e7, Math.floor(t / 1e7)] : [t % 1e7, Math.floor(t / 1e7) % 1e7, Math.floor(t / 1e14)] } function o(t) {
     i(t); const e = t.length; if (e < 4 && S(t, _) < 0)
       switch (e) { case 0:return 0; case 1:return t[0]; case 2:return t[0] + t[1] * U; default:return t[0] + (t[1] + t[2] * U) * U } return t
@@ -151,21 +151,21 @@ const bigInt = (function () {
   }, e.prototype.toString = function (t) { return void 0 === t && (t = 10), t != 10 ? L(this, t) : String(this.value) }, t.prototype.valueOf = function () { return +this.toString() }, t.prototype.toJSNumber = t.prototype.valueOf, e.prototype.valueOf = function () { return this.value }, e.prototype.toJSNumber = e.prototype.valueOf; for (var V = function (t, e) { return typeof t == 'undefined' ? V[0] : typeof e != 'undefined' ? +e === 10 ? R(t) : Q(t, e) : R(t) }, W = 0; W < 1e3; W++)V[W] = new e(W), W > 0 && (V[-W] = new e(-W)); return V.one = V[1], V.zero = V[0], V.minusOne = V[-1], V.max = x, V.min = N, V.gcd = Z, V.lcm = B, V.isInstance = function (r) { return r instanceof t || r instanceof e }, V.randBetween = j, V.BigInteger = t, V.SmallInteger = e, V
 }())
 
-interface BigInt {
+interface BBigInt {
   get value(): number
 
   new(v: number): this
 
-  one: BigInt
+  one: BBigInt
 
-  xor(v: number | BigInt): this
-  and(v: number | BigInt): this
-  add(v: number | BigInt): this
-  multiply(v: BigInt): this
+  xor(v: number | BBigInt): this
+  and(v: number | BBigInt): this
+  add(v: number | BBigInt): this
+  multiply(v: BBigInt): this
   shiftRight(v: number): this
   shiftLeft(v: number): this
   subtract(v: number): this
   [Symbol.toStringTag]: string
 }
 
-export const BBigInt: BigInt = bigInt
+export const BBigInt: BBigInt = _bigInt
